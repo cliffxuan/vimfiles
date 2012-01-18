@@ -18,7 +18,7 @@ def SetBreakpoint():
         vim.current.buffer.append( 'import pdb', 0)
         vim.command( 'normal j1')
 
-vim.command( 'map <f6> :py SetBreakpoint()<cr>')
+vim.command( 'map  ,d :py SetBreakpoint()<cr>')
 
 def RemoveBreakpoints():
     import re
@@ -42,7 +42,7 @@ def RemoveBreakpoints():
 
     vim.command( 'normal %dG' % nCurrentLine)
 
-vim.command( 'map <S-f6> :py RemoveBreakpoints()<cr>')
+vim.command( 'map ,b :py RemoveBreakpoints()<cr>')
 EOF
 
 nmap <buffer> <F5> :w<Esc>mwG:!python %<CR>
