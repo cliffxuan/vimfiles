@@ -66,8 +66,16 @@ set complete-=i
 au BufNewFile,BufRead *.cpy setf python
 
 if has("gui_running")
-    " guifont use Gohu size 14
-    set guifont=gohufont-14
+    " determin platform
+    let s:platform=system('uname -s | perl -pe "chomp"')
+    " set guifont
+    " Menlo 12 for Mac
+    if s:platform == "Darwin"
+        set guifont=Menlo:h12
+    " Otherwise Gohu size 14
+    else
+        set guifont=gohufont-14
+    endif
     " Remove menu bar
     set go-=m
     "toggle window size
