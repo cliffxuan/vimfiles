@@ -13,8 +13,6 @@ set encoding=utf-8
 " Remove tool bar
 set go-=T
 set go-=M
-" Remove menu bar
-set go-=m
 set number
 set hlsearch
 set incsearch
@@ -68,10 +66,10 @@ set complete-=i
 au BufNewFile,BufRead *.cpy setf python
 
 if has("gui_running")
+    " guifont use Gohu size 14
+    set guifont=gohufont-14
     " Remove menu bar
-    set guioptions-=m
-    " guifont use Gohu size 11
-    set guifont=GohuFont\ 11
+    set go-=m
     "toggle window size
     function ToggleWindowSize(act)
       if a:act < 0 || a:act > 2 | return | endif
