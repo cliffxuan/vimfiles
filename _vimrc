@@ -7,7 +7,7 @@ set shiftwidth=4
 set backup
 set backupdir=.\\_backup,~/tmp/vimbak,\\temp\\vimbak
 set noswapfile
-set ic
+set noic
 set nocompatible
 set encoding=utf-8
 " Remove tool bar
