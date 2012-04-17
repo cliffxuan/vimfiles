@@ -4,8 +4,7 @@ set expandtab
 set tabstop=8
 set softtabstop=4
 set shiftwidth=4
-set backup
-set backupdir=.\\_backup,~/tmp/vimbak,\\temp\\vimbak
+set nobackup
 set noswapfile
 set noic
 set nocompatible
