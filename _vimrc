@@ -12,6 +12,7 @@ set encoding=utf-8
 " Remove tool bar
 set go-=T
 set go-=M
+set fileformat=unix
 set number
 set hlsearch
 set incsearch
