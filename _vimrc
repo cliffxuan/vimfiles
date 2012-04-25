@@ -1,4 +1,4 @@
-"cliff xuan's vimrc
+"cliff xuan's vimrc file
 set modeline
 set ls=2
 set expandtab
