@@ -1,8 +1,6 @@
-"cliff xuan's vimrc file
 set modeline
 set ls=2
 set expandtab
-set tabstop=8
 set softtabstop=4
 set shiftwidth=4
 set nobackup
