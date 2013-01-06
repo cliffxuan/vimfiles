@@ -29,7 +29,7 @@ set wildmenu
 syntax on
 filetype plugin on
 " colorscheme koehler
-colorscheme Tomorrow-Night
+colorscheme Tomorrow-Night-Bright
 
 " Keyboard mappings
 map ,v :sp ~/.vimrc<cr> " edit my .vimrc file in a split
