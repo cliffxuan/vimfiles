@@ -61,6 +61,3 @@ endif
 set runtimepath+=~/.vim/ultisnips_rep
 " disable use of included files in default completion
 set complete-=i
-
-"cpy is treated as python
-au BufNewFile,BufRead *.cpy setf python
