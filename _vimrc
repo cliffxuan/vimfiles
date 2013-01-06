@@ -28,7 +28,8 @@ set autoindent
 set wildmenu
 syntax on
 filetype plugin on
-colorscheme koehler
+" colorscheme koehler
+colorscheme Tomorrow-Night
 
 " Keyboard mappings
 map ,v :sp ~/.vimrc<cr> " edit my .vimrc file in a split
