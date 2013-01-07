@@ -1,3 +1,4 @@
+if has("python")
 python << EOF
 import sys
 import vim
@@ -16,3 +17,4 @@ try:
 except:
     pass
 EOF
+endif

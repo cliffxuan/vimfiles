@@ -1,3 +1,4 @@
+if has("python")
 python << EOF
 import os
 import sys
@@ -12,3 +13,4 @@ def EvaluateCurrentRange():
     eval(compile('\n'.join(vim.current.range),'','exec'),globals())
 EOL
 map <C-h> :py EvaluateCurrentRange()
+endif

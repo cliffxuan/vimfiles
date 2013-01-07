@@ -1,3 +1,4 @@
+if has("python")
 python << EOF
 import vim
 def SetBreakpoint():
@@ -46,3 +47,4 @@ vim.command( 'map ,d :py RemoveBreakpoints()<cr>')
 EOF
 
 nmap <buffer> <F5> :w<Esc>mwG:!python %<CR>
+endif

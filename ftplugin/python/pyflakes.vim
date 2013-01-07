@@ -10,7 +10,7 @@
 "
 " Maintainer: Kevin Watters <kevin.watters@gmail.com>
 " Version: 0.1
-
+if has("python")
 if exists("b:did_pyflakes_plugin")
     finish " only load once
 else
@@ -318,4 +318,4 @@ if !exists('*s:ClearPyflakes')
         let b:cleared = 1
     endfunction
 endif
-
+endif
