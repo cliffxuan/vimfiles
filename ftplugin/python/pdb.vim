@@ -1,6 +1,9 @@
 if has("python")
 python << EOF
 import vim
+import_str = 'exec "try: import ipdb as pdb\\nexcept:import pdb"'
+call_str = 'pdb.set_trace()'
+
 def SetBreakpoint():
     import re
     nLine = int( vim.eval( 'line(".")'))
@@ -9,14 +12,14 @@ def SetBreakpoint():
     strWhite = re.search( '^(\s*)', strLine).group(1)
 
     vim.current.buffer.append(
-       "%(space)spdb.set_trace() %(mark)s Breakpoint %(mark)s" %
-         {'space':strWhite, 'mark': '#' * 30}, nLine - 1)
+       """%(space)s%(call_str)s  %(mark)s Breakpoint %(mark)s""" %
+         {'space':strWhite, 'mark': '#' * 30, 'call_str': call_str}, nLine - 1)
 
     for strLine in vim.current.buffer:
-        if strLine == "import pdb":
+        if strLine == import_str:
             break
     else:
-        vim.current.buffer.append( 'import pdb', 0)
+        vim.current.buffer.append( import_str, 0)
         vim.command( 'normal j1')
 
 vim.command( 'map  ,b :py SetBreakpoint()<cr>')
@@ -29,7 +32,7 @@ def RemoveBreakpoints():
     nLines = []
     nLine = 1
     for strLine in vim.current.buffer:
-        if strLine == 'import pdb' or strLine.lstrip()[:15] == 'pdb.set_trace()':
+        if strLine == import_str or strLine.lstrip()[:15] == call_str:
             nLines.append( nLine)
         nLine += 1
 
