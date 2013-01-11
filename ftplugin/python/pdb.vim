@@ -1,7 +1,7 @@
 if has("python")
 python << EOF
 import vim
-import_str = 'exec "try: import ipdb as pdb\\nexcept:import pdb"'
+import_str = 'exec "try: import ipdb as pdb\\nexcept:import pdb" #####import ipdb or pdb'
 call_str = 'pdb.set_trace()'
 
 def SetBreakpoint():
