@@ -61,3 +61,4 @@ endif
 set runtimepath+=~/.vim/ultisnips_rep
 " disable use of included files in default completion
 set complete-=i
+execute pathogen#infect()
