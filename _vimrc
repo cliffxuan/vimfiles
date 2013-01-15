@@ -27,7 +27,7 @@ set statusline=%f%m%r%h%w\ [%{&ff}]\ [%l/%L\ \ %c\ (%p%%)]
 set autoindent
 set wildmenu
 syntax on
-filetype plugin on
+filetype plugin indent on
 " colorscheme koehler
 colorscheme Tomorrow-Night-Bright
 
@@ -35,7 +35,11 @@ colorscheme Tomorrow-Night-Bright
 map ,v :sp ~/.vimrc<cr> " edit my .vimrc file in a split
 map ,e :e ~/.vimrc<cr>      " edit my .vimrc file
 map ,u :source ~/.vimrc<cr> " update the system settings from my vimrc file
-map ,p :Lodgeit<cr>      " copy to newman pastebin
+
+" FuzzyFinder
+nmap ,f :FufFileWithCurrentBufferDir<CR>
+nmap ,b :FufBuffer<CR>
+nmap ,t :FufTaggedFile<CR>
 
 " work with tabs
 map tt :tabnew<CR>
