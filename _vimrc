@@ -26,8 +26,7 @@ set numberwidth=4
 set statusline=%f%m%r%h%w\ [%{&ff}]\ [%l/%L\ \ %c\ (%p%%)]  
 set autoindent
 set wildmenu
-syntax on
-filetype plugin indent on
+
 " colorscheme koehler
 colorscheme Tomorrow-Night-Bright
 
@@ -65,4 +64,11 @@ endif
 set runtimepath+=~/.vim/ultisnips_rep
 " disable use of included files in default completion
 set complete-=i
-execute pathogen#infect()
+" Pathogen load
+filetype off
+
+call pathogen#infect()
+call pathogen#helptags()
+
+filetype plugin indent on
+syntax on
