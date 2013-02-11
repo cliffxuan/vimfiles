@@ -19,13 +19,20 @@ set cursorline
 set showcmd
 set ruler
 set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
+
 " Do not show 'Thanks for flying vim' on exit
 set titleold=""
 set backspace=2
 set numberwidth=4
 set statusline=%f%m%r%h%w\ [%{&ff}]\ [%l/%L\ \ %c\ (%p%%)]  
+
 set autoindent
 set wildmenu
+
+" show whitespace
+set list
+" show tabs
+set listchars=tab:\|_,trail:.
 
 " colorscheme koehler
 colorscheme Tomorrow-Night-Bright
