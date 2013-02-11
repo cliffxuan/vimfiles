@@ -67,8 +67,6 @@ else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
 
-" add ultisnips to runtime dir
-set runtimepath+=~/.vim/ultisnips_rep
 " disable use of included files in default completion
 set complete-=i
 " Pathogen load
