@@ -1,15 +1,18 @@
 [submodule "bundle/vim-fugitive"]
-	path = bundle/vim-fugitive
-	url = git://github.com/tpope/vim-fugitive.git
+    path = bundle/vim-fugitive
+    url = git://github.com/tpope/vim-fugitive.git
 [submodule "bundle/FuzzyFinder"]
-	path = bundle/FuzzyFinder
-	url = git://github.com/vim-scripts/FuzzyFinder.git
+    path = bundle/FuzzyFinder
+    url = git://github.com/vim-scripts/FuzzyFinder.git
 [submodule "bundle/L9"]
-	path = bundle/L9
-	url = git://github.com/vim-scripts/L9.git
+    path = bundle/L9
+    url = git://github.com/vim-scripts/L9.git
 [submodule "bundle/gundo"]
-	path = bundle/gundo
-	url = git://github.com/sjl/gundo.vim.git
+    path = bundle/gundo
+    url = git://github.com/sjl/gundo.vim.git
 [submodule "bundle/python-mode"]
-	path = bundle/python-mode
-	url = git://github.com/klen/python-mode.git
+    path = bundle/python-mode
+    url = git://github.com/klen/python-mode.git
+[submodule "bundle/ultisnips"]
+    path = bundle/ultisnips
+    url = git://github.com/SirVer/ultisnips.git
