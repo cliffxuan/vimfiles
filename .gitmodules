@@ -14,5 +14,5 @@
     path = bundle/python-mode
     url = git://github.com/klen/python-mode.git
 [submodule "bundle/ultisnips"]
-    path = bundle/ultisnips
-    url = git://github.com/SirVer/ultisnips.git
+	path = bundle/ultisnips
+	url = git://github.com/SirVer/ultisnips.git
