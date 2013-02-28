@@ -34,41 +34,46 @@ set list
 " show tabs
 set listchars=tab:\|_,trail:.
 
+"warn me if my line is over 80 columns
+set colorcolumn=80
+
+" disable use of included files in default completion
+set complete-=i
+
 " colorscheme koehler
 colorscheme Tomorrow-Night-Bright
 
+" set <leader> to ,
+let mapleader = ","
+let maplocalleader = " "
+
 " Keyboard mappings
-map ,v :sp ~/.vimrc<cr> " edit my .vimrc file in a split
-map ,e :e ~/.vimrc<cr>      " edit my .vimrc file
-map ,u :source ~/.vimrc<cr> " update the system settings from my vimrc file
+noremap <leader>ev :vsp ~/.vimrc<cr> " edit my .vimrc file in a split
+noremap <leader>sv :source ~/.vimrc<cr> " update the system settings from my vimrc file
+
+"map jk to exit insert mode
+noremap jk <esc>
+
+"map ; to :
+noremap ; :
 
 " FuzzyFinder
-nmap ,f :FufFileWithCurrentBufferDir<CR>
-nmap ,b :FufBuffer<CR>
-nmap ,t :FufTaggedFile<CR>
+nnoremap <leader>f :FufFileWithCurrentBufferDir<CR>
+nnoremap <leader>b :FufBuffer<CR>
+nnoremap <leader>t :FufTaggedFile<CR>
 
 " work with tabs
-map tt :tabnew<CR>
-map tl :tablast<CR>
-map th :tabfirst<CR>
-map tk :tabprevious<CR>
-map tj :tabnext<CR>
+noremap tt :tabnew<CR>
+noremap tl :tablast<CR>
+noremap th :tabfirst<CR>
+noremap tk :tabprevious<CR>
+noremap tj :tabnext<CR>
 
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
-"warn me if my line is over 80 columns
-"to clear, use this command
-":call clearmatches()
-if exists('+colorcolumn')
-  set colorcolumn=80
-else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
-endif
 
-" disable use of included files in default completion
-set complete-=i
 " Pathogen load
 filetype off
 
