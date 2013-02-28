@@ -1,4 +1,6 @@
-if has("python")
+if !has("python")
+    finish
+endif
 python << EOF
 import vim
 import_str = 'exec "try: import ipdb as pdb\\nexcept:import pdb" #####import ipdb or pdb'
@@ -47,6 +49,3 @@ def RemoveBreakpoints():
 vim.command( 'map  <LocalLeader>b :py SetBreakpoint()<cr>:update<cr>')
 vim.command( 'map <LocalLeader>d :py RemoveBreakpoints()<cr>:update<cr>')
 EOF
-
-nmap <buffer> <F5> :w<Esc>mwG:!python %<CR>
-endif
