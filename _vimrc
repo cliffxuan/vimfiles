@@ -47,12 +47,18 @@ colorscheme Tomorrow-Night-Bright
 let mapleader = ","
 let maplocalleader = " "
 
-" Keyboard mappings
-noremap <leader>ev :vsp ~/.vimrc<cr> " edit my .vimrc file in a split
-noremap <leader>sv :source ~/.vimrc<cr> " update the system settings from my vimrc file
+" maps
+
+"save file
+noremap <C-s> :update<CR>
+inoremap <C-s> <Esc>:update<CR>
+
+" edit and source $MYVIMRC
+noremap <leader>ev :vsp $MYVIMRC<CR>
+noremap <leader>sv :source $MYVIMRC<CR>
 
 "map jk to exit insert mode
-inoremap jk <esc>
+inoremap jk <Esc>
 
 "map ; to :
 noremap ; :
@@ -68,6 +74,7 @@ noremap tl :tablast<CR>
 noremap th :tabfirst<CR>
 noremap tk :tabprevious<CR>
 noremap tj :tabnext<CR>
+noremap td :tabclose<CR>
 
 " netrw settings
 " keep the curreent directory the same as the browsing directory
