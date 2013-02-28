@@ -52,7 +52,7 @@ noremap <leader>ev :vsp ~/.vimrc<cr> " edit my .vimrc file in a split
 noremap <leader>sv :source ~/.vimrc<cr> " update the system settings from my vimrc file
 
 "map jk to exit insert mode
-noremap jk <esc>
+inoremap jk <esc>
 
 "map ; to :
 noremap ; :
