@@ -10,8 +10,7 @@ set softtabstop=4
 set shiftwidth=4
 set noignorecase "case censitive
 " Remove tool bar
-set go-=T
-set go-=M
+set guioptions-=TM
 set incsearch
 set cursorline
 set showcmd
