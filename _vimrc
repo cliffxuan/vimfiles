@@ -87,5 +87,10 @@ call pathogen#helptags()
 filetype plugin indent on
 syntax on
 
-" colorscheme koehler
-colorscheme Tomorrow-Night-Bright
+"if Tomorrow-Night-Bright exists, use it
+"otherwise koehler
+try
+    colorscheme Tomorrow-Night-Bright
+catch /^Vim\%((\a\+)\)\=:E185/
+     colorscheme koehler
+endtry
