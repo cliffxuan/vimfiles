@@ -25,7 +25,7 @@ set laststatus=2 "The value of this option influences when the last window will 
 
 
 " statusline
-set statusline=%.20F "file path max 20
+set statusline=%.40F "file path max 40
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
