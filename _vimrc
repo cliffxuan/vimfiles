@@ -21,6 +21,9 @@ set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ 
 set titleold=""
 set backspace=2 "make backspace work like most other apps
 
+set laststatus=2 "The value of this option influences when the last window will have a status line: 2: always
+
+
 " statusline
 set statusline=%.20F "file path max 20
 set statusline+=\ "seperator
