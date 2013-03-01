@@ -17,14 +17,22 @@ set hlsearch
 set incsearch
 set cursorline
 set showcmd
-set ruler
 set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
 
 " Do not show 'Thanks for flying vim' on exit
 set titleold=""
 set backspace=2
 set numberwidth=4
-set statusline=%f%m%r%h%w\ [%{&ff}]\ [%l/%L\ \ %c\ (%p%%)]  
+
+" statusline
+set statusline=%.20F "file path max 20
+set statusline+=\ "seperator
+set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
+set statusline+=%= "align right
+set statusline+=[%{&fileencoding}]
+set statusline+=\ "seperator
+set statusline+=[%{&fileformat}]
+set statusline+=\ "seperator
 
 set autoindent
 set wildmenu
