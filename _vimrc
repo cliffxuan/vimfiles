@@ -11,7 +11,7 @@ set shiftwidth=4
 set noignorecase "case censitive
 " Remove tool bar
 set guioptions-=TM
-set incsearch
+set hlsearch incsearch
 set cursorline
 set showcmd
 set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
