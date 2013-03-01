@@ -49,10 +49,6 @@ let maplocalleader = " "
 
 " maps
 
-"save file
-noremap <C-s> :update<CR>
-inoremap <C-s> <Esc>:update<CR>
-
 " edit and source $MYVIMRC
 noremap <leader>ev :vsp $MYVIMRC<CR>
 noremap <leader>sv :source $MYVIMRC<CR>
