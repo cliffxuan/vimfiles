@@ -1,6 +1,5 @@
 set nocompatible
-set nobackup
-set noswapfile
+set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
 set number
@@ -38,7 +37,7 @@ set wildmenu
 
 " show whitespace
 set list
-" show tabs
+" show tabs and trailing whitespaces
 set listchars=tab:\|_,trail:.
 
 "warn me if my line is over 80 columns
