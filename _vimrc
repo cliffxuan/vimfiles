@@ -2,19 +2,20 @@ set nocompatible
 set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
-set number
-set numberwidth=4
+set number numberwidth=4
 set expandtab
 set softtabstop=4
 set shiftwidth=4
 set noignorecase "case censitive
-" Remove tool bar
-set guioptions-=TM
+set guioptions-=TM " Remove tool bar
 set hlsearch incsearch
 set cursorline
-set showcmd
-set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
+set showcmd "Show (partial) command in the last line of the screen.
 
+"title
+set title titlestring=[vim] "vim
+set titlestring+=\ "seperator
+set titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
 " Do not show 'Thanks for flying vim' on exit
 set titleold=""
 set backspace=2 "make backspace work like most other apps
@@ -24,6 +25,7 @@ set laststatus=2 "The value of this option influences when the last window will 
 
 " statusline
 set statusline=%.40F "file path max 40
+set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
@@ -31,6 +33,9 @@ set statusline+=[%{&fileencoding}]
 set statusline+=\ "seperator
 set statusline+=[%{&fileformat}]
 set statusline+=\ "seperator
+set statusline+=%h "help buffer flag, text is "[help]"
+set statusline+=\ "seperator
+set statusline+=%r "Readonly flag, text is "[RO]".
 
 set autoindent
 set wildmenu
