@@ -1,19 +1,17 @@
-set modeline
-set ls=2
+set nocompatible
+set nobackup
+set noswapfile
+set encoding=utf-8
+set fileformat=unix
+set number
+set numberwidth=4
 set expandtab
 set softtabstop=4
 set shiftwidth=4
-set nobackup
-set noswapfile
-set noic
-set nocompatible
-set encoding=utf-8
+set noignorecase "case censitive
 " Remove tool bar
 set go-=T
 set go-=M
-set fileformat=unix
-set number
-set hlsearch
 set incsearch
 set cursorline
 set showcmd
@@ -21,8 +19,7 @@ set title titlestring=[vim]\ %t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ 
 
 " Do not show 'Thanks for flying vim' on exit
 set titleold=""
-set backspace=2
-set numberwidth=4
+set backspace=2 "make backspace work like most other apps
 
 " statusline
 set statusline=%.20F "file path max 20
@@ -44,12 +41,6 @@ set listchars=tab:\|_,trail:.
 
 "warn me if my line is over 80 columns
 set colorcolumn=80
-
-" disable use of included files in default completion
-set complete-=i
-
-" colorscheme koehler
-colorscheme Tomorrow-Night-Bright
 
 " set <leader> to ,
 let mapleader = ","
@@ -84,7 +75,6 @@ noremap td :tabclose<CR>
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
-
 " Pathogen load
 filetype off
 
@@ -93,3 +83,6 @@ call pathogen#helptags()
 
 filetype plugin indent on
 syntax on
+
+" colorscheme koehler
+colorscheme Tomorrow-Night-Bright
