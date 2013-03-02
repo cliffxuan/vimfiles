@@ -7,23 +7,24 @@ set expandtab
 set softtabstop=4
 set shiftwidth=4
 set noignorecase "case censitive
+set backspace=2 "make backspace work like most other apps
 set guioptions-=TM " Remove tool bar
 set hlsearch incsearch
 set cursorline
 set showcmd "Show (partial) command in the last line of the screen.
 
-"title
+"set title
 set title titlestring=[vim] "vim
 set titlestring+=\ "seperator
-set titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:.:h\")})%)%(\ %a%)\ -\ %{v:servername}
+set titlestring+=%F "Full path to the file in the buffer.
+set titlestring+=\ "seperator
+set titlestring+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 " Do not show 'Thanks for flying vim' on exit
 set titleold=""
-set backspace=2 "make backspace work like most other apps
-
-set laststatus=2 "The value of this option influences when the last window will have a status line: 2: always
 
 
 " statusline
+set laststatus=2 "The value of this option influences when the last window will have a status line: 2: always
 set statusline=%.40F "file path max 40
 set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
