@@ -30,11 +30,11 @@ set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
+set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
+set statusline+=\ "seperator
 set statusline+=[%{&fileencoding}]
 set statusline+=\ "seperator
 set statusline+=[%{&fileformat}]
-set statusline+=\ "seperator
-set statusline+=%h "help buffer flag, text is "[help]"
 set statusline+=\ "seperator
 set statusline+=%r "Readonly flag, text is "[RO]".
 
