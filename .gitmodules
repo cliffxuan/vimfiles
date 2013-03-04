@@ -18,3 +18,7 @@
     path = bundle/ultisnips
     url = git://github.com/SirVer/ultisnips.git
     ignore = untracked
+[submodule "bundle/syntastic"]
+    path = bundle/syntastic
+    url = https://github.com/scrooloose/syntastic.git
+    ignore = untracked
