@@ -12,7 +12,13 @@ function! s:GrepOperator(type)
         return
     endif
 
-    silent execute "grep! -R " . shellescape(@@) . " ."
+    let excludes = ''
+    for d in ['.git', '.svn', '.hg']
+        let excludes = excludes . '--exclude-dir=' 
+                    \. shellescape(d)  . ' '
+    endfor
+
+    silent execute "grep! -R " . excludes . shellescape(@@) . " ."
     copen
 
     let @@ = saved_unnamed_register
