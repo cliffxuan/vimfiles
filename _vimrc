@@ -102,3 +102,41 @@ try
 catch /^Vim\%((\a\+)\)\=:E185/
      colorscheme koehler
 endtry
+
+"Toggle quickfix
+nnoremap <leader>q :call QuickfixToggle()<cr>
+let g:quickfix_is_open = 0
+function! QuickfixToggle()
+    if g:quickfix_is_open
+        cclose
+        let g:quickfix_is_open = 0
+        execute g:quickfix_return_to_window . "wincmd w"
+    else
+        let g:quickfix_return_to_window = winnr()
+        copen
+        let g:quickfix_is_open = 1
+    endif
+endfunction
+
+"Grep
+nnoremap <leader>g :set operatorfunc=<SID>GrepOperator<cr>g@
+vnoremap <leader>g :<c-u>call <SID>GrepOperator(visualmode())<cr>
+
+function! s:GrepOperator(type)
+    let saved_unnamed_register = @@
+    if a:type ==# 'v'
+        normal! `<v`>y
+    elseif a:type ==# 'char'
+        normal! `[v`]y
+    else
+        return
+    endif
+    let excludes = ''
+    for d in ['.git', '.svn', '.hg', '.bzr']
+        let excludes = excludes . '--exclude-dir=' 
+                    \. shellescape(d)  . ' '
+    endfor
+    silent execute "grep! -R " . excludes . shellescape(@@) . " ."
+    copen
+    let @@ = saved_unnamed_register
+endfunction
