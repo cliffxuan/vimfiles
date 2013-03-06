@@ -22,3 +22,6 @@
     path = bundle/syntastic
     url = https://github.com/scrooloose/syntastic.git
     ignore = untracked
+[submodule "bundle/futitive"]
+	path = bundle/futitive
+	url = https://github.com/tpope/vim-fugitive.git
