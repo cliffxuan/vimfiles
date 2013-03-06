@@ -4,6 +4,7 @@ set encoding=utf-8
 set fileformat=unix
 set number numberwidth=4
 set expandtab
+set tabstop=8
 set softtabstop=4
 set shiftwidth=4
 set noignorecase "case censitive
