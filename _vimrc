@@ -78,14 +78,17 @@ endtry
 noremap <leader>ev :vsp $MYVIMRC<CR>
 noremap <leader>sv :source $MYVIMRC<CR>
 
-noremap ; : "map ; to :
+" map ; to :
+noremap ; :
 
-inoremap jk <Esc> "map jk to exit insert mode
+"map jk to exit insert mode
+inoremap jk <Esc>
 
-" FuzzyFinder
-nnoremap <leader>f :FufFileWithCurrentBufferDir<CR>
-nnoremap <leader>b :FufBuffer<CR>
-nnoremap <leader>t :FufTaggedFile<CR>
+" Kill window
+noremap K :q<CR>
+
+" Man
+noremap M K
 
 " work with tabs
 noremap tt :tabnew<CR>
@@ -95,11 +98,37 @@ noremap tk :tabprevious<CR>
 noremap tj :tabnext<CR>
 noremap td :tabclose<CR>
 
+" Emacs bindings in command line mode
+cnoremap <c-a> <home>
+cnoremap <c-e> <end>
+
+" Sudo to write
+cnoremap w!! w !sudo tee % >/dev/null
+
+" Typos
+command! -bang E e<bang>
+command! -bang Q q<bang>
+command! -bang W w<bang>
+command! -bang QA qa<bang>
+command! -bang Qa qa<bang>
+command! -bang Wa wa<bang>
+command! -bang WA wa<bang>
+command! -bang Wq wq<bang>
+command! -bang WQ wq<bang>
+
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
-"Toggle quickfix
+" FuzzyFinder
+nnoremap <leader>f :FufFileWithCurrentBufferDir<CR>
+nnoremap <leader>b :FufBuffer<CR>
+nnoremap <leader>t :FufTaggedFile<CR>
+
+" Clean trailing whitespace
+nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+
+" Toggle quickfix
 nnoremap <leader>q :call QuickfixToggle()<cr>
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
@@ -129,7 +158,7 @@ function! s:GrepOperator(type)
     endif
     let excludes = ''
     for d in ['.git', '.svn', '.hg', '.bzr']
-        let excludes = excludes . '--exclude-dir=' 
+        let excludes = excludes . '--exclude-dir='
                     \. shellescape(d)  . ' '
     endfor
     silent execute "grep! -R " . excludes . shellescape(@@) . " ."
