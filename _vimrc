@@ -1,3 +1,9 @@
+" Pathogen load
+filetype off
+call pathogen#infect()
+call pathogen#helptags()
+filetype plugin indent on
+
 set nocompatible
 set nobackup noswapfile
 set encoding=utf-8
@@ -57,17 +63,24 @@ endif
 let mapleader = ","
 let maplocalleader = " "
 
+syntax on
+"if Tomorrow-Night-Bright exists, use it
+"otherwise koehler
+try
+    colorscheme Tomorrow-Night-Bright
+catch /^Vim\%((\a\+)\)\=:E185/
+     colorscheme koehler
+endtry
+
 " maps
 
 " edit and source $MYVIMRC
 noremap <leader>ev :vsp $MYVIMRC<CR>
 noremap <leader>sv :source $MYVIMRC<CR>
 
-"map jk to exit insert mode
-inoremap jk <Esc>
+noremap ; : "map ; to :
 
-"map ; to :
-noremap ; :
+inoremap jk <Esc> "map jk to exit insert mode
 
 " FuzzyFinder
 nnoremap <leader>f :FufFileWithCurrentBufferDir<CR>
@@ -85,23 +98,6 @@ noremap td :tabclose<CR>
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
-
-" Pathogen load
-filetype off
-
-call pathogen#infect()
-call pathogen#helptags()
-
-filetype plugin indent on
-syntax on
-
-"if Tomorrow-Night-Bright exists, use it
-"otherwise koehler
-try
-    colorscheme Tomorrow-Night-Bright
-catch /^Vim\%((\a\+)\)\=:E185/
-     colorscheme koehler
-endtry
 
 "Toggle quickfix
 nnoremap <leader>q :call QuickfixToggle()<cr>
