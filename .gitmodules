@@ -1,27 +1,27 @@
 [submodule "bundle/vim-fugitive"]
-    path = bundle/vim-fugitive
-    url = git://github.com/tpope/vim-fugitive.git
-    ignore = untracked
+	path = bundle/vim-fugitive
+	url = git://github.com/tpope/vim-fugitive.git
+	ignore = untracked
 [submodule "bundle/FuzzyFinder"]
-    path = bundle/FuzzyFinder
-    url = git://github.com/vim-scripts/FuzzyFinder.git
-    ignore = untracked
+	path = bundle/FuzzyFinder
+	url = git://github.com/vim-scripts/FuzzyFinder.git
+	ignore = untracked
 [submodule "bundle/L9"]
-    path = bundle/L9
-    url = git://github.com/vim-scripts/L9.git
-    ignore = untracked
+	path = bundle/L9
+	url = git://github.com/vim-scripts/L9.git
+	ignore = untracked
 [submodule "bundle/gundo"]
-    path = bundle/gundo
-    url = git://github.com/sjl/gundo.vim.git
-    ignore = untracked
+	path = bundle/gundo
+	url = git://github.com/sjl/gundo.vim.git
+	ignore = untracked
 [submodule "bundle/ultisnips"]
-    path = bundle/ultisnips
-    url = git://github.com/SirVer/ultisnips.git
-    ignore = untracked
+	path = bundle/ultisnips
+	url = git://github.com/SirVer/ultisnips.git
+	ignore = untracked
 [submodule "bundle/syntastic"]
-    path = bundle/syntastic
-    url = https://github.com/scrooloose/syntastic.git
-    ignore = untracked
-[submodule "bundle/futitive"]
+	path = bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+	ignore = untracked
+[submodule "bundle/fugitive"]
 	path = bundle/futitive
 	url = https://github.com/tpope/vim-fugitive.git
