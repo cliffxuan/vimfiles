@@ -29,6 +29,7 @@ set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
+set statusline+=%{fugitive#statusline()} "align right
 set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
 set statusline+=\ "seperator
 set statusline+=[%{&fileencoding}]
@@ -40,10 +41,9 @@ set statusline+=%r "Readonly flag, text is "[RO]".
 set autoindent
 set wildmenu
 
-" show whitespace
-set list
+set list " show whitespace
 " show tabs and trailing whitespaces
-set listchars=tab:\|_,trail:.
+set listchars=tab:\|_,trail:.,eol:¬,extends:❯,precedes:❮
 
 "warn me if my line is over 80 columns
 if exists('+colorcolumn')
