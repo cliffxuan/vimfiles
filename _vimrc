@@ -19,8 +19,7 @@ set titlestring+=\ "seperator
 set titlestring+=%F "Full path to the file in the buffer.
 set titlestring+=\ "seperator
 set titlestring+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
-" Do not show 'Thanks for flying vim' on exit
-set titleold=""
+set titleold="" " Do not show 'Thanks for flying vim' on exit
 
 
 " statusline
