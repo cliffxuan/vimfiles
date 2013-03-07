@@ -75,7 +75,7 @@ endtry
 " maps
 
 " edit and source $MYVIMRC
-noremap <leader>ev :vsp $MYVIMRC<CR>
+noremap <leader>ev :execute 'vsp ' . resolve(expand($MYVIMRC))<CR>
 noremap <leader>sv :source $MYVIMRC<CR>
 
 " map ; to :
