@@ -8,7 +8,12 @@ set nocompatible
 set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
-set relativenumber numberwidth=4
+if exists('&relativenumber')
+    set relativenumber
+else
+    set number
+endif
+set numberwidth=4
 set expandtab
 set tabstop=8
 set softtabstop=4
