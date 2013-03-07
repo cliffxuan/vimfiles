@@ -8,7 +8,7 @@ set nocompatible
 set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
-set number numberwidth=4
+set relativenumber numberwidth=4
 set expandtab
 set tabstop=8
 set softtabstop=4
@@ -130,6 +130,19 @@ nnoremap <leader>t :FufTaggedFile<CR>
 
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+
+" Toggle relativenumber
+nnoremap <leader>n :call NumberToggle()<CR>
+function! NumberToggle()
+    if !exists('&relativenumber')
+        finish
+    endif
+    if(&relativenumber == 1)
+        setlocal number
+    else
+        setlocal relativenumber
+    endif
+endfunction
 
 " Toggle quickfix
 nnoremap <leader>q :call QuickfixToggle()<cr>
