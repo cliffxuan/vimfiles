@@ -90,6 +90,9 @@ noremap K :q<CR>
 " Man
 noremap M K
 
+" Explorer
+noremap Q :Explore<CR>gg
+
 " work with tabs
 noremap tt :tabnew<CR>
 noremap tl :tablast<CR>
