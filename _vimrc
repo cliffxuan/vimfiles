@@ -96,7 +96,20 @@ noremap K :q<CR>
 noremap M K
 
 " Explorer
-noremap Q :Explore<CR>gg
+noremap Q :call ToggleExplorer()<CR>
+if !isdirectory(expand('%'))
+    let w:org_buffer_name=expand('%:p')
+endif
+function! ToggleExplorer()
+    if !isdirectory(expand('%'))
+        let w:org_buffer_name=expand('%:p')
+        Explore
+        normal gg
+    elseif exists('w:org_buffer_name')
+        execute 'e  ' . w:org_buffer_name
+    endif
+endfunction
+
 
 " work with tabs
 noremap tt :tabnew<CR>
