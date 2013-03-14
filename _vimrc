@@ -145,11 +145,34 @@ command! -bang WQ wq<bang>
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
-" FuzzyFinder
-nnoremap <leader>f :FufFileWithCurrentBufferDir<CR>
-nnoremap <leader>b :FufBuffer<CR>
-nnoremap <leader>t :FufTaggedFile<CR>
+" CtrlP
+nnoremap <leader>f :CtrlP<CR>
+nnoremap <leader>b :CtrlPMixed<CR>
 
+" Fugitive {{{
+nnoremap <leader>gd :Gdiff<cr>
+nnoremap <leader>gs :Gstatus<cr>
+nnoremap <leader>gw :Gwrite<cr>
+nnoremap <leader>ga :Gadd<cr>
+nnoremap <leader>gb :Gblame<cr>
+nnoremap <leader>gco :Gcheckout<cr>
+nnoremap <leader>gci :Gcommit<cr>
+nnoremap <leader>gm :Gmove<cr>
+nnoremap <leader>gr :Gremove<cr>
+nnoremap <leader>gl :Shell git gl -18<cr>:wincmd \|<cr>
+
+augroup ft_fugitive
+    au!
+
+    au BufNewFile,BufRead .git/index setlocal nolist
+augroup END
+
+" "Hub"
+nnoremap <leader>H :Gbrowse<cr>
+vnoremap <leader>H :Gbrowse<cr>
+
+" }}}
+"
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
