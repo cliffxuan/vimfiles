@@ -147,7 +147,7 @@ let g:netrw_keepdir= 0
 
 " CtrlP
 nnoremap <leader>f :CtrlP<CR>
-nnoremap <leader>b :CtrlPMixed<CR>
+nnoremap <leader>b :CtrlPBuffer<CR>
 
 " Fugitive {{{
 nnoremap <leader>gd :Gdiff<cr>
