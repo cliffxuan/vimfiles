@@ -9,6 +9,7 @@ Bundle 'sjl/gundo.vim.git'
 Bundle 'SirVer/ultisnips.git'
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
+Bundle 'mileszs/ack.vim.git'
 filetype plugin indent on
 
 set nocompatible
