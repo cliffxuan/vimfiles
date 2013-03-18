@@ -187,7 +187,7 @@ nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 nnoremap <leader>n :call NumberToggle()<CR>
 function! NumberToggle()
     if !exists('&relativenumber')
-        finish
+        return
     endif
     if(&relativenumber == 1)
         setlocal number
