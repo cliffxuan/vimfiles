@@ -2,3 +2,4 @@ syntax: glob
 *.pyc
 .netrwhist
 doc/tags
+bundle/*

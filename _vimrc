@@ -1,7 +1,14 @@
-" Pathogen load
+" Vbundle load
 filetype off
-call pathogen#infect()
-call pathogen#helptags()
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+" Installing bundles to ~/.vim/bundle
+Bundle 'gmarik/vundle'
+Bundle 'tpope/vim-fugitive.git'
+Bundle 'sjl/gundo.vim.git'
+Bundle 'SirVer/ultisnips.git'
+Bundle 'scrooloose/syntastic.git'
+Bundle 'kien/ctrlp.vim.git'
 filetype plugin indent on
 
 set nocompatible
