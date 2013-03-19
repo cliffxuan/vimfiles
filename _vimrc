@@ -137,9 +137,6 @@ noremap td :tabclose<CR>
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" Sudo to write
-cnoremap w!! w !sudo tee % >/dev/null
-
 " Typos
 command! -bang E e<bang>
 command! -bang Q q<bang>
