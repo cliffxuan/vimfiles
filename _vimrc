@@ -52,6 +52,7 @@ set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
 set statusline+=%{fugitive#statusline()} "align right
+set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
 set statusline+=\ "seperator
 set statusline+=[%{&fileencoding}]
