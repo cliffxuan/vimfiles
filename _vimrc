@@ -10,7 +10,9 @@ Bundle 'SirVer/ultisnips.git'
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
+Bundle 'ervandew/supertab'
 filetype plugin indent on
+
 
 set nocompatible
 set nobackup noswapfile
