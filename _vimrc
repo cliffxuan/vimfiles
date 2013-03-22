@@ -12,6 +12,8 @@ Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
 Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv.git'
+Bundle 'davidhalter/jedi-vim.git'
+Bundle 'ivanov/vim-ipython.git'
 filetype plugin indent on
 
 
@@ -52,7 +54,6 @@ set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%= "align right
-set statusline+=%{fugitive#statusline()} "align right
 set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
 set statusline+=\ "seperator
