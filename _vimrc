@@ -11,6 +11,7 @@ Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
 Bundle 'ervandew/supertab'
+Bundle 'jmcantrell/vim-virtualenv.git'
 filetype plugin indent on
 
 
