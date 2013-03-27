@@ -14,6 +14,8 @@ Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv.git'
 Bundle 'davidhalter/jedi-vim.git'
 Bundle 'ivanov/vim-ipython.git'
+Bundle 'mattn/gist-vim.git'
+Bundle 'mattn/webapi-vim'
 filetype plugin indent on
 
 
