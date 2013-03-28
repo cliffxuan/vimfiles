@@ -246,5 +246,5 @@ let g:SuperTabDefaultCompletionType = "context"
 let g:jedi#pydoc = "<localleader>k"
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_function_definition = 0
-let g:jedi#autocompletion_command = "<localleader>c"
+let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
