@@ -70,7 +70,7 @@ set wildmenu
 
 set list " show whitespace
 " show tabs and trailing whitespaces
-set listchars=tab:\|_,trail:.,eol:¬,extends:❯,precedes:❮
+set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
 "warn me if my line is over 80 columns
 if exists('+colorcolumn')
