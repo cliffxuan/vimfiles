@@ -100,9 +100,7 @@ noremap <leader>sv :source $MYVIMRC<CR>
 
 " map ; to :
 noremap ; :
-
-"map jk to exit insert mode
-inoremap jk <Esc>
+noremap : ;
 
 " Kill window
 noremap K :q<CR>
