@@ -126,12 +126,9 @@ endfunction
 
 
 " work with tabs
-noremap tt :tabnew<CR>
-noremap tl :tablast<CR>
-noremap th :tabfirst<CR>
-noremap tk :tabprevious<CR>
-noremap tj :tabnext<CR>
-noremap td :tabclose<CR>
+nnoremap <C-S-t> :tabnew<CR>
+inoremap <C-S-t> <Esc>:tabnew<CR>
+inoremap <C-S-w> <Esc>:tabclose<CR>
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
@@ -243,3 +240,4 @@ let g:jedi#popup_on_dot = 0
 let g:jedi#show_function_definition = 0
 let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
+let g:jedi#related_names_command = "<localleader>n"
