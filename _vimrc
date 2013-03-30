@@ -105,9 +105,6 @@ noremap : ;
 " Kill window
 noremap K :q<CR>
 
-" Man
-noremap M K
-
 " Split Open
 noremap <leader>e :sp<CR>
 noremap <leader>v :vsp<CR>
