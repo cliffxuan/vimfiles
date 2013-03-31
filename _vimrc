@@ -19,6 +19,8 @@ Bundle 'mattn/webapi-vim'
 Bundle 'Lokaltog/vim-powerline.git'
 Bundle 'airblade/vim-gitgutter.git'
 Bundle 'tpope/vim-surround'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'scrooloose/nerdcommenter'
 filetype plugin indent on
 
 
