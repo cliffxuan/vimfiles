@@ -46,6 +46,6 @@ def RemoveBreakpoints():
 
     vim.command( 'normal %dG' % nCurrentLine)
 
-vim.command( 'map  <LocalLeader>b :py SetBreakpoint()<cr>:update<cr>')
-vim.command( 'map <LocalLeader>d :py RemoveBreakpoints()<cr>:update<cr>')
+vim.command( 'noremap  <LocalLeader>b :py SetBreakpoint()<cr>:update<cr>')
+vim.command( 'noremap <LocalLeader>d :py RemoveBreakpoints()<cr>:update<cr>')
 EOF
