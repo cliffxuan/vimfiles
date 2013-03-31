@@ -41,7 +41,7 @@ set cursorline
 set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
-set autowrit
+set autowrite
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap j gj
 nnoremap k gke
