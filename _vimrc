@@ -44,7 +44,7 @@ set autoread
 set autowrite
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap j gj
-nnoremap k gke
+nnoremap k gk
 " Resize splits when the window is resized
 au VimResized * :wincmd =
 
