@@ -21,7 +21,6 @@ Bundle 'airblade/vim-gitgutter.git'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
-Bundle 'Shougo/vimshell'
 filetype plugin indent on
 
 
