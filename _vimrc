@@ -33,12 +33,20 @@ set expandtab
 set tabstop=8
 set softtabstop=4
 set shiftwidth=4
-set noignorecase "case censitive
-set backspace=2 "make backspace work like most other apps
+set noignorecase "case sensitive
+set backspace=2 "make backspace work like most other applications
 set guioptions-=TM " Remove tool bar
 set hlsearch incsearch
 set cursorline
 set showcmd "Show (partial) command in the last line of the screen.
+set dictionary=/usr/share/dict/words
+set autoread
+set autowrit
+" Wrapped lines goes down/up to next row, rather than next line in file.
+nnoremap j gj
+nnoremap k gke
+" Resize splits when the window is resized
+au VimResized * :wincmd =
 
 "set title
 set title titlestring=[vim] "vim
