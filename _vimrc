@@ -45,8 +45,6 @@ set autowrite
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap j gj
 nnoremap k gk
-" Resize splits when the window is resized
-au VimResized * :wincmd =
 
 "set title
 set title titlestring=[vim] "vim
@@ -63,6 +61,7 @@ set statusline=%.40F "file path max 40
 set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
 set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
+set statusline+=%< "truncate from here
 set statusline+=%= "align right
 set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
