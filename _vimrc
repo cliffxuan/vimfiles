@@ -21,6 +21,7 @@ Bundle 'airblade/vim-gitgutter.git'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
+Bundle 'plasticboy/vim-markdown'
 filetype plugin indent on
 
 
@@ -118,8 +119,8 @@ noremap : ;
 noremap K :q<CR>
 
 " Split Open
-noremap <leader>e :sp<CR>
 noremap <leader>v :vsp<CR>
+noremap <leader>a :Vexplore<CR>
 
 " Explorer
 noremap Q :call ToggleExplorer()<CR>
@@ -242,9 +243,6 @@ function! s:GrepOperator(type)
     copen
     let @@ = saved_unnamed_register
 endfunction
-
-"supertab
-let g:SuperTabDefaultCompletionType = "context"
 
 "jedi
 let g:jedi#pydoc = "<localleader>k"
