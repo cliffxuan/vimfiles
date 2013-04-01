@@ -120,7 +120,8 @@ noremap K :q<CR>
 
 " Split Open
 noremap <leader>v :vsp<CR>
-noremap <leader>a :Vexplore<CR>
+noremap <leader>ee :Vexplore<CR>
+noremap <leader>en :vnew<CR>
 
 " Explorer
 noremap Q :call ToggleExplorer()<CR>
@@ -139,9 +140,12 @@ endfunction
 
 
 " work with tabs
-nnoremap <C-S-t> :tabnew<CR>
-inoremap <C-S-t> <Esc>:tabnew<CR>
-inoremap <C-S-w> <Esc>:tabclose<CR>
+noremap <leader>tt :tabnew<CR>
+noremap <leader>tl :tablast<CR>
+noremap <leader>th :tabfirst<CR>
+noremap <leader>tk :tabprevious<CR>
+noremap <leader>tj :tabnext<CR>
+noremap <leader>tc :tabclose<CR>
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
