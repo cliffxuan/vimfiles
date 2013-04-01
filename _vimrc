@@ -22,6 +22,7 @@ Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
+Bundle 'Raimondi/delimitMate'
 filetype plugin indent on
 
 
@@ -145,7 +146,7 @@ noremap <leader>tl :tablast<CR>
 noremap <leader>th :tabfirst<CR>
 noremap <leader>tk :tabprevious<CR>
 noremap <leader>tj :tabnext<CR>
-noremap <leader>tc :tabclose<CR>
+noremap <leader>td :tabclose<CR>
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
