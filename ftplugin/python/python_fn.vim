@@ -45,10 +45,10 @@ if exists("b:loaded_py_ftplugin")
 endif
 let b:loaded_py_ftplugin = 1
 
-map  ]t   :PBoB<CR>
-vmap ]t   :<C-U>PBOB<CR>m'gv``
-map  ]e   :PEoB<CR>
-vmap ]e   :<C-U>PEoB<CR>m'gv``
+noremap  ]t   :PBoB<CR>
+vnoremap ]t   :<C-U>PBoB<CR>m'gv``
+noremap  ]e   :PEoB<CR>
+vnoremap ]e   :<C-U>PEoB<CR>m'gv``
 
 map  ]v   ]tV]e
 map  ]<   ]tV]e<
