@@ -3,6 +3,7 @@ filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 " Installing bundles to ~/.vim/bundle
+Bundle 'SearchComplete'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive.git'
 Bundle 'sjl/gundo.vim.git'
