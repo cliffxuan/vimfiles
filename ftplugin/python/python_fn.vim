@@ -62,23 +62,23 @@ vnoremap <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 noremap  <localleader>sc   :call PythonSelectObject("class")<CR>
 noremap  <localleader>sf   :call PythonSelectObject("function")<CR>
 
-noremap  <localleader>jl    :call PythonNextLine(1)<CR>
-noremap  <localleader>Jl  :call PythonNextLine(-1)<CR>
+noremap  <localleader>jl   :call PythonNextLine(1)<CR>
+noremap  <localleader>jL   :call PythonNextLine(-1)<CR>
 
 " jump to previous class
-noremap  <localleader>Jc   :call PythonDec("class", -1)<CR>
-vnoremap <localleader>Jc   :call PythonDec("class", -1)<CR>
+noremap  <localleader>jC   :call PythonDec("class", -1)<CR>
+vnoremap <localleader>jC   :call PythonDec("class", -1)<CR>
 
 " jump to next class
 noremap  <localleader>jc   :call PythonDec("class", 1)<CR>
 vnoremap <localleader>jc   :call PythonDec("class", 1)<CR>
 
 " jump to previous function
-noremap  <localleader>Jf   :call PythonDec("function", -1)<CR>
-vnoremap <localleader>Jf   :call PythonDec("function", -1)<CR>
+noremap  <localleader>jF   :call PythonDec("function", -1)<CR>
+vnoremap <localleader>jF   :call PythonDec("function", -1)<CR>
 
 " jump to next function
-noremap  <localleader>jf   :call PythonDec("function", 1)<CR>
+noremap  <localleader>jf  :call PythonDec("function", 1)<CR>
 vnoremap <localleader>jf   :call PythonDec("function", 1)<CR>
 
 
