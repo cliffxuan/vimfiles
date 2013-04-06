@@ -24,7 +24,9 @@ Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
-Bundle 'myusuf3/numbers.vim'
+if v:version >= 703
+    Bundle 'myusuf3/numbers.vim'
+endif
 filetype plugin indent on
 
 
