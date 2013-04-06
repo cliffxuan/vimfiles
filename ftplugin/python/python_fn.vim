@@ -27,17 +27,17 @@
 " vim (>= 7)
 "
 " Shortcuts:
-"   ]t      -- Jump to beginning of block
-"   ]e      -- Jump to end of block
-"   ]v      -- Select (Visual Line Mode) block
-"   ]<      -- Shift block to left
-"   ]>      -- Shift block to right
-"   ]h      -- Comment selection
-"   ]u      -- Uncomment selection
-"   ]c      -- Select current/previous class
-"   ]d      -- Select current/previous function
-"   ]<up>   -- Jump to previous line with the same/lower indentation
-"   ]<down> -- Jump to next line with the same/lower indentation
+"   <localleader>t      -- Jump to beginning of block
+"   <localleader>e      -- Jump to end of block
+"   <localleader>v      -- Select (Visual Line Mode) block
+"   <localleader><      -- Shift block to left
+"   <localleader>>      -- Shift block to right
+"   <localleader>h      -- Comment selection
+"   <localleader>u      -- Uncomment selection
+"   <localleader>c      -- Select current/previous class
+"   <localleader>f      -- Select current/previous function
+"   <localleader><up>   -- Jump to previous line with the same/lower indentation
+"   <localleader><down> -- Jump to next line with the same/lower indentation
 
 " Only do this when not done yet for this buffer
 if exists("b:loaded_py_ftplugin")
@@ -45,44 +45,43 @@ if exists("b:loaded_py_ftplugin")
 endif
 let b:loaded_py_ftplugin = 1
 
-noremap  ]t   :PBoB<CR>
-vnoremap ]t   :<C-U>PBoB<CR>m'gv``
-noremap  ]e   :PEoB<CR>
-vnoremap ]e   :<C-U>PEoB<CR>m'gv``
+noremap  <localleader>t   :PBoB<CR>
+vnoremap <localleader>t   :<C-U>PBoB<CR>m'gv``
+noremap  <localleader>e   :PEoB<CR>
+vnoremap <localleader>e   :<C-U>PEoB<CR>m'gv``
 
-map  ]v   ]tV]e
-map  ]<   ]tV]e<
-vmap ]<   <
-map  ]>   ]tV]e>
-vmap ]>   >
+map  <localleader>v   <localleader>tV<localleader>e
+map  <localleader><   <localleader>tV<localleader>e<
+vmap <localleader><   <
+map  <localleader>>   <localleader>tV<localleader>e>
+vmap <localleader>>   >
 
-map  ]h   :call PythonCommentSelection()<CR>
-vmap ]h   :call PythonCommentSelection()<CR>
-map  ]u   :call PythonUncommentSelection()<CR>
-vmap ]u   :call PythonUncommentSelection()<CR>
+noremap  <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
+vnoremap <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
+noremap  <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
+vnoremap <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 
-map  ]c   :call PythonSelectObject("class")<CR>
-map  ]d   :call PythonSelectObject("function")<CR>
+noremap  <localleader>sc   :call PythonSelectObject("class")<CR>
+noremap  <localleader>sf   :call PythonSelectObject("function")<CR>
 
-map  ]<up>    :call PythonNextLine(-1)<CR>
-map  ]<down>  :call PythonNextLine(1)<CR>
-" You may prefer use <s-up> and <s-down>... :-)
+noremap  <localleader>jl    :call PythonNextLine(1)<CR>
+noremap  <localleader>Jl  :call PythonNextLine(-1)<CR>
 
 " jump to previous class
-map  ]J   :call PythonDec("class", -1)<CR>
-vmap ]J   :call PythonDec("class", -1)<CR>
+noremap  <localleader>Jc   :call PythonDec("class", -1)<CR>
+vnoremap <localleader>Jc   :call PythonDec("class", -1)<CR>
 
 " jump to next class
-map  ]j   :call PythonDec("class", 1)<CR>
-vmap ]j   :call PythonDec("class", 1)<CR>
+noremap  <localleader>jc   :call PythonDec("class", 1)<CR>
+vnoremap <localleader>jc   :call PythonDec("class", 1)<CR>
 
 " jump to previous function
-map  ]F   :call PythonDec("function", -1)<CR>
-vmap ]F   :call PythonDec("function", -1)<CR>
+noremap  <localleader>Jf   :call PythonDec("function", -1)<CR>
+vnoremap <localleader>Jf   :call PythonDec("function", -1)<CR>
 
 " jump to next function
-map  ]f   :call PythonDec("function", 1)<CR>
-vmap ]f   :call PythonDec("function", 1)<CR>
+noremap  <localleader>jf   :call PythonDec("function", 1)<CR>
+vnoremap <localleader>jf   :call PythonDec("function", 1)<CR>
 
 
 :com! PBoB execute "normal ".PythonBoB(line('.'), -1, 1)."G"
