@@ -257,3 +257,7 @@ let g:jedi#show_function_definition = 0
 let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
+
+"folding
+noremap <leader><Space> za
+vnoremap <leader><Space> za
