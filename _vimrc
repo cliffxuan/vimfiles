@@ -265,12 +265,6 @@ let g:jedi#related_names_command = "<localleader>n"
 noremap <leader><Space> za
 vnoremap <leader><Space> za
 
-" Powerline {{{
-let g:Powerline_symbols = 'fancy'
-let g:Powerline_cache_enabled = 1
-" }}}
-
-
 " Environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
     " GUI Vim
