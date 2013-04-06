@@ -1,6 +1,7 @@
 " Vbundle load
 filetype off
 set rtp+=~/.vim/bundle/vundle/
+set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim
 call vundle#rc()
 " Installing bundles to ~/.vim/bundle
 Bundle 'SearchComplete'
@@ -11,7 +12,7 @@ Bundle 'SirVer/ultisnips.git'
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
-Bundle 'Lokaltog/vim-powerline.git'
+Bundle 'Lokaltog/powerline.git'
 Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv.git'
 Bundle 'davidhalter/jedi-vim.git'
