@@ -11,19 +11,20 @@ Bundle 'SirVer/ultisnips.git'
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
+Bundle 'Lokaltog/vim-powerline.git'
 Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv.git'
 Bundle 'davidhalter/jedi-vim.git'
 Bundle 'ivanov/vim-ipython.git'
 Bundle 'mattn/gist-vim.git'
 Bundle 'mattn/webapi-vim'
-Bundle 'Lokaltog/vim-powerline.git'
 Bundle 'airblade/vim-gitgutter.git'
 Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
+Bundle 'myusuf3/numbers.vim'
 filetype plugin indent on
 
 
@@ -43,7 +44,6 @@ set softtabstop=4
 set shiftwidth=4
 set noignorecase "case sensitive
 set backspace=2 "make backspace work like most other applications
-set guioptions-=TM " Remove tool bar
 set hlsearch incsearch
 set cursorline
 set showcmd "Show (partial) command in the last line of the screen.
@@ -261,3 +261,19 @@ let g:jedi#related_names_command = "<localleader>n"
 "folding
 noremap <leader><Space> za
 vnoremap <leader><Space> za
+
+let g:Powerline_symbols = 'fancy'
+" Environments (GUI/Console) ---------------------------------------------- {{{
+if has('gui_running')
+    " GUI Vim
+
+    set guifont=Menlo\ Regular\ for\ Powerline:h12
+   " Remove all the UI cruft
+    set guioptions-=T
+    set guioptions-=l
+    set guioptions-=L
+    set guioptions-=r
+    set guioptions-=R
+    
+endif
+" }}}
