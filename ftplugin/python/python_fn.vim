@@ -50,11 +50,9 @@ vnoremap <localleader>t   :<C-U>PBoB<CR>m'gv``
 noremap  <localleader>e   :PEoB<CR>
 vnoremap <localleader>e   :<C-U>PEoB<CR>m'gv``
 
-map  <localleader>v   <localleader>tV<localleader>e
-map  <localleader><   <localleader>tV<localleader>e<
-vmap <localleader><   <
-map  <localleader>>   <localleader>tV<localleader>e>
-vmap <localleader>>   >
+noremap  <localleader>v   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``
+noremap  <localleader><   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``<
+noremap  <localleader>>   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``>
 
 noremap  <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
 vnoremap <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
