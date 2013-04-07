@@ -8,16 +8,12 @@ Bundle 'SearchComplete'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive.git'
 Bundle 'sjl/gundo.vim.git'
-if has('python')
-    Bundle 'SirVer/ultisnips.git'
-endif
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
 Bundle 'Lokaltog/powerline.git'
 Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv.git'
-Bundle 'davidhalter/jedi-vim.git'
 Bundle 'ivanov/vim-ipython.git'
 Bundle 'mattn/gist-vim.git'
 Bundle 'mattn/webapi-vim'
@@ -29,6 +25,10 @@ Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
 if v:version >= 703
     Bundle 'myusuf3/numbers.vim'
+endif
+if has('python')
+    Bundle 'SirVer/ultisnips.git'
+    Bundle 'davidhalter/jedi-vim.git'
 endif
 filetype plugin indent on
 
