@@ -8,7 +8,9 @@ Bundle 'SearchComplete'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive.git'
 Bundle 'sjl/gundo.vim.git'
-Bundle 'SirVer/ultisnips.git'
+if has('python')
+    Bundle 'SirVer/ultisnips.git'
+endif
 Bundle 'scrooloose/syntastic.git'
 Bundle 'kien/ctrlp.vim.git'
 Bundle 'mileszs/ack.vim.git'
