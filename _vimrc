@@ -189,13 +189,14 @@ command! -bang WA wa<bang>
 command! -bang Wq wq<bang>
 command! -bang WQ wq<bang>
 
+"folding
+noremap <leader><Space> za
+vnoremap <leader><Space> za
+
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
-" CtrlP
-nnoremap <leader>f :CtrlP<CR>
-nnoremap <leader>b :CtrlPBuffer<CR>
 
 " Fugitive {{{
 nnoremap <leader>gd :Gdiff<cr>
@@ -283,9 +284,17 @@ let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
 
-"folding
-noremap <leader><Space> za
-vnoremap <leader><Space> za
+" CtrlP
+nnoremap <leader>f :CtrlP<CR>
+nnoremap <leader>b :CtrlPBuffer<CR>
+let g:ctrlp_user_command = {
+    \ 'types': {
+        \ 1: ['.git', 'cd %s && git ls-files'],
+        \ 2: ['.hg', 'hg --cwd %s locate -I .'],
+        \ },
+    \ 'fallback': 'find %s -type f'
+    \ }
+
 
 " Environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
