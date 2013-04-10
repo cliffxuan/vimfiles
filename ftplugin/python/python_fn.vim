@@ -32,10 +32,10 @@
 "   <localleader>v      -- Select (Visual Line Mode) block
 "   <localleader><      -- Shift block to left
 "   <localleader>>      -- Shift block to right
-"   <localleader>h      -- Comment selection
+"   <localleader>c      -- Comment selection
 "   <localleader>u      -- Uncomment selection
-"   <localleader>c      -- Select current/previous class
-"   <localleader>f      -- Select current/previous function
+"   <localleader>sc     -- Select current/previous class
+"   <localleader>sf     -- Select current/previous function
 "   <localleader><up>   -- Jump to previous line with the same/lower indentation
 "   <localleader><down> -- Jump to next line with the same/lower indentation
 
@@ -54,8 +54,8 @@ noremap  <localleader>v   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``
 noremap  <localleader><   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``<
 noremap  <localleader>>   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``>
 
-noremap  <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
-vnoremap <localleader>h   :call PythonCommentSelection()<CR>:update<CR>
+noremap  <localleader>c   :call PythonCommentSelection()<CR>:update<CR>
+vnoremap <localleader>c   :call PythonCommentSelection()<CR>:update<CR>
 noremap  <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 vnoremap <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 
