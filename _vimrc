@@ -23,9 +23,6 @@ Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
-if v:version >= 703
-    Bundle 'myusuf3/numbers.vim'
-endif
 if has('python')
     Bundle 'SirVer/ultisnips.git'
     Bundle 'davidhalter/jedi-vim.git'
