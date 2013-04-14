@@ -292,6 +292,8 @@ let g:ctrlp_user_command = {
     \ 'fallback': 'find %s -type f'
     \ }
 
+" Syntastic
+let g:syntastic_check_on_open = 1
 
 " Environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
