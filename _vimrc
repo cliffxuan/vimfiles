@@ -27,6 +27,9 @@ if has('python')
     Bundle 'SirVer/ultisnips.git'
     Bundle 'davidhalter/jedi-vim.git'
 endif
+if v:version >= 703
+    Bundle 'myusuf3/numbers.vim'
+endif
 filetype plugin indent on
 
 
