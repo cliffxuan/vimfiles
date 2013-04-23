@@ -1,3 +1,36 @@
 snippet ip "Set iPDB breakpoint" b
 import ipdb; ipdb.set_trace()
 endsnippet
+
+snippet sb "Shebang header for python scripts" b
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+$0
+endsnippet
+
+snippet lg "basic logging" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(
+    filename=logfile,
+    level=logging.DEBUG,
+    format=format)
+endsnippet
+
+snippet lg "logging to stream" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+ch = logging.StreamHandler()
+ch.setFormatter(logging.Formatter(format))
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+endsnippet
+
+snippet lg "logging to stream and file" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+ch = logging.StreamHandler()
+ch.setFormatter(logging.Formatter(format))
+fh = logging.FileHandler('spam.log')
+fh.setFormatter(logging.Formatter(format))
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+logger.addHandler(fh)
+endsnippet
