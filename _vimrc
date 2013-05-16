@@ -4,7 +4,6 @@ set rtp+=~/.vim/bundle/vundle/
 set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim
 call vundle#rc()
 " Installing bundles to ~/.vim/bundle
-Bundle 'SearchComplete'
 Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
 Bundle 'sjl/gundo.vim'
