@@ -36,8 +36,8 @@
 "   <localleader>u      -- Uncomment selection
 "   <localleader>sc     -- Select current/previous class
 "   <localleader>sf     -- Select current/previous function
-"   <localleader><up>   -- Jump to previous line with the same/lower indentation
-"   <localleader><down> -- Jump to next line with the same/lower indentation
+"   <localleader>jL   -- Jump to previous line with the same/lower indentation
+"   <localleader>jl -- Jump to next line with the same/lower indentation
 
 " Only do this when not done yet for this buffer
 if exists("b:loaded_py_ftplugin")
@@ -62,7 +62,9 @@ vnoremap <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 noremap  <localleader>sc   :call PythonSelectObject("class")<CR>
 noremap  <localleader>sf   :call PythonSelectObject("function")<CR>
 
+"   Jump to next line with the same/lower indentation
 noremap  <localleader>jl   :call PythonNextLine(1)<CR>
+"   Jump to previous line with the same/lower indentation
 noremap  <localleader>jL   :call PythonNextLine(-1)<CR>
 
 " jump to previous class
