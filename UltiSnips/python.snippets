@@ -20,6 +20,7 @@ snippet lg "logging to stream" b
 format = '%(asctime)s - %(levelname)s - %(message)s'
 ch = logging.StreamHandler()
 ch.setFormatter(logging.Formatter(format))
+logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 endsnippet
@@ -30,6 +31,7 @@ ch = logging.StreamHandler()
 ch.setFormatter(logging.Formatter(format))
 fh = logging.FileHandler('spam.log')
 fh.setFormatter(logging.Formatter(format))
+logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 logger.addHandler(fh)
