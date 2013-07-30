@@ -70,3 +70,15 @@ def get_logger():
 
 logger = get_logger()
 endsnippet
+
+snippet ap "argparse" b
+    parser = argparse.ArgumentParser(
+        description='describe me')
+    parser.add_argument(
+        '--foo', dest='foo', help='foo')
+    parser.add_argument(
+        '--bar', dest='bar',
+        required=True, help='bar')
+    parser.add_argument(
+        'eggs', nargs='+', help='one or multiple eggs')
+endsnippet
