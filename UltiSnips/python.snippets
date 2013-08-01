@@ -82,3 +82,29 @@ snippet ap "argparse" b
     parser.add_argument(
         'eggs', nargs='+', help='one or multiple eggs')
 endsnippet
+
+snippet ko "kickoff a python script" b
+#!/usr/bin/env python
+# encoding: utf-8
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
+endsnippet
+
+snippet sac "sqlalchemy connection" !b
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+
+
+def get_session():
+    URI = 'mysql://root@localhost/db'
+    sess = sessionmaker(
+        bind=sa.create_engine(URI))()
+    return sess
+
+endsnippet
