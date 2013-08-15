@@ -186,7 +186,7 @@ command! -bang Wq wq<bang>
 command! -bang WQ wq<bang>
 
 " sudo
-command Suw :w !sudo tee %
+command! Suw :w !sudo tee %
 
 "folding
 noremap <leader><Space> za
@@ -249,6 +249,19 @@ function! QuickfixToggle()
         let g:quickfix_return_to_window = winnr()
         copen
         let g:quickfix_is_open = 1
+    endif
+endfunction
+
+" Toggle number and list
+nnoremap <leader>l :call NumberAndListToggle()<cr>
+function! NumberAndListToggle()
+    if &number || (exists(&relativenumber) && &relativenumber) || &list
+        set nonumber
+        set norelativenumber
+        set nolist
+    else
+        set number
+        set list
     endif
 endfunction
 
