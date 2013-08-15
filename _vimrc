@@ -189,6 +189,9 @@ command! -bang WA wa<bang>
 command! -bang Wq wq<bang>
 command! -bang WQ wq<bang>
 
+" sudo
+command Suw :w !sudo tee %
+
 "folding
 noremap <leader><Space> za
 vnoremap <leader><Space> za
