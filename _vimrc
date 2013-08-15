@@ -255,9 +255,11 @@ endfunction
 " Toggle number and list
 nnoremap <leader>l :call NumberAndListToggle()<cr>
 function! NumberAndListToggle()
-    if &number || (exists(&relativenumber) && &relativenumber) || &list
+    if &number || (exists('&relativenumber') && &relativenumber) || &list
         set nonumber
-        set norelativenumber
+        if exists('&relativenumber')
+            set norelativenumber
+        endif
         set nolist
     else
         set number
