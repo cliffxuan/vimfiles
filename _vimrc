@@ -8,7 +8,6 @@ Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
 Bundle 'sjl/gundo.vim'
 Bundle 'scrooloose/syntastic'
-Bundle 'kien/ctrlp.vim'
 Bundle 'mileszs/ack.vim'
 Bundle 'Lokaltog/powerline'
 Bundle 'ervandew/supertab'
@@ -23,6 +22,7 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
 Bundle 'rodjek/vim-puppet'
+Bundle 'Shougo/unite.vim.git'
 if has('python')
     Bundle 'SirVer/ultisnips'
     Bundle 'davidhalter/jedi-vim'
@@ -307,16 +307,10 @@ let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
 
-" CtrlP
-nnoremap <leader>f :CtrlP<CR>
-nnoremap <leader>b :CtrlPBuffer<CR>
-let g:ctrlp_user_command = {
-    \ 'types': {
-        \ 1: ['.git', 'cd %s && git ls-files'],
-        \ 2: ['.hg', 'hg --cwd %s locate -I .'],
-        \ },
-    \ 'fallback': 'find %s -type f'
-    \ }
+" Unite
+nnoremap <leader>f :Unite file<CR>
+nnoremap <leader>b :Unite buffer<CR>
+nnoremap <leader>u :Unite<space>
 
 " Syntastic
 let g:syntastic_check_on_open = 1
