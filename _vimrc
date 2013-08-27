@@ -22,7 +22,8 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'Raimondi/delimitMate'
 Bundle 'rodjek/vim-puppet'
-Bundle 'Shougo/unite.vim.git'
+Bundle 'Shougo/vimproc.vim'
+Bundle 'Shougo/unite.vim'
 if has('python')
     Bundle 'SirVer/ultisnips'
     Bundle 'davidhalter/jedi-vim'
@@ -308,7 +309,7 @@ let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
 
 " Unite
-nnoremap <leader>f :Unite file_rec<CR>
+nnoremap <leader>f :Unite file_rec -start-insert<CR>
 nnoremap <leader>b :Unite buffer<CR>
 nnoremap <leader>u :Unite<space>
 
