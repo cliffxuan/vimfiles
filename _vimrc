@@ -20,10 +20,10 @@ Bundle 'tpope/vim-surround'
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'plasticboy/vim-markdown'
-Bundle 'Raimondi/delimitMate'
 Bundle 'rodjek/vim-puppet'
 Bundle 'Shougo/vimproc.vim'
 Bundle 'Shougo/unite.vim'
+Bundle 'VimClojure'
 if has('python')
     Bundle 'SirVer/ultisnips'
     Bundle 'davidhalter/jedi-vim'
@@ -308,12 +308,12 @@ let g:jedi#autocompletion_command = "<C-K>"
 let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
 
-" Unite
-nnoremap <leader>f :Unite file_rec -start-insert<CR>
+" unite
+nnoremap <leader>f :Unite file_rec:! -start-insert<CR>
 nnoremap <leader>b :Unite buffer<CR>
 nnoremap <leader>u :Unite<space>
 
-" Syntastic
+" syntastic
 let g:syntastic_check_on_open = 1
 
 " Environments (GUI/Console) ---------------------------------------------- {{{
