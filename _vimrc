@@ -309,7 +309,7 @@ let g:jedi#goto_command = "<localleader>g"
 let g:jedi#related_names_command = "<localleader>n"
 
 " unite
-nnoremap <leader>f :Unite file_rec:! -start-insert<CR>
+nnoremap <leader>f :Unite file_rec/async -start-insert<CR>
 nnoremap <leader>b :Unite buffer<CR>
 nnoremap <leader>u :Unite<space>
 
