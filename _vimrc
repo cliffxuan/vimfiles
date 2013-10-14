@@ -28,9 +28,6 @@ if has('python')
     Bundle 'SirVer/ultisnips'
     Bundle 'davidhalter/jedi-vim'
 endif
-if v:version >= 703
-    Bundle 'myusuf3/numbers.vim'
-endif
 filetype plugin indent on
 
 
@@ -38,10 +35,9 @@ set nocompatible
 set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
+set number
 if exists('&relativenumber')
     set relativenumber
-else
-    set number
 endif
 set numberwidth=4
 set expandtab
@@ -232,6 +228,7 @@ function! NumberToggle()
         return
     endif
     if(&relativenumber == 1)
+        setlocal norelativenumber
         setlocal number
     else
         setlocal relativenumber
@@ -264,6 +261,9 @@ function! NumberAndListToggle()
         set nolist
     else
         set number
+        if exists('&relativenumber')
+            set relativenumber
+        endif
         set list
     endif
 endfunction
