@@ -301,12 +301,12 @@ endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
 "jedi
-let g:jedi#pydoc = "<localleader>k"
+let g:jedi#documentation_command = "<localleader>k"
 let g:jedi#popup_on_dot = 0
-let g:jedi#show_function_definition = 0
-let g:jedi#autocompletion_command = "<C-K>"
-let g:jedi#goto_command = "<localleader>g"
-let g:jedi#related_names_command = "<localleader>n"
+let g:jedi#show_call_signatures = 0
+let g:jedi#completions_command = "<C-K>"
+let g:jedi#goto_assignments_command = "<localleader>g"
+let g:jedi#usages_command = "<localleader>n"
 
 " unite
 nnoremap <leader>f :Unite file_rec/async -start-insert<CR>
