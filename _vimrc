@@ -41,7 +41,7 @@ if exists('&relativenumber')
 endif
 set numberwidth=4
 set expandtab
-set tabstop=8
+set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set noignorecase "case sensitive
@@ -158,14 +158,17 @@ function! ToggleExplorer()
     endif
 endfunction
 
-
-" work with tabs
-noremap <leader>tt :tabnew<CR>
-noremap <leader>tl :tablast<CR>
-noremap <leader>th :tabfirst<CR>
-noremap <leader>tk :tabprevious<CR>
-noremap <leader>tj :tabnext<CR>
-noremap <leader>td :tabclose<CR>
+" Explorer
+noremap <leader><tab> :call ToggleTab()<CR>
+function! ToggleTab()
+  if &expandtab
+      set noexpandtab
+      echo 'tab on'
+  else
+      set expandtab
+      echo 'tab off'
+  endif
+endfunction
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
