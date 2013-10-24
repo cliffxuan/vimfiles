@@ -1,7 +1,6 @@
 " Vbundle load
 filetype off
 set rtp+=~/.vim/bundle/vundle/
-set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim
 call vundle#rc()
 " Installing bundles to ~/.vim/bundle
 Bundle 'gmarik/vundle'
@@ -9,7 +8,7 @@ Bundle 'tpope/vim-fugitive'
 Bundle 'sjl/gundo.vim'
 Bundle 'scrooloose/syntastic'
 Bundle 'mileszs/ack.vim'
-Bundle 'Lokaltog/powerline'
+Bundle 'bling/vim-airline.git'
 Bundle 'ervandew/supertab'
 Bundle 'jmcantrell/vim-virtualenv'
 Bundle 'ivanov/vim-ipython'
@@ -29,7 +28,6 @@ if has('python')
     Bundle 'davidhalter/jedi-vim'
 endif
 filetype plugin indent on
-
 
 set nocompatible
 set nobackup noswapfile
@@ -196,6 +194,10 @@ vnoremap <leader><Space> za
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
 
+" airline powerline fonts
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='bubblegum'
 
 " Fugitive {{{
 nnoremap <leader>gd :Gdiff<cr>
@@ -272,8 +274,8 @@ function! NumberAndListToggle()
 endfunction
 
 "Grep
-nnoremap <leader>g :set operatorfunc=<SID>GrepOperator<cr>g@
-vnoremap <leader>g :<c-u>call <SID>GrepOperator(visualmode())<cr>
+nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
+vnoremap <leader>/ :<c-u>call <SID>GrepOperator(visualmode())<cr>
 
 function! s:GrepOperator(type)
     let saved_unnamed_register = @@
@@ -312,9 +314,11 @@ let g:jedi#goto_assignments_command = "<localleader>g"
 let g:jedi#usages_command = "<localleader>n"
 
 " unite
-nnoremap <leader>f :Unite file_rec/async -start-insert<CR>
-nnoremap <leader>b :Unite buffer<CR>
+nnoremap <leader>f :Unite file_rec/async:!<CR>
+nnoremap <leader>b :Unite buffer -quick-match<CR>
 nnoremap <leader>u :Unite<space>
+let g:unite_source_history_yank_enable = 1
+nnoremap <leader>y :Unite history/yank<cr>
 
 " syntastic
 let g:syntastic_check_on_open = 1
@@ -330,6 +334,5 @@ if has('gui_running')
     set guioptions-=L
     set guioptions-=r
     set guioptions-=R
-    
 endif
 " }}}
