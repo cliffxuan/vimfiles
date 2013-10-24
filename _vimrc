@@ -314,7 +314,11 @@ let g:jedi#goto_assignments_command = "<localleader>g"
 let g:jedi#usages_command = "<localleader>n"
 
 " unite
-nnoremap <leader>f :Unite file_rec/async:!<CR>
+function! s:ShowProjectDirectoryFile()
+    let b:dirname = unite#util#path2directory(expand('%:p'))
+    execute('Unite file_rec/async:' . b:dirname)
+endfunction
+nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
 nnoremap <leader>b :Unite buffer -quick-match<CR>
 nnoremap <leader>u :Unite<space>
 let g:unite_source_history_yank_enable = 1
