@@ -317,8 +317,13 @@ let g:jedi#usages_command = "<localleader>n"
 
 " unite
 function! s:ShowProjectDirectoryFile()
-    let b:dirname = unite#util#path2directory(expand('%:p'))
-    execute('Unite file_rec/async:' . b:dirname)
+    let b:dirname = fnamemodify(expand('%:p'), ':h')
+    let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
+    if b:cvsroot == ''
+      execute('Unite file_rec/async:' . b:dirname)
+    else
+      execute('Unite file_rec/async:' . b:cvsroot)
+    endif
 endfunction
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
 nnoremap <leader>b :Unite buffer -quick-match<CR>
