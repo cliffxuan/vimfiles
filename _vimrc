@@ -37,6 +37,7 @@ set number
 if exists('&relativenumber')
     set relativenumber
 endif
+set hidden
 set numberwidth=4
 set expandtab
 set tabstop=4
@@ -81,6 +82,10 @@ set statusline+=\ "seperator
 set statusline+=%r "Readonly flag, text is "[RO]".
 
 set autoindent
+
+" Buffer Cycling
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
 
 " Wildmenu completion {{{
 "
@@ -134,7 +139,7 @@ noremap ; :
 noremap : ;
 
 " Kill window
-noremap K :q<CR>
+noremap K :bdelete<CR>
 
 " Split Open
 noremap <leader>v :vsp<CR>
@@ -200,6 +205,7 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='bubblegum'
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#buffer_nr_show = 1
 
 " Fugitive {{{
 nnoremap <leader>gd :Gdiff<cr>
