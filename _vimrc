@@ -325,10 +325,15 @@ let g:jedi#usages_command = "<localleader>n"
 function! s:ShowProjectDirectoryFile()
     let b:dirname = fnamemodify(expand('%:p'), ':h')
     let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
-    if b:cvsroot == ''
-      execute('Unite file_rec/async:' . b:dirname)
+    if unite#util#has_vimproc()
+        let b:file_rec = 'file_rec/async'
     else
-      execute('Unite file_rec/async:' . b:cvsroot)
+        let b:file_rec = 'file_rec'
+    endif
+    if b:cvsroot == ''
+      execute('Unite ' . b:file_rec . ':' . b:dirname)
+    else
+      execute('Unite ' . b:file_rec . ':' . b:cvsroot)
     endif
 endfunction
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
