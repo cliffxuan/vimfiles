@@ -225,7 +225,7 @@ augroup ft_fugitive
     au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
-" "Hub"
+" "GitHub"
 nnoremap <leader>H :Gbrowse<cr>
 vnoremap <leader>H :Gbrowse<cr>
 
@@ -358,3 +358,43 @@ if has('gui_running')
     set guioptions-=R
 endif
 " }}}
+
+" web pastebins
+" hastebin.com
+
+" sprunge.us
+function! s:Sprunge()
+python <<EOF
+import urllib2
+URL = "http://sprunge.us/"
+r = urllib2.urlopen(
+    URL, 'sprunge={}'.format('\n'.join(vim.current.buffer))).read()
+print r
+EOF
+endfunction
+command! -register Sprunge call <SID>Sprunge()
+
+function! s:Hastebin(...)
+python <<EOF
+import urllib2
+URL = "http://hastebin.com"
+path = vim.eval("a:000")[0]
+if path:
+    url = URL + '/raw/' + path
+    try:
+        rsp = urllib2.urlopen(url)
+        vim.command('enew')
+        vim.current.buffer[:] = rsp.readlines()
+        vim.current.buffer.name = 'hastebin-{}'.format(path)
+        vim.command('setlocal buftype=nofile bufhidden=hide noswapfile')
+        vim.command('setlocal nomodified')
+        vim.command('setlocal nomodifiable')
+    except Exception as exc:
+        print 'failed to get "{}". error "{}"'.format(url, exc)
+else:
+    print 'pasting...'
+    r = urllib2.urlopen(URL + "/documents", '\n'.join(vim.current.buffer)).read()
+    print "{}/{}".format(URL, r[8:-2])
+EOF
+endfunction
+command! -nargs=? -register Haste call <SID>Hastebin('<args>')
