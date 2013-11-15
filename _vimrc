@@ -153,7 +153,7 @@ endtry
 " maps
 
 " edit and source $MYVIMRC
-noremap <leader>ev :execute 'vsp ' . resolve(expand($MYVIMRC))<CR>
+noremap <leader>ev :execute 'e ' . resolve(expand($MYVIMRC))<CR>
 noremap <leader>sv :source $MYVIMRC<CR>
 
 " map ; to :
@@ -398,7 +398,7 @@ command! -register Sprunge call <SID>Sprunge()
 
 function! s:Hastebin(...)
 python <<EOF
-import urllib2
+import urllib2, json, re
 URL = "http://hastebin.com"
 path = vim.eval("a:000")[0]
 if path:
@@ -415,8 +415,11 @@ if path:
         print 'failed to get "{}". error "{}"'.format(url, exc)
 else:
     print 'pasting...'
-    r = urllib2.urlopen(URL + "/documents", '\n'.join(vim.current.buffer)).read()
-    print "{}/{}".format(URL, r[8:-2])
+    rsp = urllib2.urlopen(
+        URL + "/documents", '\n'.join(vim.current.buffer)).read()
+    url = "{}/{}".format(URL, json.loads(rsp)['key'])
+    print url
+    vim.command('let @+= "\n{}"'.format(url))
 EOF
 endfunction
 command! -nargs=? -register Haste call <SID>Hastebin('<args>')
