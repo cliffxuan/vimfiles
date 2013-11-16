@@ -395,31 +395,3 @@ print r
 EOF
 endfunction
 command! -register Sprunge call <SID>Sprunge()
-
-function! s:Hastebin(...)
-python <<EOF
-import urllib2, json, re
-URL = "http://hastebin.com"
-path = vim.eval("a:000")[0]
-if path:
-    url = URL + '/raw/' + path
-    try:
-        rsp = urllib2.urlopen(url)
-        vim.command('enew')
-        vim.current.buffer[:] = rsp.readlines()
-        vim.current.buffer.name = 'hastebin-{}'.format(path)
-        vim.command('setlocal buftype=nofile bufhidden=hide noswapfile')
-        vim.command('setlocal nomodified')
-        vim.command('setlocal nomodifiable')
-    except Exception as exc:
-        print 'failed to get "{}". error "{}"'.format(url, exc)
-else:
-    print 'pasting...'
-    rsp = urllib2.urlopen(
-        URL + "/documents", '\n'.join(vim.current.buffer)).read()
-    url = "{}/{}".format(URL, json.loads(rsp)['key'])
-    print url
-    vim.command('let @+= "\n{}"'.format(url))
-EOF
-endfunction
-command! -nargs=? -register Haste call <SID>Hastebin('<args>')
