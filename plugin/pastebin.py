@@ -28,9 +28,14 @@ class Hastebin(object):
         if all(line.strip() == '' for line in vim.current.buffer):
             print 'empty buffer, abort pasting'
         else:
-            print 'pasting to {}...'.format(cls.URL)
-            rsp = urllib2.urlopen(
-                cls.URL + "/documents", '\n'.join(vim.current.buffer)).read()
-            url = "{}/{}".format(cls.URL, json.loads(rsp)['key'])
-            print url
-            vim.command('let @+= "\n{}"'.format(url))
+            print 'pasting to {} ...'.format(cls.URL)
+            try:
+                rsp = urllib2.urlopen(cls.URL + "/documents",
+                                      '\n'.join(vim.current.buffer),
+                                      timeout=5).read()
+                url = "{}/{}".format(cls.URL, json.loads(rsp)['key'])
+                print url
+                vim.command('let @+= "{}\n"'.format(url))
+            except Exception as exc:
+                print type(exc)
+                print exc
