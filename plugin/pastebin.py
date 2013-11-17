@@ -8,12 +8,13 @@ import vim
 class Hastebin(object):
 
     URL = "http://hastebin.com"
+    TIMEOUT = 5  # seconds
 
     @classmethod
     def retrieve(cls, path):
         url = cls.URL + '/raw/' + path
         try:
-            rsp = urllib2.urlopen(url)
+            rsp = urllib2.urlopen(url, timeout=cls.TIMEOUT)
             vim.command('enew')
             vim.current.buffer[:] = rsp.readlines()
             vim.current.buffer.name = 'hastebin-{}'.format(path)
@@ -32,7 +33,7 @@ class Hastebin(object):
             try:
                 rsp = urllib2.urlopen(cls.URL + "/documents",
                                       '\n'.join(vim.current.buffer),
-                                      timeout=5).read()
+                                      timeout=cls.TIMEOUT).read()
                 url = "{}/{}".format(cls.URL, json.loads(rsp)['key'])
                 print url
                 vim.command('let @+= "{}\n"'.format(url))
