@@ -11,7 +11,14 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 " After install, run from shell:
 " cd ~/.vim/bundle/vimproc, (n,g)make -f os_makefile
 "
-NeoBundle 'Shougo/vimproc.vim'
+NeoBundle 'Shougo/vimproc', {
+      \ 'build' : {
+      \     'windows' : 'make -f make_mingw32.mak',
+      \     'cygwin' : 'make -f make_cygwin.mak',
+      \     'mac' : 'make -f make_mac.mak',
+      \     'unix' : 'make -f make_unix.mak',
+      \    },
+      \ }
 
 " Installing bundles to ~/.vim/bundle
 NeoBundle 'tpope/vim-fugitive'
