@@ -1,35 +1,50 @@
-" Vbundle load
-filetype off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+" Neobundle load
+if has('vim_starting')
+    set nocompatible               " Be iMproved
+    set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
+call neobundle#rc(expand('~/.vim/bundle/'))
+
+" Let NeoBundle manage NeoBundle
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+" After install, run from shell:
+" cd ~/.vim/bundle/vimproc, (n,g)make -f os_makefile
+"
+NeoBundle 'Shougo/vimproc.vim'
+
 " Installing bundles to ~/.vim/bundle
-Bundle 'gmarik/vundle'
-Bundle 'tpope/vim-fugitive'
-Bundle 'sjl/gundo.vim'
-Bundle 'scrooloose/syntastic'
-Bundle 'mileszs/ack.vim'
-Bundle 'bling/vim-airline.git'
-Bundle 'ervandew/supertab'
-Bundle 'jmcantrell/vim-virtualenv'
-Bundle 'ivanov/vim-ipython'
-Bundle 'mattn/gist-vim'
-Bundle 'mattn/webapi-vim'
-Bundle 'airblade/vim-gitgutter'
-Bundle 'tpope/vim-surround'
-Bundle 'Lokaltog/vim-easymotion'
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'plasticboy/vim-markdown'
-Bundle 'rodjek/vim-puppet'
-Bundle 'Shougo/vimproc.vim'
-Bundle 'Shougo/unite.vim'
-Bundle 'VimClojure'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'sjl/gundo.vim'
+NeoBundle 'scrooloose/syntastic'
+NeoBundle 'mileszs/ack.vim'
+NeoBundle 'bling/vim-airline.git'
+NeoBundle 'ervandew/supertab'
+NeoBundle 'jmcantrell/vim-virtualenv'
+NeoBundle 'ivanov/vim-ipython'
+NeoBundle 'mattn/gist-vim'
+NeoBundle 'mattn/webapi-vim'
+NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'Lokaltog/vim-easymotion'
+NeoBundle 'scrooloose/nerdcommenter'
+NeoBundle 'plasticboy/vim-markdown'
+NeoBundle 'rodjek/vim-puppet'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'VimClojure'
 if has('python')
-    Bundle 'SirVer/ultisnips'
-    Bundle 'davidhalter/jedi-vim'
+    NeoBundle 'SirVer/ultisnips'
+    NeoBundle 'davidhalter/jedi-vim'
 endif
 filetype plugin indent on
 
-set nocompatible
+" Brief help
+" :NeoBundleList          - list configured bundles
+" :NeoBundleInstall(!)    - install(update) bundles
+" :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles
+" Installation check.
+NeoBundleCheck
+
 set nobackup noswapfile
 set encoding=utf-8
 set fileformat=unix
