@@ -6,20 +6,20 @@ EOF
 
 " hastebin.com
 function! s:Hastebin(...)
-python <<EOF
-from pastebin import Hastebin
-args = vim.eval("a:000")
-if args:
-    for path in args:
-        Hastebin.retrieve(path)
-else:
-    Hastebin.paste()
-EOF
+  py from pastebin import Hastebin
+  if a:0
+    for path in a:000
+      echo path
+      execute "py Hastebin.retrieve('" . path . "')"
+    endfor
+  else
+    py Hastebin.paste()
+  endif
 endfunction
 command! -nargs=* Haste call <SID>Hastebin(<f-args>)
 
 " sprunge.us
 function! s:Sprunge()
-    py from pastebin import Sprunge; Sprunge.paste()
+  py from pastebin import Sprunge; Sprunge.paste()
 endfunction
 command! -register Sprunge call <SID>Sprunge()
