@@ -386,8 +386,8 @@ endif
 
 "vim-ipython
 let g:ipy_perform_mappings = 0
-map <buffer> <silent> <LocalLeader>m <Plug>(IPython-RunLine)
-map <buffer> <silent> <LocalLeader>n <Plug>(IPython-RunLines)
+map <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
+map <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
 map <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
 
 
@@ -399,5 +399,4 @@ let g:tmux_navigator_no_mappings = 1
 nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
 nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-\;> :echo 'hi'<cr>
-nnoremap <silent> <C-m> :TmuxNavigatePrevious<cr>
+nnoremap <silent> <C-\> :TmuxNavigatePrevious<cr>
