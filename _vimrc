@@ -395,3 +395,9 @@ print r
 EOF
 endfunction
 command! -register Sprunge call <SID>Sprunge()
+
+"vim-ipython
+let g:ipy_perform_mappings = 0
+map <buffer> <silent> <LocalLeader>m <Plug>(IPython-RunLine)
+map <buffer> <silent> <LocalLeader>n <Plug>(IPython-RunLines)
+map <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
