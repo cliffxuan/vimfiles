@@ -5,10 +5,36 @@ import json
 import vim
 
 
-class Hastebin(object):
+class Pastebin(object):
+
+    TIMEOUT = 5  # seconds
+
+    @classmethod
+    def retrieve(cls, path):
+        raise NotImplemented
+
+    @classmethod
+    def paste(cls):
+        if all(line.strip() == '' for line in vim.current.buffer):
+            print 'empty buffer, abort pasting'
+        else:
+            print 'pasting to {} ...'.format(cls.URL)
+            try:
+                url = cls.paste_impl()
+                print url
+                vim.command('let @+= "{}\n"'.format(url))
+            except Exception as exc:
+                print type(exc)
+                print exc
+
+    @classmethod
+    def paste_impl(cls):
+        raise NotImplemented
+
+
+class Hastebin(Pastebin):
 
     URL = "http://hastebin.com"
-    TIMEOUT = 5  # seconds
 
     @classmethod
     def retrieve(cls, path):
@@ -25,18 +51,24 @@ class Hastebin(object):
             print 'failed to get "{}". error "{}"'.format(url, exc)
 
     @classmethod
-    def paste(cls):
-        if all(line.strip() == '' for line in vim.current.buffer):
-            print 'empty buffer, abort pasting'
-        else:
-            print 'pasting to {} ...'.format(cls.URL)
-            try:
-                rsp = urllib2.urlopen(cls.URL + "/documents",
-                                      '\n'.join(vim.current.buffer),
-                                      timeout=cls.TIMEOUT).read()
-                url = "{}/{}".format(cls.URL, json.loads(rsp)['key'])
-                print url
-                vim.command('let @+= "{}\n"'.format(url))
-            except Exception as exc:
-                print type(exc)
-                print exc
+    def paste_impl(cls):
+        rsp = urllib2.urlopen(cls.URL + "/documents",
+                              '\n'.join(vim.current.buffer),
+                              timeout=cls.TIMEOUT).read()
+        url = "{}/{}".format(cls.URL, json.loads(rsp)['key'])
+        return url
+
+
+class Sprunge(Pastebin):
+
+    URL = "http://sprunge.us/"
+
+    @classmethod
+    def retrieve(cls, path):
+        raise NotImplemented
+
+    @classmethod
+    def paste_impl(cls):
+        url = urllib2.urlopen(
+            cls.URL, 'sprunge={}'.format('\n'.join(vim.current.buffer))).read()
+        return url

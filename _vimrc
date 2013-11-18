@@ -381,20 +381,6 @@ if has('gui_running')
 endif
 " }}}
 
-" web pastebins
-" hastebin.com
-
-" sprunge.us
-function! s:Sprunge()
-python <<EOF
-import urllib2
-URL = "http://sprunge.us/"
-r = urllib2.urlopen(
-    URL, 'sprunge={}'.format('\n'.join(vim.current.buffer))).read()
-print r
-EOF
-endfunction
-command! -register Sprunge call <SID>Sprunge()
 
 "vim-ipython
 let g:ipy_perform_mappings = 0
