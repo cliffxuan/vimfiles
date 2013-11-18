@@ -9,8 +9,7 @@ function! s:Hastebin(...)
   py from pastebin import Hastebin
   if a:0
     for path in a:000
-      echo path
-      execute "py Hastebin.retrieve('" . path . "')"
+      py Hastebin.retrieve(vim.eval('path'))
     endfor
   else
     py Hastebin.paste()
