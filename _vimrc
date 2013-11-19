@@ -341,7 +341,7 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 let g:jedi#documentation_command = "<localleader>m"
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 0
-let g:jedi#completions_command = "<localleader>k"
+let g:jedi#completions_command = "<c-j>"
 let g:jedi#goto_assignments_command = "<localleader>g"
 let g:jedi#usages_command = "<localleader>n"
 
@@ -386,9 +386,9 @@ endif
 
 "vim-ipython
 let g:ipy_perform_mappings = 0
-map <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
-map <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
-map <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
+noremap <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
+noremap <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
+noremap <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
 
 
 "tmux

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import urllib2
 import json
 import vim
@@ -16,7 +17,7 @@ class Pastebin(object):
     @classmethod
     def paste(cls):
         if all(line.strip() == '' for line in vim.current.buffer):
-            print 'empty buffer, abort pasting'
+            sys.stderr.write('empty buffer, abort pasting')
         else:
             print 'pasting to {} ...'.format(cls.URL)
             try:
@@ -25,7 +26,7 @@ class Pastebin(object):
                 vim.command('let @+= "{}\n"'.format(url))
             except Exception as exc:
                 print type(exc)
-                print exc
+                sys.stderr.write(exc)
 
     @classmethod
     def paste_impl(cls):
@@ -37,8 +38,25 @@ class Hastebin(Pastebin):
     URL = "http://hastebin.com"
 
     @classmethod
+    def get_fullpath(cls, path):
+        if path.startswith(cls.URL):
+            if path.startswith(cls.URL + '/raw'):
+                if path == cls.URL + '/raw':
+                    raise Exception('wrong url "{}".'.format(path))
+                else:
+                    return path
+            else:
+                return cls.URL + '/raw' + path[len(cls.URL):]
+        else:
+            return '{}/raw/{}'.format(cls.URL, path)
+
+    @classmethod
     def retrieve(cls, path):
-        url = cls.URL + '/raw/' + path
+        try:
+            url = cls.get_fullpath(path)
+        except Exception as exc:
+            sys.stderr.write('{}'.format(exc))
+            return
         try:
             rsp = urllib2.urlopen(url, timeout=cls.TIMEOUT)
             vim.command('enew')
@@ -48,7 +66,7 @@ class Hastebin(Pastebin):
             vim.command('setlocal nomodified')
             vim.command('setlocal nomodifiable')
         except Exception as exc:
-            print 'failed to get "{}". error "{}"'.format(url, exc)
+            sys.stderr.write('failed to get "{}". error "{}"'.format(url, exc))
 
     @classmethod
     def paste_impl(cls):
