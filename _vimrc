@@ -386,9 +386,9 @@ endif
 
 "vim-ipython
 let g:ipy_perform_mappings = 0
-noremap <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
-noremap <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
-noremap <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
+map <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
+map <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
+map <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
 
 
 "tmux
