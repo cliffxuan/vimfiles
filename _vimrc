@@ -310,6 +310,8 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>/ :<c-u>call <SID>GrepOperator(visualmode())<cr>
 
 function! s:GrepOperator(type)
+    let b:dirname = fnamemodify(expand('%:p'), ':h')
+    let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
     let saved_unnamed_register = @@
     if a:type ==# 'v'
         normal! `<v`>y
@@ -323,7 +325,7 @@ function! s:GrepOperator(type)
         let excludes = excludes . '--exclude-dir='
                     \. shellescape(d)  . ' '
     endfor
-    silent execute "grep! -R " . excludes . shellescape(@@) . " ."
+    silent execute "grep! -R " . excludes . shellescape(@@) . " " . b:cvsroot
     copen
     let @@ = saved_unnamed_register
 endfunction
