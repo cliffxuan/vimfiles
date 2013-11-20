@@ -21,6 +21,17 @@ class TestCase(unittest.TestCase):
             self.assertRaises(
                 Exception, pastebin.Hastebin.get_fullpath, path)
 
+    def test_message(self):
+        messags = [
+            "foo",
+            "f'o'o",
+            'f"o"o',
+            '''f"'o'"o''',
+            """a'b"c\nd\t\\e"""
+        ]
+        for msg in messags:
+            pastebin.error_msg(msg)
+
 if __name__ == '__main__':
     try:
         unittest.main()
