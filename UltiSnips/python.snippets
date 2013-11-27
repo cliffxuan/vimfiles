@@ -108,3 +108,13 @@ def get_session():
     return sess
 
 endsnippet
+
+snippet cod "encoding for python scripts" b
+# -*- coding: utf-8 -*-
+$0
+endsnippet
+
+snippet conn "sqlalchemy connection" b
+import sqlalchemy as sa
+conn = sa.create_engine('mysql://user:password@localhost/db').connect()
+endsnippet
