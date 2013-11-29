@@ -70,7 +70,7 @@ class Hastebin(Pastebin):
             vim.command('enew')
             vim.current.buffer[:] = rsp.readlines()
             vim.current.buffer.name = 'hastebin-{}'.format(path)
-            vim.command('setlocal buftype=nofile bufhidden=hide noswapfile')
+            vim.command('setlocal bufhidden=hide noswapfile')
             vim.command('setlocal nomodified')
             vim.command('setlocal nomodifiable')
         except Exception as exc:
