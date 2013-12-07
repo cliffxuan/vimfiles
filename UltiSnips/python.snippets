@@ -81,6 +81,7 @@ snippet ap "argparse" b
         required=True, help='bar')
     parser.add_argument(
         'eggs', nargs='+', help='one or multiple eggs')
+    args = parser.parse_args()
 endsnippet
 
 snippet ko "kickoff a python script" b
