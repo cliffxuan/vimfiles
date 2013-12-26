@@ -343,6 +343,7 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 let g:jedi#documentation_command = "<localleader>m"
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 0
+let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#completions_command = "<c-j>"
 let g:jedi#goto_assignments_command = "<localleader>g"
 let g:jedi#usages_command = "<localleader>n"
