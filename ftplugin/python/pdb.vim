@@ -2,50 +2,45 @@ if !has("python")
     finish
 endif
 python << EOF
+import re
 import vim
-import_str = 'exec "try: import ipdb as pdb\\nexcept:import pdb" #####import ipdb or pdb'
-call_str = 'pdb.set_trace()'
+IMPORT = 'exec "try: import ipdb as pdb\\nexcept:import pdb" #####import ipdb or pdb'
+CALL = 'pdb.set_trace()'
 
-def SetBreakpoint():
-    import re
-    nLine = int( vim.eval( 'line(".")'))
+def set_breakpoint():
+    n_line = int(vim.eval('line(".")'))
 
-    strLine = vim.current.line
-    strWhite = re.search( '^(\s*)', strLine).group(1)
+    whitespace = re.search('^(\s*)', vim.current.line).group(1)
 
+    vim.current.buffer.append(whitespace + IMPORT, n_line - 1)
     vim.current.buffer.append(
        """%(space)s%(call_str)s  %(mark)s Breakpoint %(mark)s""" %
-         {'space':strWhite, 'mark': '#' * 30, 'call_str': call_str}, nLine - 1)
+         {'space':whitespace, 'mark': '#' * 30, 'call_str': CALL}, n_line)
 
-    for strLine in vim.current.buffer:
-        if strLine == import_str:
-            break
-    else:
-        vim.current.buffer.append( import_str, 0)
-        vim.command( 'normal j1')
+    vim.command( 'normal j1')
 
-def RemoveBreakpoints():
-    import re
 
-    nCurrentLine = int( vim.eval( 'line(".")'))
+def remove_breakpoints():
 
-    nLines = []
-    nLine = 1
-    for strLine in vim.current.buffer:
-        if strLine == import_str or strLine.lstrip()[:15] == call_str:
-            nLines.append( nLine)
-        nLine += 1
+    n_currentline = int(vim.eval( 'line(".")'))
 
-    nLines.reverse()
+    n_lines = []
+    n_line = 1
+    for line in vim.current.buffer:
+        if line.lstrip() == IMPORT or line.lstrip()[:15] == CALL:
+            n_lines.append(n_line)
+        n_line += 1
 
-    for nLine in nLines:
-        vim.command( 'normal %dG' % nLine)
+    n_lines.reverse()
+
+    for n_line in n_lines:
+        vim.command( 'normal %dG' % n_line)
         vim.command( 'normal dd')
-        if nLine < nCurrentLine:
-            nCurrentLine -= 1
+        if n_line < n_currentline:
+            n_currentline -= 1
 
-    vim.command( 'normal %dG' % nCurrentLine)
+    vim.command( 'normal %dG' % n_currentline)
 
-vim.command( 'noremap  <LocalLeader>b :py SetBreakpoint()<cr>:update<cr>')
-vim.command( 'noremap <LocalLeader>d :py RemoveBreakpoints()<cr>:update<cr>')
+vim.command('noremap  <LocalLeader>b :py set_breakpoint()<cr>:update<cr>')
+vim.command('noremap <LocalLeader>d :py remove_breakpoints()<cr>:update<cr>')
 EOF
