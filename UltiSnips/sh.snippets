@@ -1,3 +1,7 @@
 snippet sb "shebang" b
 #!/usr/bin/env bash
 endsnippet
+
+snippet pwd "current directory of the script" b
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+endsnippet
