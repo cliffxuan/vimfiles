@@ -325,7 +325,7 @@ function! s:GrepOperator(type)
         let excludes = excludes . '--exclude-dir='
                     \. shellescape(d)  . ' '
     endfor
-    silent execute "grep! -R " . excludes . shellescape(@@) . " " . b:cvsroot
+    silent execute "grep! -srnw --binary-files=without-match " . excludes . shellescape(@@) . " " . b:cvsroot
     copen
     let @@ = saved_unnamed_register
 endfunction
@@ -339,14 +339,19 @@ execute 'let @'.reg.' = join(hits, "\n") . "\n"'
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
+"supertab
+let g:SuperTabDefaultCompletionType = "<c-n>"
+
 "jedi
 let g:jedi#documentation_command = "<localleader>m"
-let g:jedi#popup_on_dot = 0
+let g:jedi#popup_on_dot = 1
 let g:jedi#show_call_signatures = 0
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#completions_command = "<c-j>"
 let g:jedi#goto_assignments_command = "<localleader>g"
 let g:jedi#usages_command = "<localleader>n"
+" no docstring window popup during completion
+autocmd FileType python setlocal completeopt-=preview
 
 " unite
 function! s:ShowProjectDirectoryFile()
