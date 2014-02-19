@@ -231,7 +231,7 @@ let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#buffer_nr_show = 1
 
-" Fugitive {{{
+" fugitive {{{
 nnoremap <leader>gd :Gdiff<cr>
 nnoremap <leader>gs :Gstatus<cr>
 nnoremap <leader>gw :Gwrite<cr>
@@ -249,16 +249,16 @@ augroup ft_fugitive
     au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
-" "GitHub"
-nnoremap <leader>H :Gbrowse<cr>
-vnoremap <leader>H :Gbrowse<cr>
+" github
+nnoremap <leader>gh :Gbrowse<cr>
+vnoremap <leader>gh :Gbrowse<cr>
 
 " }}}
 "
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
-" Toggle relativenumber
+" toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<CR>
 function! NumberToggle()
     if !exists('&relativenumber')
@@ -272,7 +272,7 @@ function! NumberToggle()
     endif
 endfunction
 
-" Toggle quickfix
+" toggle quickfix
 nnoremap <leader>q :call QuickfixToggle()<cr>
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
@@ -287,7 +287,7 @@ function! QuickfixToggle()
     endif
 endfunction
 
-" Toggle number and list
+" toggle number and list
 nnoremap <leader>l :call NumberAndListToggle()<cr>
 function! NumberAndListToggle()
     if &number || (exists('&relativenumber') && &relativenumber) || &list
@@ -305,7 +305,7 @@ function! NumberAndListToggle()
     endif
 endfunction
 
-"Grep
+"grep
 nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>/ :<c-u>call <SID>GrepOperator(visualmode())<cr>
 
@@ -377,7 +377,7 @@ nnoremap <leader>y :Unite history/yank<cr>
 " syntastic
 let g:syntastic_check_on_open = 1
 
-" Environments (GUI/Console) ---------------------------------------------- {{{
+" environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
     " GUI Vim
 
