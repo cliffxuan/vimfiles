@@ -155,8 +155,8 @@ endtry
 " maps
 
 " edit and source $MYVIMRC
-noremap <leader>ev :execute 'e ' . resolve(expand($MYVIMRC))<CR>
-noremap <leader>sv :source $MYVIMRC<CR>
+noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<CR>
+noremap <leader>es :source $MYVIMRC<CR>
 
 " map ; to :
 noremap ; :
@@ -166,8 +166,8 @@ noremap : ;
 noremap K :bdelete<CR>
 
 " Split Open
-noremap <leader>v :vsp<CR>
-noremap <leader>ee :Vexplore<CR>
+noremap <leader>ee :vsp<CR>
+noremap <leader>ev :Vexplore<CR>
 noremap <leader>en :vnew<CR>
 
 " Explorer
