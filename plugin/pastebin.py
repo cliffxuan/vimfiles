@@ -34,7 +34,7 @@ class Pastebin(object):
                 vim.command('let @+= "{}\n"'.format(url))
             except Exception as exc:
                 print type(exc)
-                error_msg(exc)
+                error_msg(str(exc))
 
     @classmethod
     def paste_impl(cls):
