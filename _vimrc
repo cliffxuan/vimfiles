@@ -31,7 +31,6 @@ NeoBundle 'jmcantrell/vim-virtualenv'
 NeoBundle 'ivanov/vim-ipython'
 NeoBundle 'mattn/gist-vim'
 NeoBundle 'mattn/webapi-vim'
-NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundle 'scrooloose/nerdcommenter'
@@ -44,6 +43,9 @@ NeoBundle 'VimClojure'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
+endif
+if exists('*gettabvar')
+  NeoBundle 'airblade/vim-gitgutter'
 endif
 filetype plugin indent on
 
