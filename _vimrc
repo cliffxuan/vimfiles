@@ -72,7 +72,7 @@ set shiftwidth=4
 set noignorecase "case sensitive
 set backspace=2 "make backspace work like most other applications
 set hlsearch incsearch
-set cursorline cursorcolumn
+set cursorline
 set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
