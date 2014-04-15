@@ -151,3 +151,57 @@ urlpatterns = patterns('', (r'^$', index),)
 if __name__ == "__main__":
     execute_from_command_line(sys.argv)
 endsnippet
+
+
+snippet multithreading "multi threading" b
+import threading
+
+
+def wait_to_run(func, event, sec, *arg, **kw):
+    event.wait(sec)
+    func(*arg)
+
+
+def multi_threading(target, concurrency, *args):
+    events = [threading.Event() for i in xrange(concurrency)]
+    threads = [threading.Thread(target=wait_to_run,
+                                args=(target, evt, 2) + args)
+               for evt in events]
+    for t in threads:
+        t.start()
+    for e in events:
+        e.set()
+    for t in threads:
+        t.join()
+endsnippet
+
+
+snippet forkthreading "fork and multithreading" b
+import os
+
+
+def wait_to_run(func, event, sec, *arg, **kw):
+    event.wait(sec)
+    func(*arg)
+
+
+def multi_threading(target, concurrency, *args):
+    events = [threading.Event() for i in xrange(concurrency)]
+    threads = [threading.Thread(target=wait_to_run,
+                                args=(target, evt, 2) + args)
+               for evt in events]
+    for t in threads:
+        t.start()
+    for e in events:
+        e.set()
+    for t in threads:
+        t.join()
+
+
+def fork_and_multi_threading(target, concurrency, *args):
+    pid = os.fork()
+    if pid == 0:
+        multi_threading(target, concurrency, *args)
+        os._exit(0)
+    return pid
+endsnippet
