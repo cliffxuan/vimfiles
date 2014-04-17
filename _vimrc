@@ -39,7 +39,7 @@ NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'christoomey/vim-tmux-navigator'
 NeoBundle 'benmills/vimux.git'
-NeoBundle 'VimClojure'
+NeoBundle 'tpope/vim-fireplace'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
