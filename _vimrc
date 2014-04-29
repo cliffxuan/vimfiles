@@ -40,6 +40,7 @@ NeoBundle 'Shougo/unite.vim'
 NeoBundle 'christoomey/vim-tmux-navigator'
 NeoBundle 'benmills/vimux.git'
 NeoBundle 'tpope/vim-fireplace'
+NeoBundle 'guns/vim-sexp'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
