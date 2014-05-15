@@ -4,8 +4,8 @@ endif
 python << EOF
 import re
 import vim
-IMPORT = 'exec "try: import ipdb as pdb\\nexcept:import pdb" #####import ipdb or pdb'
-CALL = 'pdb.set_trace()'
+IMPORT = 'import ipdb #####import ipdb'
+CALL = 'ipdb.set_trace()'
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
