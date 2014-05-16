@@ -27,7 +27,7 @@ def remove_breakpoints():
     n_lines = []
     n_line = 1
     for line in vim.current.buffer:
-        if line.lstrip() == IMPORT or line.lstrip()[:15] == CALL:
+        if line.lstrip() == IMPORT or line.lstrip()[:len(CALL)] == CALL:
             n_lines.append(n_line)
         n_line += 1
 
