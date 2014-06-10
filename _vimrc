@@ -165,10 +165,10 @@ noremap ; :
 noremap : ;
 
 " Kill window
-noremap K :bdelete<CR>
+noremap K :hide<CR>
 
 " Split Open
-noremap <leader>ee :vsp<CR>
+noremap <leader>v :vsp<CR>
 noremap <leader>ev :Vexplore<CR>
 noremap <leader>en :vnew<CR>
 
