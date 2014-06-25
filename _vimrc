@@ -40,6 +40,7 @@ NeoBundle 'christoomey/vim-tmux-navigator'
 NeoBundle 'benmills/vimux.git'
 NeoBundle 'tpope/vim-fireplace'
 NeoBundle 'guns/vim-sexp'
+NeoBundle 'jiangmiao/auto-pairs'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
