@@ -41,6 +41,7 @@ NeoBundle 'benmills/vimux.git'
 NeoBundle 'tpope/vim-fireplace'
 NeoBundle 'guns/vim-sexp'
 NeoBundle 'jiangmiao/auto-pairs'
+NeoBundle 'godlygeek/tabular'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
