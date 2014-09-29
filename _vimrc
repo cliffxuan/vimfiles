@@ -229,6 +229,7 @@ vnoremap <leader><Space> za
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
+let g:netrw_list_hide= '.*\.pyc$'
 
 " airline powerline fonts
 let g:airline_powerline_fonts = 1
