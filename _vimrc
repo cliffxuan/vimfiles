@@ -376,6 +376,10 @@ function! s:ShowProjectDirectoryFile()
       execute('Unite ' . b:file_rec . ':' . b:cvsroot)
     endif
 endfunction
+"this does not work
+call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
+"have to have a white_globs otherwise nothing will be filtered because of a bug in unite
+call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
 nnoremap <leader>b :Unite buffer -quick-match<CR>
 nnoremap <leader>u :Unite<space>
