@@ -371,10 +371,11 @@ function! s:ShowProjectDirectoryFile()
         let b:file_rec = 'file_rec'
     endif
     if b:cvsroot == ''
-      execute('Unite ' . b:file_rec . ':' . b:dirname)
+      let b:opendir = b:dirname
     else
-      execute('Unite ' . b:file_rec . ':' . b:cvsroot)
+      let b:opendir = b:cvsroot
     endif
+    execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
 endfunction
 "this does not work
 call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
