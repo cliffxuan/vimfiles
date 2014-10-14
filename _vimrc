@@ -80,8 +80,27 @@ set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
 " Wrapped lines goes down/up to next row, rather than next line in file.
-nnoremap j gj
-nnoremap k gk
+nnoremap <silent> j :<C-U>call Down(v:count)<CR>
+vnoremap <silent> j gj
+
+nnoremap <silent> k :<C-U>call Up(v:count)<CR>
+vnoremap <silent> k gk
+
+function! Down(vcount)
+  if a:vcount == 0
+    exe "normal! gj"
+  else
+    exe "normal! ". a:vcount ."j"
+  endif
+endfunction
+
+function! Up(vcount)
+  if a:vcount == 0
+    exe "normal! gk"
+  else
+    exe "normal! ". a:vcount ."k"
+  endif
+endfunction
 
 "set title
 set title titlestring=[vim] "vim
