@@ -5,3 +5,21 @@ endsnippet
 snippet pwd "current directory of the script" b
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 endsnippet
+
+snippet run "run script boiler plate" b
+case "\$1" in
+"start")
+	action="start"
+	echo start
+	;;
+"clean")
+	action="clean"
+	echo start
+	echo clean
+	;;
+*)
+	echo "usage: run.sh {start,clean} days"
+	exit 1
+	;;
+esac
+endsnippet
