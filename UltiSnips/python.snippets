@@ -89,6 +89,7 @@ logger = get_logger()
 endsnippet
 
 snippet ap "argparse" b
+def argument_parser():
     parser = argparse.ArgumentParser(
         description='describe me')
     parser.add_argument(
@@ -98,7 +99,11 @@ snippet ap "argparse" b
         required=True, help='bar')
     parser.add_argument(
         'eggs', nargs='+', help='one or multiple eggs')
-    args = parser.parse_args()
+    return parser
+
+argv = None
+args = argument_parser().parse_args(argv)
+
 endsnippet
 
 snippet ko "kickoff a python script" b
