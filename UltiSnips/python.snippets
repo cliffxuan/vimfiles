@@ -96,7 +96,7 @@ def argument_parser():
         'filename', type=argparse.FileType('r'),
         help='name of the file to convert')
     parser.add_argument(
-        '--source_format', '-sf', choices=SUPPORTED_FORMATS,
+        '--source_format', '-sf', choices=['xml', 'json'],
         help='source format')
     parser.add_argument(
         'target_format', default='xml', nargs='?', choices=SUPPORTED_FORMATS,
