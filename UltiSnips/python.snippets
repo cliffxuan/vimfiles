@@ -99,7 +99,7 @@ def argument_parser():
         '--source_format', '-sf', choices=['xml', 'json'],
         help='source format')
     parser.add_argument(
-        'target_format', default='xml', nargs='?', choices=SUPPORTED_FORMATS,
+        'target_format', default='xml', nargs='?', choices=['xml', 'json'],
         help='target format')
     return parser
 
