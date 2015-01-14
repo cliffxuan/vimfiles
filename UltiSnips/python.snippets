@@ -93,17 +93,19 @@ def argument_parser():
     parser = argparse.ArgumentParser(
         description='describe me')
     parser.add_argument(
-        '--foo', dest='foo', help='foo')
+        'filename', type=argparse.FileType('r'),
+        help='name of the file to convert')
     parser.add_argument(
-        '--bar', dest='bar',
-        required=True, help='bar')
+        '--source_format', '-sf', choices=SUPPORTED_FORMATS,
+        help='source format')
     parser.add_argument(
-        'eggs', nargs='+', help='one or multiple eggs')
+        'target_format', default='xml', nargs='?', choices=SUPPORTED_FORMATS,
+        help='target format')
     return parser
 
-argv = None
-args = argument_parser().parse_args(argv)
 
+def main(argv=None):
+    args = argument_parser().parse_args(argv)
 endsnippet
 
 snippet ko "kickoff a python script" b
