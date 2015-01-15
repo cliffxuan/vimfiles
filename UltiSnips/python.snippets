@@ -229,3 +229,14 @@ def fork_and_multi_threading(target, concurrency, *args):
         os._exit(0)
     return pid
 endsnippet
+
+
+snippet rand "random string" b
+import random
+import string
+
+
+def rand_string(n):
+    options = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(options) for _ in range(n))
+endsnippet
