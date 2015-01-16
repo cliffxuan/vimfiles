@@ -240,3 +240,14 @@ def rand_string(n):
     options = string.ascii_uppercase + string.digits
     return ''.join(random.choice(options) for _ in range(n))
 endsnippet
+
+
+snippet paramz "pytest.mark.parametrize" b
+import pytest
+@pytest.mark.parametrize("input,expected", [
+    ("3+5", 8),
+    ("6*9", 42),
+])
+def test_eval(input, expected):
+    assert eval(input) == expected
+endsnippet
