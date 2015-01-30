@@ -224,7 +224,7 @@ endfunction
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" filter command 
+" filter command
 command! -nargs=? Filter let @a='' | execute 'g/<args>/y A' | new | setlocal bt=nofile | put! a
 
 " Typos
@@ -443,3 +443,6 @@ nnoremap <silent> <C-\> :TmuxNavigatePrevious<cr>
 
 "nerdcommenter
 let g:NERDSpaceDelims = 1
+
+"easymotion
+nmap <leader>s <Plug>(easymotion-s)
