@@ -446,3 +446,5 @@ let g:NERDSpaceDelims = 1
 
 "easymotion
 nmap <leader>s <Plug>(easymotion-s)
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
