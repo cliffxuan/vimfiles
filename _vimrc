@@ -402,6 +402,7 @@ call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', 
 call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
 nnoremap <leader>b :Unite buffer -start-insert<CR>
+nnoremap <leader>e :Unite buffer -start-insert<CR>
 nnoremap <leader>u :Unite<space>
 let g:unite_source_history_yank_enable = 1
 nnoremap <leader>y :Unite history/yank<cr>
