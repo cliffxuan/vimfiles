@@ -1,9 +1,13 @@
 " Neobundle load
 if has('vim_starting')
-    set nocompatible               " Be iMproved
+    if &compatible
+      set nocompatible               " Be iMproved
+    endif
+
     set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
-call neobundle#rc(expand('~/.vim/bundle/'))
+
+call neobundle#begin(expand('~/.vim/bundle/'))
 
 " Let NeoBundle manage NeoBundle
 NeoBundleFetch 'Shougo/neobundle.vim'
@@ -36,6 +40,7 @@ NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundle 'scrooloose/nerdcommenter'
 NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/vimshell.vim'
 NeoBundle 'christoomey/vim-tmux-navigator'
 NeoBundle 'benmills/vimux.git'
 NeoBundle 'tpope/vim-fireplace'
@@ -49,6 +54,9 @@ endif
 if exists('*gettabvar')
   NeoBundle 'airblade/vim-gitgutter'
 endif
+
+call neobundle#end()
+
 filetype plugin indent on
 
 " Brief help
