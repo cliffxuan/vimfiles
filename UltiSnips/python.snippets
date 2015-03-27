@@ -251,3 +251,23 @@ import pytest
 def test_eval(input, expected):
     assert eval(input) == expected
 endsnippet
+
+
+snippet torpr "tornado print" b
+def prepare(self):
+    print '!' * 20
+    print self.request.headers
+    print self.request.body
+    print '!' * 20
+
+
+def write(self, chunk):
+    print '*' * 20
+    print chunk
+    print '*' * 20
+    return super(BaseHandler, self).write(chunk)
+
+
+BaseHandler.prepare = prepare.__get__(None, BaseHandler)
+BaseHandler.write = write.__get__(None, BaseHandler)
+endsnippet
