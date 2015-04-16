@@ -20,7 +20,7 @@ endsnippet
 
 snippet cdec "cdec copyright" b
 #
-# (C) Copyright Connected Digital Economy Catapult Limited 2014
+# (C) Copyright Connected Digital Economy Catapult Limited 2015
 # All rights reserved
 #
 endsnippet
@@ -270,4 +270,22 @@ def write(self, chunk):
 
 BaseHandler.prepare = prepare.__get__(None, BaseHandler)
 BaseHandler.write = write.__get__(None, BaseHandler)
+endsnippet
+
+
+snippet setup "setup.py" b
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+
+VERSION = '0.0.1'
+
+setup(name='foo',
+      version=VERSION,
+      description='Package Description',
+      author='Cliff Xuan',
+      packages=['foo'],
+      install_requires=[])
 endsnippet
