@@ -47,6 +47,7 @@ NeoBundle 'tpope/vim-fireplace'
 NeoBundle 'guns/vim-sexp'
 NeoBundle 'jiangmiao/auto-pairs'
 NeoBundle 'godlygeek/tabular'
+NeoBundle 'hynek/vim-python-pep8-indent'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
