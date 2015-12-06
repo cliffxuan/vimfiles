@@ -289,3 +289,10 @@ setup(name='foo',
       packages=['foo'],
       install_requires=[])
 endsnippet
+
+
+snippet pwd "current working directory" b
+import os
+
+PWD = os.path.abspath(os.path.dirname('__file__'))
+endsnippet
