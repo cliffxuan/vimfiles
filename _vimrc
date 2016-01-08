@@ -28,7 +28,7 @@ NeoBundle 'Shougo/vimproc', {
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'scrooloose/syntastic'
-NeoBundle 'mileszs/ack.vim'
+NeoBundle 'rking/ag.vim'
 NeoBundle 'bling/vim-airline.git'
 NeoBundle 'ervandew/supertab'
 NeoBundle 'jmcantrell/vim-virtualenv'
