@@ -48,6 +48,7 @@ NeoBundle 'guns/vim-sexp'
 NeoBundle 'jiangmiao/auto-pairs'
 NeoBundle 'godlygeek/tabular'
 NeoBundle 'hynek/vim-python-pep8-indent'
+NeoBundle 'begriffs/haskell-vim-now'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
@@ -423,7 +424,7 @@ let g:syntastic_check_on_open = 1
 if has('gui_running')
     " GUI Vim
 
-    set guifont=Menlo\ Regular\ for\ Powerline:h12
+    set guifont=Menlo\ Regular\ for\ Powerline:h10
    " Remove all the UI cruft
     set guioptions-=T
     set guioptions-=l
