@@ -4,18 +4,14 @@ endif
 python << EOF
 import re
 import vim
-IMPORT = 'import ipdb #####import ipdb'
-CALL = 'ipdb.set_trace()'
+LINE = 'import ipdb; ipdb.set_trace()##########'
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
 
     whitespace = re.search('^(\s*)', vim.current.line).group(1)
 
-    vim.current.buffer.append(whitespace + IMPORT, n_line - 1)
-    vim.current.buffer.append(
-       """%(space)s%(call_str)s  %(mark)s Breakpoint %(mark)s""" %
-         {'space':whitespace, 'mark': '#' * 30, 'call_str': CALL}, n_line)
+    vim.current.buffer.append(whitespace + LINE, n_line - 1)
 
     vim.command( 'normal j1')
 
@@ -27,7 +23,7 @@ def remove_breakpoints():
     n_lines = []
     n_line = 1
     for line in vim.current.buffer:
-        if line.lstrip() == IMPORT or line.lstrip()[:len(CALL)] == CALL:
+        if line.lstrip() == LINE:
             n_lines.append(n_line)
         n_line += 1
 
