@@ -424,7 +424,7 @@ let g:syntastic_check_on_open = 1
 if has('gui_running')
     " GUI Vim
 
-    set guifont=Menlo\ Regular\ for\ Powerline:h10
+    set guifont=Menlo\ Regular\ for\ Powerline:h12
    " Remove all the UI cruft
     set guioptions-=T
     set guioptions-=l
