@@ -49,6 +49,8 @@ NeoBundle 'jiangmiao/auto-pairs'
 NeoBundle 'godlygeek/tabular'
 NeoBundle 'hynek/vim-python-pep8-indent'
 NeoBundle 'begriffs/haskell-vim-now'
+NeoBundle 'tpope/vim-abolish'
+NeoBundle 'ConradIrwin/vim-bracketed-paste'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     NeoBundle 'davidhalter/jedi-vim'
@@ -89,7 +91,6 @@ set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
-set paste
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap <silent> j :<C-U>call Down(v:count)<CR>
 vnoremap <silent> j gj
