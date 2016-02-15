@@ -1,12 +1,11 @@
-" Neobundle load
-if has('vim_starting')
-    if &compatible
-      set nocompatible               " Be iMproved
-    endif
+if 0 | endif
 
-    set runtimepath+=~/.vim/bundle/neobundle.vim/
+if &compatible
+  set nocompatible               " Be iMproved
 endif
 
+
+set runtimepath+=~/.vim/bundle/neobundle.vim/
 call neobundle#begin(expand('~/.vim/bundle/'))
 
 " Let NeoBundle manage NeoBundle
