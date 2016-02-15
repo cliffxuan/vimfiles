@@ -28,7 +28,8 @@ NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'scrooloose/syntastic'
 NeoBundle 'rking/ag.vim'
-NeoBundle 'bling/vim-airline.git'
+NeoBundle 'vim-airline/vim-airline'
+NeoBundle 'vim-airline/vim-airline-themes'
 NeoBundle 'ervandew/supertab'
 NeoBundle 'jmcantrell/vim-virtualenv'
 NeoBundle 'ivanov/vim-ipython'
@@ -264,7 +265,7 @@ let g:netrw_list_hide= '.*\.pyc$'
 " airline powerline fonts
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme='bubblegum'
+let g:airline_theme='luna'
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#buffer_nr_show = 1
