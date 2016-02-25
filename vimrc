@@ -53,6 +53,7 @@ NeoBundle 'tpope/vim-abolish'
 NeoBundle 'ConradIrwin/vim-bracketed-paste'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
+    let g:UltiSnipsSnippetDirectories=['ultisnips']
     NeoBundle 'davidhalter/jedi-vim'
 endif
 if exists('*gettabvar')
