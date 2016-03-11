@@ -4,7 +4,7 @@ endif
 python << EOF
 import re
 import vim
-LINE = 'import ipdb; ipdb.set_trace()##########'
+LINE = 'import pdb; pdb.set_trace()##########'
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
