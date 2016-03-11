@@ -176,8 +176,8 @@ else
 endif
 
 " set <leader> to ,
-let mapleader = ","
-let maplocalleader = " "
+let mapleader = " "
+let maplocalleader = ","
 
 syntax on
 "if Tomorrow-Night-Bright exists, use it
