@@ -37,6 +37,6 @@ def remove_breakpoints():
 
     vim.command( 'normal %dG' % n_currentline)
 
-vim.command('noremap  <LocalLeader>b :py set_breakpoint()<cr>:update<cr>')
-vim.command('noremap <LocalLeader>d :py remove_breakpoints()<cr>:update<cr>')
+vim.command('noremap  <LocalLeader>a :py set_breakpoint()<cr>:update<cr>')
+vim.command('noremap <LocalLeader>b :py remove_breakpoints()<cr>:update<cr>')
 EOF
