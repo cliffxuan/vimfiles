@@ -51,6 +51,7 @@ NeoBundle 'hynek/vim-python-pep8-indent'
 NeoBundle 'begriffs/haskell-vim-now'
 NeoBundle 'tpope/vim-abolish'
 NeoBundle 'ConradIrwin/vim-bracketed-paste'
+NeoBundle 'whatyouhide/vim-gotham'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -61,6 +62,10 @@ if exists('*gettabvar')
 endif
 
 call neobundle#end()
+
+if has('nvim')
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+endif
 
 filetype plugin indent on
 
@@ -183,7 +188,11 @@ syntax on
 "if Tomorrow-Night-Bright exists, use it
 "otherwise koehler
 try
+  if has('nvim')
+    colorscheme gotham
+  else
     colorscheme Tomorrow-Night-Bright
+  endif
 catch /^Vim\%((\a\+)\)\=:E185/
      colorscheme koehler
 endtry

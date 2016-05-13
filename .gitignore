@@ -2,5 +2,6 @@ syntax: glob
 *.pyc
 .netrwhist
 .netrwbook
+init.vim
 doc/tags
 bundle/*
