@@ -5,6 +5,7 @@ python << EOF
 import re
 import vim
 LINE = 'import pdb; pdb.set_trace()##########'
+LINE2 = 'import ipdb; ipdb.set_trace()##########'
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
@@ -23,7 +24,7 @@ def remove_breakpoints():
     n_lines = []
     n_line = 1
     for line in vim.current.buffer:
-        if line.lstrip() == LINE:
+        if line.lstrip() in [LINE, LINE2]:
             n_lines.append(n_line)
         n_line += 1
 
