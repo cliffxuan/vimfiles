@@ -38,7 +38,6 @@ NeoBundle 'mattn/webapi-vim'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundle 'scrooloose/nerdcommenter'
-NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/vimshell.vim'
 NeoBundle 'christoomey/vim-tmux-navigator'
@@ -51,7 +50,7 @@ NeoBundle 'hynek/vim-python-pep8-indent'
 NeoBundle 'begriffs/haskell-vim-now'
 NeoBundle 'tpope/vim-abolish'
 NeoBundle 'ConradIrwin/vim-bracketed-paste'
-NeoBundle 'whatyouhide/vim-gotham'
+NeoBundle 'flazz/vim-colorschemes'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -59,6 +58,9 @@ if has('python')
 endif
 if exists('*gettabvar')
   NeoBundle 'airblade/vim-gitgutter'
+endif
+if exists('g:nyaovim_version')
+  NeoBundle 'rhysd/nyaovim-mini-browser'
 endif
 
 call neobundle#end()
@@ -185,11 +187,12 @@ let mapleader = " "
 let maplocalleader = ","
 
 syntax on
-"if Tomorrow-Night-Bright exists, use it
+set background=dark
+"if custom themes exists, use it
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme gotham
+    colorscheme codeschool
   else
     colorscheme Tomorrow-Night-Bright
   endif
