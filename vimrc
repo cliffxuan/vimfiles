@@ -56,6 +56,9 @@ if has('python')
     let g:UltiSnipsSnippetDirectories=['ultisnips']
     NeoBundle 'davidhalter/jedi-vim'
 endif
+if has('nvim')
+    NeoBundle 'kassio/neoterm'
+endif
 if exists('*gettabvar')
   NeoBundle 'airblade/vim-gitgutter'
 endif
@@ -267,8 +270,8 @@ command! -bang WQ wq<bang>
 command! Suw :w !sudo tee %
 
 "folding
-noremap <leader><Space> za
-vnoremap <leader><Space> za
+noremap <leader>z za
+vnoremap <leader>z za
 
 " netrw settings
 " keep the curreent directory the same as the browsing directory
@@ -447,6 +450,10 @@ if has('gui_running')
     set guioptions-=r
     set guioptions-=R
 endif
+
+if has('gui_macvim')
+  set macmeta
+endif
 " }}}
 
 
@@ -462,10 +469,17 @@ noremap <leader>t :call VimuxOpenPane()<CR>
 
 let g:tmux_navigator_no_mappings = 1
 
-nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
-nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
-nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-\> :TmuxNavigatePrevious<cr>
+" switch window
+" this works in neovim and macvim
+nnorema <silent> <M-h> <C-w>h
+nnorema <silent> <M-j> <C-w>j
+nnorema <silent> <M-k> <C-w>k
+nnorema <silent> <M-l> <C-w>l
+" this is for terminal vim
+nnorema <silent> <Esc>h <C-w>h
+nnorema <silent> <Esc>j <C-w>j
+nnorema <silent> <Esc>k <C-w>k
+nnorema <silent> <Esc>l <C-w>l
 
 "nerdcommenter
 let g:NERDSpaceDelims = 1
@@ -495,3 +509,12 @@ vnoremap <silent> # :<C-U>
   \gvy?<C-R><C-R>=substitute(
   \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
   \gV:call setreg('"', old_reg, old_regtype)<CR>
+
+" neovim terminal
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap <M-h> <C-\><C-n><C-w>h
+  tnoremap <M-j> <C-\><C-n><C-w>j
+  tnoremap <M-k> <C-\><C-n><C-w>k
+  tnoremap <M-l> <C-\><C-n><C-w>l
+endif
