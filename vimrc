@@ -32,7 +32,6 @@ NeoBundle 'vim-airline/vim-airline'
 NeoBundle 'vim-airline/vim-airline-themes'
 NeoBundle 'ervandew/supertab'
 NeoBundle 'jmcantrell/vim-virtualenv'
-NeoBundle 'ivanov/vim-ipython'
 NeoBundle 'mattn/gist-vim'
 NeoBundle 'mattn/webapi-vim'
 NeoBundle 'tpope/vim-surround'
@@ -55,6 +54,11 @@ if has('python')
     NeoBundle 'SirVer/ultisnips'
     let g:UltiSnipsSnippetDirectories=['ultisnips']
     NeoBundle 'davidhalter/jedi-vim'
+    if has('nvim')
+      NeoBundle 'bfredl/nvim-ipy'
+    else
+      NeoBundle 'ivanov/vim-ipython'
+    endif
 endif
 if has('nvim')
     NeoBundle 'kassio/neoterm'
@@ -102,6 +106,7 @@ set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
+set clipboard=unnamedplus
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap <silent> j :<C-U>call Down(v:count)<CR>
 vnoremap <silent> j gj
