@@ -50,6 +50,7 @@ NeoBundle 'begriffs/haskell-vim-now'
 NeoBundle 'tpope/vim-abolish'
 NeoBundle 'ConradIrwin/vim-bracketed-paste'
 NeoBundle 'flazz/vim-colorschemes'
+NeoBundle 'rhysd/committia.vim'
 if has('python')
     NeoBundle 'SirVer/ultisnips'
     let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -95,7 +96,7 @@ endif
 set hidden
 set numberwidth=4
 set expandtab
-set tabstop=4
+set tabstop=8
 set softtabstop=4
 set shiftwidth=4
 set noignorecase "case sensitive
