@@ -1,90 +1,88 @@
 if 0 | endif
-
+"dein Scripts-----------------------------
 if &compatible
   set nocompatible               " Be iMproved
 endif
 
+" Required:
+set runtimepath^=~/.vim/dein/repos/github.com/Shougo/dein.vim
 
-set runtimepath+=~/.vim/bundle/neobundle.vim/
-call neobundle#begin(expand('~/.vim/bundle/'))
+" Required:
+call dein#begin(expand('~/.vim/dein'))
 
-" Let NeoBundle manage NeoBundle
-NeoBundleFetch 'Shougo/neobundle.vim'
+" Let dein manage dein
+" Required:
+call dein#add('Shougo/dein.vim')
 
-" After install, run from shell:
-" cd ~/.vim/bundle/vimproc, (n,g)make -f os_makefile
-"
-NeoBundle 'Shougo/vimproc', {
-      \ 'build' : {
-      \     'windows' : 'make -f make_mingw32.mak',
-      \     'cygwin' : 'make -f make_cygwin.mak',
-      \     'mac' : 'make -f make_mac.mak',
-      \     'unix' : 'make -f make_unix.mak',
-      \    },
-      \ }
+" Add or remove your plugins here:
+call dein#add('Shougo/neosnippet.vim')
+call dein#add('Shougo/neosnippet-snippets')
+
+" You can specify revision/branch/tag.
+call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
 
 " Installing bundles to ~/.vim/bundle
-NeoBundle 'tpope/vim-fugitive'
-NeoBundle 'sjl/gundo.vim'
-NeoBundle 'scrooloose/syntastic'
-NeoBundle 'rking/ag.vim'
-NeoBundle 'vim-airline/vim-airline'
-NeoBundle 'vim-airline/vim-airline-themes'
-NeoBundle 'ervandew/supertab'
-NeoBundle 'jmcantrell/vim-virtualenv'
-NeoBundle 'mattn/gist-vim'
-NeoBundle 'mattn/webapi-vim'
-NeoBundle 'tpope/vim-surround'
-NeoBundle 'Lokaltog/vim-easymotion'
-NeoBundle 'scrooloose/nerdcommenter'
-NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/vimshell.vim'
-NeoBundle 'christoomey/vim-tmux-navigator'
-NeoBundle 'benmills/vimux.git'
-NeoBundle 'tpope/vim-fireplace'
-NeoBundle 'guns/vim-sexp'
-NeoBundle 'jiangmiao/auto-pairs'
-NeoBundle 'godlygeek/tabular'
-NeoBundle 'hynek/vim-python-pep8-indent'
-NeoBundle 'begriffs/haskell-vim-now'
-NeoBundle 'tpope/vim-abolish'
-NeoBundle 'ConradIrwin/vim-bracketed-paste'
-NeoBundle 'flazz/vim-colorschemes'
-NeoBundle 'rhysd/committia.vim'
+call dein#add('tpope/vim-fugitive')
+call dein#add('sjl/gundo.vim')
+call dein#add('scrooloose/syntastic')
+call dein#add('rking/ag.vim')
+call dein#add('vim-airline/vim-airline')
+call dein#add('vim-airline/vim-airline-themes')
+call dein#add('ervandew/supertab')
+call dein#add('jmcantrell/vim-virtualenv')
+call dein#add('mattn/gist-vim')
+call dein#add('mattn/webapi-vim')
+call dein#add('tpope/vim-surround')
+call dein#add('Lokaltog/vim-easymotion')
+call dein#add('scrooloose/nerdcommenter')
+call dein#add('Shougo/unite.vim')
+call dein#add('Shougo/vimshell.vim')
+call dein#add('benmills/vimux.git')
+call dein#add('tpope/vim-fireplace')
+call dein#add('guns/vim-sexp')
+call dein#add('jiangmiao/auto-pairs')
+call dein#add('godlygeek/tabular')
+call dein#add('hynek/vim-python-pep8-indent')
+call dein#add('begriffs/haskell-vim-now')
+call dein#add('tpope/vim-abolish')
+call dein#add('ConradIrwin/vim-bracketed-paste')
+call dein#add('flazz/vim-colorschemes')
+call dein#add('rhysd/committia.vim')
+call dein#add('nathanaelkane/vim-indent-guides')
+
 if has('python')
-    NeoBundle 'SirVer/ultisnips'
+    call dein#add('SirVer/ultisnips')
     let g:UltiSnipsSnippetDirectories=['ultisnips']
-    NeoBundle 'davidhalter/jedi-vim'
-    if has('nvim')
-      NeoBundle 'bfredl/nvim-ipy'
-    else
-      NeoBundle 'ivanov/vim-ipython'
-    endif
+    call dein#add('davidhalter/jedi-vim')
 endif
 if has('nvim')
-    NeoBundle 'kassio/neoterm'
+    call dein#add('kassio/neoterm')
 endif
 if exists('*gettabvar')
-  NeoBundle 'airblade/vim-gitgutter'
+  call dein#add('airblade/vim-gitgutter')
 endif
 if exists('g:nyaovim_version')
-  NeoBundle 'rhysd/nyaovim-mini-browser'
+  call dein#add('rhysd/nyaovim-mini-browser')
 endif
 
-call neobundle#end()
+" Required:
+call dein#end()
+
+" Required:
+filetype plugin indent on
+
+" If you want to install not installed plugins on startup.
+if dein#check_install()
+ call dein#install()
+endif
+
+"End dein Scripts-------------------------
 
 if has('nvim')
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 endif
 
 filetype plugin indent on
-
-" Brief help
-" :NeoBundleList          - list configured bundles
-" :NeoBundleInstall(!)    - install(update) bundles
-" :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles
-" Installation check.
-NeoBundleCheck
 
 set nobackup noswapfile
 set encoding=utf-8
@@ -461,19 +459,6 @@ if has('gui_macvim')
   set macmeta
 endif
 " }}}
-
-
-"vim-ipython
-let g:ipy_perform_mappings = 0
-map <buffer> <silent> <LocalLeader>, <Plug>(IPython-RunLine)
-map <buffer> <silent> <LocalLeader>. <Plug>(IPython-RunLines)
-map <buffer> <silent> <LocalLeader>f <Plug>(IPython-RunFile)
-
-
-"tmux
-noremap <leader>t :call VimuxOpenPane()<CR>
-
-let g:tmux_navigator_no_mappings = 1
 
 " switch window
 " this works in neovim and macvim

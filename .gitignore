@@ -4,4 +4,4 @@ syntax: glob
 .netrwbook
 init.vim
 doc/tags
-bundle/*
+dein/*
