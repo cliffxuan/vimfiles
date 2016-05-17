@@ -4,75 +4,56 @@ if &compatible
   set nocompatible               " Be iMproved
 endif
 
-" Required:
-set runtimepath^=~/.vim/dein/repos/github.com/Shougo/dein.vim
+call plug#begin('~/.vim/plugged')
 
-" Required:
-call dein#begin(expand('~/.vim/dein'))
-
-" Let dein manage dein
-" Required:
-call dein#add('Shougo/dein.vim')
-
-" Installing plugins to ~/.vim/dein
-call dein#add('tpope/vim-fugitive')
-call dein#add('sjl/gundo.vim')
-call dein#add('scrooloose/syntastic')
-call dein#add('rking/ag.vim')
-call dein#add('vim-airline/vim-airline')
-call dein#add('vim-airline/vim-airline-themes')
-call dein#add('ervandew/supertab')
-call dein#add('jmcantrell/vim-virtualenv')
-call dein#add('mattn/gist-vim')
-call dein#add('mattn/webapi-vim')
-call dein#add('tpope/vim-surround')
-call dein#add('Lokaltog/vim-easymotion')
-call dein#add('scrooloose/nerdcommenter')
-call dein#add('Shougo/unite.vim')
-call dein#add('Shougo/vimshell.vim')
-call dein#add('benmills/vimux.git')
-call dein#add('tpope/vim-fireplace')
-call dein#add('guns/vim-sexp')
-call dein#add('jiangmiao/auto-pairs')
-call dein#add('godlygeek/tabular')
-call dein#add('hynek/vim-python-pep8-indent')
-call dein#add('begriffs/haskell-vim-now')
-call dein#add('tpope/vim-abolish')
-call dein#add('ConradIrwin/vim-bracketed-paste')
-call dein#add('flazz/vim-colorschemes')
-call dein#add('rhysd/committia.vim')
-call dein#add('nathanaelkane/vim-indent-guides')
+Plug 'tpope/vim-fugitive'
+Plug 'sjl/gundo.vim'
+Plug 'scrooloose/syntastic'
+Plug 'rking/ag.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'ervandew/supertab'
+Plug 'jmcantrell/vim-virtualenv'
+Plug 'mattn/gist-vim'
+Plug 'mattn/webapi-vim'
+Plug 'tpope/vim-surround'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'scrooloose/nerdcommenter'
+Plug 'Shougo/unite.vim'
+Plug 'Shougo/vimshell.vim'
+Plug 'tpope/vim-fireplace'
+Plug 'guns/vim-sexp'
+Plug 'jiangmiao/auto-pairs'
+Plug 'godlygeek/tabular'
+Plug 'hynek/vim-python-pep8-indent'
+Plug 'begriffs/haskell-vim-now'
+Plug 'tpope/vim-abolish'
+Plug 'ConradIrwin/vim-bracketed-paste'
+Plug 'flazz/vim-colorschemes'
+Plug 'rhysd/committia.vim'
+Plug 'nathanaelkane/vim-indent-guides'
 
 if has('python')
-    call dein#add('SirVer/ultisnips')
+    Plug 'SirVer/ultisnips'
     let g:UltiSnipsSnippetDirectories=['ultisnips']
-    call dein#add('davidhalter/jedi-vim')
+    Plug 'davidhalter/jedi-vim'
 endif
 if exists('*gettabvar')
-  call dein#add('airblade/vim-gitgutter')
+  Plug 'airblade/vim-gitgutter'
 endif
 if exists('g:nyaovim_version')
-  call dein#add('rhysd/nyaovim-mini-browser')
+  Plug 'rhysd/nyaovim-mini-browser'
 endif
 
-" Required:
-call dein#end()
+call plug#end()
 
-" Required:
 filetype plugin indent on
 
-" If you want to install not installed plugins on startup.
-if dein#check_install()
- call dein#install()
-endif
-
-"End dein Scripts-------------------------
+"End vim-plug Scripts-------------------------
 
 if has('nvim')
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 endif
-
-filetype plugin indent on
 
 set nobackup noswapfile
 set encoding=utf-8
