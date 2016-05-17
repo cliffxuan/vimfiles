@@ -14,14 +14,7 @@ call dein#begin(expand('~/.vim/dein'))
 " Required:
 call dein#add('Shougo/dein.vim')
 
-" Add or remove your plugins here:
-call dein#add('Shougo/neosnippet.vim')
-call dein#add('Shougo/neosnippet-snippets')
-
-" You can specify revision/branch/tag.
-call dein#add('Shougo/vimshell', { 'rev': '3787e5' })
-
-" Installing bundles to ~/.vim/bundle
+" Installing plugins to ~/.vim/dein
 call dein#add('tpope/vim-fugitive')
 call dein#add('sjl/gundo.vim')
 call dein#add('scrooloose/syntastic')
@@ -54,9 +47,6 @@ if has('python')
     call dein#add('SirVer/ultisnips')
     let g:UltiSnipsSnippetDirectories=['ultisnips']
     call dein#add('davidhalter/jedi-vim')
-endif
-if has('nvim')
-    call dein#add('kassio/neoterm')
 endif
 if exists('*gettabvar')
   call dein#add('airblade/vim-gitgutter')
@@ -429,9 +419,9 @@ function! s:ShowProjectDirectoryFile()
     execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
 endfunction
 "this does not work
-call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
+" call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
 "have to have a white_globs otherwise nothing will be filtered because of a bug in unite
-call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
+" call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
 nnoremap <leader>b :Unite buffer -start-insert<CR>
 nnoremap <leader>e :Unite buffer -start-insert<CR>
