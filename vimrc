@@ -19,6 +19,7 @@ Plug 'mattn/webapi-vim'
 Plug 'tpope/vim-surround'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'scrooloose/nerdcommenter'
+Plug 'Shougo/vimproc.vim', { 'do': 'make' }
 Plug 'Shougo/unite.vim'
 Plug 'Shougo/vimshell.vim'
 Plug 'tpope/vim-fireplace'
