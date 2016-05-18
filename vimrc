@@ -33,6 +33,7 @@ Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'flazz/vim-colorschemes'
 Plug 'rhysd/committia.vim'
 Plug 'nathanaelkane/vim-indent-guides'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 if has('python')
     Plug 'SirVer/ultisnips'
@@ -388,17 +389,15 @@ autocmd FileType python setlocal completeopt-=preview
 function! s:ShowProjectDirectoryFile()
     let b:dirname = fnamemodify(expand('%:p'), ':h')
     let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
-    if unite#util#has_vimproc()
-        let b:file_rec = 'file_rec/async'
-    else
-        let b:file_rec = 'file_rec'
-    endif
     if b:cvsroot == ''
       let b:opendir = b:dirname
     else
       let b:opendir = b:cvsroot
     endif
-    execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
+    " execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
+    call fzf#run({'source': 'ag -g ""', 'dir': b:opendir,
+                 \'down': '40%', 'sink': 'botright split'
+                 \})
 endfunction
 "this does not work
 " call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
