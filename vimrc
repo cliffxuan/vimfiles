@@ -161,9 +161,9 @@ set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
 "warn me if my line is over 79 columns
 if exists('+colorcolumn')
-      set colorcolumn=79
+  set colorcolumn=79
 else
-    au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>79v.\+', -1)
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>79v.\+', -1)
 endif
 
 " set <leader> to ,
@@ -181,7 +181,7 @@ try
     colorscheme Tomorrow-Night-Bright
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
-     colorscheme koehler
+  colorscheme koehler
 endtry
 
 " maps
@@ -205,27 +205,27 @@ noremap <leader>en :vnew<CR>
 " Explorer
 noremap Q :call ToggleExplorer()<CR>
 if !isdirectory(expand('%'))
-    let w:org_buffer_name=expand('%:p')
+  let w:org_buffer_name=expand('%:p')
 endif
 function! ToggleExplorer()
-    if !isdirectory(expand('%'))
-        let w:org_buffer_name=expand('%:p')
-        Explore
-        normal gg
-    elseif exists('w:org_buffer_name')
-        execute 'e  ' . w:org_buffer_name
-    endif
+  if !isdirectory(expand('%'))
+    let w:org_buffer_name=expand('%:p')
+    Explore
+    normal gg
+  elseif exists('w:org_buffer_name')
+    execute 'e  ' . w:org_buffer_name
+  endif
 endfunction
 
 " Explorer
 noremap <leader><tab> :call ToggleTab()<CR>
 function! ToggleTab()
   if &expandtab
-      set noexpandtab
-      echo 'tab on'
+    set noexpandtab
+    echo 'tab on'
   else
-      set expandtab
-      echo 'tab off'
+    set expandtab
+    echo 'tab off'
   endif
 endfunction
 
@@ -280,9 +280,9 @@ nnoremap <leader>gr :Gremove<cr>
 nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 
 augroup ft_fugitive
-    au!
+  au!
 
-    au BufNewFile,BufRead .git/index setlocal nolist
+  au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
 " github
@@ -297,48 +297,48 @@ nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 " toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<CR>
 function! NumberToggle()
-    if !exists('&relativenumber')
-        return
-    endif
-    if(&relativenumber == 1)
-        setlocal norelativenumber
-        setlocal number
-    else
-        setlocal relativenumber
-    endif
+  if !exists('&relativenumber')
+    return
+  endif
+  if(&relativenumber == 1)
+    setlocal norelativenumber
+    setlocal number
+  else
+    setlocal relativenumber
+  endif
 endfunction
 
 " toggle quickfix
 nnoremap <leader>q :call QuickfixToggle()<cr>
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
-    if g:quickfix_is_open
-        cclose
-        let g:quickfix_is_open = 0
-        execute g:quickfix_return_to_window . "wincmd w"
-    else
-        let g:quickfix_return_to_window = winnr()
-        copen
-        let g:quickfix_is_open = 1
-    endif
+  if g:quickfix_is_open
+    cclose
+    let g:quickfix_is_open = 0
+    execute g:quickfix_return_to_window . "wincmd w"
+  else
+    let g:quickfix_return_to_window = winnr()
+    copen
+    let g:quickfix_is_open = 1
+  endif
 endfunction
 
 " toggle number and list
 nnoremap <leader>l :call NumberAndListToggle()<cr>
 function! NumberAndListToggle()
-    if &number || (exists('&relativenumber') && &relativenumber) || &list
-        set nonumber
-        if exists('&relativenumber')
-            set norelativenumber
-        endif
-        set nolist
-    else
-        set number
-        if exists('&relativenumber')
-            set relativenumber
-        endif
-        set list
+  if &number || (exists('&relativenumber') && &relativenumber) || &list
+    set nonumber
+    if exists('&relativenumber')
+      set norelativenumber
     endif
+    set nolist
+  else
+    set number
+    if exists('&relativenumber')
+      set relativenumber
+    endif
+    set list
+  endif
 endfunction
 
 "grep
@@ -346,32 +346,32 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>/ :<c-u>call <SID>GrepOperator(visualmode())<cr>
 
 function! s:GrepOperator(type)
-    let b:dirname = fnamemodify(expand('%:p'), ':h')
-    let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
-    let saved_unnamed_register = @@
-    if a:type ==# 'v'
-        normal! `<v`>y
-    elseif a:type ==# 'char'
-        normal! `[v`]y
-    else
-        return
-    endif
-    let excludes = ''
-    for d in ['.git', '.svn', '.hg', '.bzr']
-        let excludes = excludes . '--exclude-dir='
-                    \. shellescape(d)  . ' '
-    endfor
-    silent execute "grep! -srnw --binary-files=without-match " . excludes . shellescape(@@) . " " . b:cvsroot
-    copen
-    let @@ = saved_unnamed_register
+  let b:dirname = fnamemodify(expand('%:p'), ':h')
+  let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
+  let saved_unnamed_register = @@
+  if a:type ==# 'v'
+    normal! `<v`>y
+  elseif a:type ==# 'char'
+    normal! `[v`]y
+  else
+    return
+  endif
+  let excludes = ''
+  for d in ['.git', '.svn', '.hg', '.bzr']
+    let excludes = excludes . '--exclude-dir='
+          \. shellescape(d)  . ' '
+  endfor
+  silent execute "grep! -srnw --binary-files=without-match " . excludes . shellescape(@@) . " " . b:cvsroot
+  copen
+  let @@ = saved_unnamed_register
 endfunction
 
 
 function! CopyMatches(reg)
-let hits = []
-%s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
-let reg = empty(a:reg) ? '+' : a:reg
-execute 'let @'.reg.' = join(hits, "\n") . "\n"'
+  let hits = []
+  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
+  let reg = empty(a:reg) ? '+' : a:reg
+  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
@@ -391,17 +391,17 @@ autocmd FileType python setlocal completeopt-=preview
 
 " unite
 function! s:ShowProjectDirectoryFile()
-    let b:dirname = fnamemodify(expand('%:p'), ':h')
-    let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
-    if b:cvsroot == ''
-      let b:opendir = b:dirname
-    else
-      let b:opendir = b:cvsroot
-    endif
-    " execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
-    call fzf#run({'source': 'ag -g ""', 'dir': b:opendir,
-                 \'down': '40%', 'sink': 'e'
-                 \})
+  let b:dirname = fnamemodify(expand('%:p'), ':h')
+  let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
+  if b:cvsroot == ''
+    let b:opendir = b:dirname
+  else
+    let b:opendir = b:cvsroot
+  endif
+  " execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
+  call fzf#run({'source': 'ag -g ""', 'dir': b:opendir,
+        \'down': '40%', 'sink': 'e'
+        \})
 endfunction
 "this does not work
 " call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
@@ -419,15 +419,15 @@ let g:syntastic_check_on_open = 1
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
-    " GUI Vim
+  " GUI Vim
 
-    set guifont=Menlo\ Regular\ for\ Powerline:h12
-   " Remove all the UI cruft
-    set guioptions-=T
-    set guioptions-=l
-    set guioptions-=L
-    set guioptions-=r
-    set guioptions-=R
+  set guifont=Menlo\ Regular\ for\ Powerline:h12
+  " Remove all the UI cruft
+  set guioptions-=T
+  set guioptions-=l
+  set guioptions-=L
+  set guioptions-=r
+  set guioptions-=R
 endif
 
 if has('gui_macvim')
@@ -466,15 +466,15 @@ endif
 
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy/<C-R><C-R>=substitute(
-  \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \gvy/<C-R><C-R>=substitute(
+      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+      \gV:call setreg('"', old_reg, old_regtype)<CR>
 vnoremap <silent> # :<C-U>
-  \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
-  \gvy?<C-R><C-R>=substitute(
-  \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-  \gV:call setreg('"', old_reg, old_regtype)<CR>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \gvy?<C-R><C-R>=substitute(
+      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
+      \gV:call setreg('"', old_reg, old_regtype)<CR>
 
 " neovim terminal
 if has('nvim')
