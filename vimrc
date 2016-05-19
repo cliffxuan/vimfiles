@@ -1,5 +1,5 @@
 if 0 | endif
-"dein Scripts-----------------------------
+"Start vim-plug Scripts-----------------------------
 if &compatible
   set nocompatible               " Be iMproved
 endif
@@ -36,12 +36,16 @@ Plug 'nathanaelkane/vim-indent-guides'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 if has('python')
-    Plug 'SirVer/ultisnips'
-    let g:UltiSnipsSnippetDirectories=['ultisnips']
-    Plug 'davidhalter/jedi-vim'
+  Plug 'SirVer/ultisnips'
+  let g:UltiSnipsSnippetDirectories=['ultisnips']
+  Plug 'davidhalter/jedi-vim'
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
+endif
+if has('nvim')
+  Plug 'kassio/neoterm'
+  let g:neoterm_size = 10
 endif
 if exists('g:nyaovim_version')
   Plug 'rhysd/nyaovim-mini-browser'
@@ -62,7 +66,7 @@ set encoding=utf-8
 set fileformat=unix
 set number
 if exists('&relativenumber')
-    set relativenumber
+  set relativenumber
 endif
 set hidden
 set numberwidth=4
@@ -396,7 +400,7 @@ function! s:ShowProjectDirectoryFile()
     endif
     " execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
     call fzf#run({'source': 'ag -g ""', 'dir': b:opendir,
-                 \'down': '40%', 'sink': 'botright split'
+                 \'down': '40%', 'sink': 'e'
                  \})
 endfunction
 "this does not work
@@ -479,5 +483,5 @@ if has('nvim')
   tnoremap <M-j> <C-\><C-n><C-w>j
   tnoremap <M-k> <C-\><C-n><C-w>k
   tnoremap <M-l> <C-\><C-n><C-w>l
-  nnoremap <leader>o :below 10sp term://$SHELL<cr>i
+  nnoremap <leader>o :call neoterm#toggle()<CR>
 endif
