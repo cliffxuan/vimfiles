@@ -34,6 +34,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'rhysd/committia.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 if has('python')
   Plug 'SirVer/ultisnips'
@@ -62,7 +63,9 @@ if has('nvim')
 endif
 
 set nobackup noswapfile
-set encoding=utf-8
+if !has('nvim')
+  set encoding=utf-8
+endif
 set fileformat=unix
 set number
 if exists('&relativenumber')
@@ -84,10 +87,10 @@ set autoread
 set autowrite
 set clipboard=unnamedplus
 " Wrapped lines goes down/up to next row, rather than next line in file.
-nnoremap <silent> j :<C-U>call Down(v:count)<CR>
+nnoremap <silent> j :<C-U>call Down(v:count)<cr>
 vnoremap <silent> j gj
 
-nnoremap <silent> k :<C-U>call Up(v:count)<CR>
+nnoremap <silent> k :<C-U>call Up(v:count)<cr>
 vnoremap <silent> k gk
 
 function! Down(vcount)
@@ -135,8 +138,8 @@ set statusline+=%r "Readonly flag, text is "[RO]".
 set autoindent
 
 " Buffer Cycling
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprevious<CR>
+nnoremap <Tab> :bnext<cr>
+nnoremap <S-Tab> :bprevious<cr>
 
 " Wildmenu completion {{{
 "
@@ -176,7 +179,7 @@ set background=dark
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme codeschool
+    colorscheme termschool
   else
     colorscheme Tomorrow-Night-Bright
   endif
@@ -184,26 +187,15 @@ catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
 
-" maps
-
-" edit and source $MYVIMRC
-noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<CR>
-noremap <leader>es :source $MYVIMRC<CR>
-
 " map ; to :
 noremap ; :
 noremap : ;
 
 " Kill window
-noremap K :hide<CR>
-
-" Split Open
-noremap <leader>v :vsp<CR>
-noremap <leader>ev :Vexplore<CR>
-noremap <leader>en :vnew<CR>
+noremap K :hide<cr>
 
 " Explorer
-noremap Q :call ToggleExplorer()<CR>
+noremap Q :call ToggleExplorer()<cr>
 if !isdirectory(expand('%'))
   let w:org_buffer_name=expand('%:p')
 endif
@@ -218,7 +210,6 @@ function! ToggleExplorer()
 endfunction
 
 " Explorer
-noremap <leader><tab> :call ToggleTab()<CR>
 function! ToggleTab()
   if &expandtab
     set noexpandtab
@@ -250,10 +241,6 @@ command! -bang WQ wq<bang>
 " sudo
 command! Suw :w !sudo tee %
 
-"folding
-noremap <leader>z za
-vnoremap <leader>z za
-
 " netrw settings
 " keep the curreent directory the same as the browsing directory
 let g:netrw_keepdir= 0
@@ -268,16 +255,6 @@ let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#buffer_nr_show = 1
 
 " fugitive {{{
-nnoremap <leader>gd :Gdiff<cr>
-nnoremap <leader>gs :Gstatus<cr>
-nnoremap <leader>gw :Gwrite<cr>
-nnoremap <leader>ga :Git add %<cr>
-nnoremap <leader>gp :Git add % -p<cr>
-nnoremap <leader>gb :Gblame<cr>
-nnoremap <leader>gc :Gcommit<cr>
-nnoremap <leader>gm :Gmove<cr>
-nnoremap <leader>gr :Gremove<cr>
-nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 
 augroup ft_fugitive
   au!
@@ -285,17 +262,7 @@ augroup ft_fugitive
   au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
-" github
-nnoremap <leader>gh :Gbrowse<cr>
-vnoremap <leader>gh :Gbrowse<cr>
 
-" }}}
-"
-" Clean trailing whitespace
-nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
-
-" toggle relativenumber
-nnoremap <leader>n :call NumberToggle()<CR>
 function! NumberToggle()
   if !exists('&relativenumber')
     return
@@ -309,7 +276,6 @@ function! NumberToggle()
 endfunction
 
 " toggle quickfix
-nnoremap <leader>q :call QuickfixToggle()<cr>
 let g:quickfix_is_open = 0
 function! QuickfixToggle()
   if g:quickfix_is_open
@@ -324,7 +290,6 @@ function! QuickfixToggle()
 endfunction
 
 " toggle number and list
-nnoremap <leader>l :call NumberAndListToggle()<cr>
 function! NumberAndListToggle()
   if &number || (exists('&relativenumber') && &relativenumber) || &list
     set nonumber
@@ -342,9 +307,6 @@ function! NumberAndListToggle()
 endfunction
 
 "grep
-nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
-vnoremap <leader>/ :<c-u>call <SID>GrepOperator(visualmode())<cr>
-
 function! s:GrepOperator(type)
   let b:dirname = fnamemodify(expand('%:p'), ':h')
   let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
@@ -389,7 +351,6 @@ let g:jedi#usages_command = "<localleader>n"
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 
-" unite
 function! s:ShowProjectDirectoryFile()
   let b:dirname = fnamemodify(expand('%:p'), ':h')
   let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
@@ -407,12 +368,54 @@ endfunction
 " call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
 "have to have a white_globs otherwise nothing will be filtered because of a bug in unite
 " call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
-nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<CR>
-nnoremap <leader>b :Unite buffer -start-insert<CR>
-nnoremap <leader>e :Unite buffer -start-insert<CR>
+nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
+vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
+nnoremap <leader>a :Ag<cr>
+nnoremap <leader>b :Buffers<cr>
+" edit and source $MYVIMRC
+noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
+noremap <leader>es :source $MYVIMRC<cr>
+nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
+nnoremap <leader>l :Lines<cr>
+nnoremap <leader>m :call NumberAndListToggle()<cr>
+" toggle relativenumber
+nnoremap <leader>n :call NumberToggle()<cr>
+nnoremap <leader>q :call QuickfixToggle()<cr>
 nnoremap <leader>u :Unite<space>
-let g:unite_source_history_yank_enable = 1
-nnoremap <leader>y :Unite history/yank<cr>
+nnoremap <leader>x :GitFiles?<cr>
+nmap <leader>s <Plug>(easymotion-s)
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
+" Split Open
+noremap <leader>v :vsp<cr>
+noremap <leader>ev :Vexplore<cr>
+noremap <leader>en :vnew<cr>
+noremap <leader><tab> :call ToggleTab()<cr>
+nnoremap <leader>gd :Gdiff<cr>
+nnoremap <leader>gs :Gstatus<cr>
+nnoremap <leader>gw :Gwrite<cr>
+nnoremap <leader>ga :Git add %<cr>
+nnoremap <leader>gp :Git add % -p<cr>
+nnoremap <leader>gb :Gblame<cr>
+nnoremap <leader>gc :Gcommit<cr>
+nnoremap <leader>gm :Gmove<cr>
+nnoremap <leader>gr :Gremove<cr>
+nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
+" github
+nnoremap <leader>gh :Gbrowse<cr>
+vnoremap <leader>gh :Gbrowse<cr>
+
+" Clean trailing whitespace
+nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+
+" Git commits
+nnoremap <leader>y :Commits<cr>
+"folding
+noremap <leader>z za
+vnoremap <leader>z za
+" }}}
+"
+
 
 " syntastic
 let g:syntastic_check_on_open = 1
@@ -450,11 +453,6 @@ nnorema <silent> <Esc>l <C-w>l
 "nerdcommenter
 let g:NERDSpaceDelims = 1
 
-"easymotion
-nmap <leader>s <Plug>(easymotion-s)
-nmap <leader>j <Plug>(easymotion-j)
-nmap <leader>k <Plug>(easymotion-k)
-
 "cursors in insert mode when using tmux
 if exists('$TMUX')
   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
@@ -466,15 +464,15 @@ endif
 
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
       \gvy/<C-R><C-R>=substitute(
-      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-      \gV:call setreg('"', old_reg, old_regtype)<CR>
+      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+      \gV:call setreg('"', old_reg, old_regtype)<cr>
 vnoremap <silent> # :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
       \gvy?<C-R><C-R>=substitute(
-      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
-      \gV:call setreg('"', old_reg, old_regtype)<CR>
+      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+      \gV:call setreg('"', old_reg, old_regtype)<cr>
 
 " neovim terminal
 if has('nvim')
@@ -483,5 +481,14 @@ if has('nvim')
   tnoremap <M-j> <C-\><C-n><C-w>j
   tnoremap <M-k> <C-\><C-n><C-w>k
   tnoremap <M-l> <C-\><C-n><C-w>l
-  nnoremap <leader>o :call neoterm#toggle()<CR>
+  nnoremap <leader>o :call neoterm#toggle()<cr>
 endif
+
+" Insert mode completion
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+
+" Advanced customization using autoload functions
+inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
