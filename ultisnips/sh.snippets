@@ -9,21 +9,43 @@ endsnippet
 snippet run "run script boiler plate" b
 case "\$1" in
 "start")
-	action="start"
-	echo start
-	;;
+    action="start"
+    echo start
+    ;;
 "clean")
-	action="clean"
-	echo start
-	echo clean
-	;;
+    action="clean"
+    echo start
+    echo clean
+    ;;
 *)
-	echo "usage: run.sh {start,clean} days"
-	exit 1
-	;;
+    echo "usage: run.sh {start,clean} days"
+    exit 1
+    ;;
 esac
 endsnippet
 
 snippet ts "timestamp" b
 $(date +"%m%d%H%M")
+endsnippet
+
+snippet go "getopts" b
+while getopts ":fb:" opt
+do
+    case "$opt" in
+        f)
+            echo '-f is specified'
+            ;;
+        b)
+            BAR=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 1
+            ;;
+    esac
+done
 endsnippet
