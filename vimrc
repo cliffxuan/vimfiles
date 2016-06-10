@@ -35,6 +35,8 @@ Plug 'rhysd/committia.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'jelera/vim-javascript-syntax'
+Plug 'dracula/vim'
 
 if has('python')
   Plug 'SirVer/ultisnips'
@@ -492,3 +494,6 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
+
+" use eslint as js linter
+let g:syntastic_javascript_checkers = ['eslint']
