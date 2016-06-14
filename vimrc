@@ -497,3 +497,6 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
 " use eslint as js linter
 let g:syntastic_javascript_checkers = ['eslint']
+
+" ag search project directory
+let g:ag_working_path_mode="r"
