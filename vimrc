@@ -393,7 +393,7 @@ noremap <leader>v :vsp<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 noremap <leader><tab> :call ToggleTab()<cr>
-nnoremap <leader>gd :Gdiff<cr>
+nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gs :Gstatus<cr>
 nnoremap <leader>gw :Gwrite<cr>
 nnoremap <leader>ga :Git add %<cr>
