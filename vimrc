@@ -37,6 +37,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'jelera/vim-javascript-syntax'
 Plug 'dracula/vim'
+Plug 'jceb/vim-orgmode'
 
 if has('python')
   Plug 'SirVer/ultisnips'
@@ -87,7 +88,7 @@ set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
-set clipboard=unnamedplus
+set clipboard^=unnamed,unnamedplus
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap <silent> j :<C-U>call Down(v:count)<cr>
 vnoremap <silent> j gj
@@ -413,6 +414,8 @@ nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 " Git commits
 nnoremap <leader>y :Commits<cr>
 "folding
+set foldmethod=indent
+set foldlevelstart=20
 noremap <leader>z za
 vnoremap <leader>z za
 " }}}
