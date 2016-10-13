@@ -21,13 +21,6 @@ snippet sb "Shebang header for python scripts" b
 $0
 endsnippet
 
-snippet dc "digicat copyright" b
-#
-# (C) Copyright Digital Catapult Limited 2015
-# All rights reserved
-#
-endsnippet
-
 snippet lg "basic logging" b
 format = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(
@@ -92,6 +85,8 @@ logger = get_logger()
 endsnippet
 
 snippet ap "argparse" b
+import argparse
+
 def argument_parser():
     parser = argparse.ArgumentParser(
         description='describe me')
