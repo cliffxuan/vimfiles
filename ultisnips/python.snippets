@@ -316,3 +316,26 @@ if __name__ == "__main__":
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
 endsnippet
+
+
+snippet osp "os.path.join"
+os.path.join()
+endsnippet
+
+
+snippet djcmd "django command script"
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from django.core.management.base import BaseCommand
+
+
+class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-n', '--name', default='foo', help='name')
+
+    def handle(self, *args, **options):
+        print('command')
+endsnippet

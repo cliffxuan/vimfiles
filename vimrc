@@ -4,6 +4,8 @@ if &compatible
   set nocompatible               " Be iMproved
 endif
 
+filetype off
+
 call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-fugitive'
@@ -182,7 +184,7 @@ set background=dark
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme termschool
+    colorscheme zenburn
   else
     colorscheme Tomorrow-Night-Bright
   endif
