@@ -10,7 +10,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-fugitive'
 Plug 'sjl/gundo.vim'
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
 Plug 'rking/ag.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -40,6 +40,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'jelera/vim-javascript-syntax'
 Plug 'dracula/vim'
 Plug 'jceb/vim-orgmode'
+Plug 'w0rp/ale'
 
 if has('python')
   Plug 'SirVer/ultisnips'
