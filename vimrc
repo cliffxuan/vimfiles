@@ -460,6 +460,7 @@ nnorema <silent> <Esc>l <C-w>l
 
 "nerdcommenter
 let g:NERDSpaceDelims = 1
+let g:NERDDefaultAlign = 'left'
 
 "cursors in insert mode when using tmux
 if exists('$TMUX')
