@@ -45,7 +45,12 @@ Plug 'w0rp/ale'
 if has('python')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
-  Plug 'davidhalter/jedi-vim'
+  if has('nvim')
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'zchee/deoplete-jedi'
+  else
+    Plug 'davidhalter/jedi-vim'
+  endif
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
@@ -209,7 +214,6 @@ function! ToggleExplorer()
   if !isdirectory(expand('%'))
     let w:org_buffer_name=expand('%:p')
     Explore
-    normal gg
   elseif exists('w:org_buffer_name')
     execute 'e  ' . w:org_buffer_name
   endif
@@ -343,17 +347,24 @@ function! CopyMatches(reg)
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
-"supertab
+" supertab
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
-"jedi
-let g:jedi#documentation_command = "<localleader>m"
-let g:jedi#popup_on_dot = 1
-let g:jedi#show_call_signatures = 0
-let g:jedi#use_tabs_not_buffers = 0
-let g:jedi#completions_command = "<c-j>"
-let g:jedi#goto_assignments_command = "<localleader>g"
-let g:jedi#usages_command = "<localleader>n"
+" autocomplete
+if has('python')
+  if has('nvim')
+    let g:deoplete#enable_at_startup = 1
+  else
+    "jedi
+    let g:jedi#documentation_command = "<localleader>m"
+    let g:jedi#popup_on_dot = 1
+    let g:jedi#show_call_signatures = 0
+    let g:jedi#use_tabs_not_buffers = 0
+    let g:jedi#completions_command = "<c-j>"
+    let g:jedi#goto_assignments_command = "<localleader>g"
+    let g:jedi#usages_command = "<localleader>n"
+  endif
+endif
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 
@@ -427,6 +438,9 @@ vnoremap <leader>z za
 
 " syntastic
 let g:syntastic_check_on_open = 1
+
+" ale
+" let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
