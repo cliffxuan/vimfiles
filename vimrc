@@ -42,7 +42,7 @@ Plug 'dracula/vim'
 Plug 'jceb/vim-orgmode'
 Plug 'w0rp/ale'
 
-if has('python')
+if has('python') || has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   if has('nvim')
@@ -351,7 +351,7 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
 " autocomplete
-if has('python')
+if has('python') || has('python3')
   if has('nvim')
     let g:deoplete#enable_at_startup = 1
   else
