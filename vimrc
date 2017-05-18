@@ -192,7 +192,8 @@ try
   if has('nvim')
     colorscheme zenburn
   else
-    colorscheme Tomorrow-Night-Bright
+    " colorscheme Tomorrow-Night-Bright
+    colorscheme gotham
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
