@@ -190,7 +190,7 @@ set background=dark
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme zenburn
+    colorscheme onedark
   else
     " colorscheme Tomorrow-Night-Bright
     colorscheme gotham
