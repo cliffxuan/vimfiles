@@ -201,13 +201,16 @@ endtry
 
 " map ; to :
 noremap ; :
-noremap : ;
+if !has("gui_vimr")
+  " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
+  noremap : ;
+endif
 
 " Kill window
-noremap K :hide<cr>
+nnoremap K :hide<cr>
 
 " Explorer
-noremap Q :call ToggleExplorer()<cr>
+nnoremap Q :call ToggleExplorer()<cr>
 if !isdirectory(expand('%'))
   let w:org_buffer_name=expand('%:p')
 endif
