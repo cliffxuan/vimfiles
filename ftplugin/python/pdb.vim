@@ -13,7 +13,7 @@ def set_breakpoint():
 
     whitespace = re.search('^(\s*)', vim.current.line).group(1)
 
-    vim.current.buffer.append(whitespace + LINE2, n_line - 1)
+    vim.current.buffer.append(whitespace + LINE, n_line - 1)
 
     vim.command( 'normal j1')
 
