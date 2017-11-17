@@ -15,21 +15,18 @@ Plug 'rking/ag.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ervandew/supertab'
-Plug 'jmcantrell/vim-virtualenv'
+Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'tpope/vim-surround'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'scrooloose/nerdcommenter'
-Plug 'Shougo/vimproc.vim', { 'do': 'make' }
-Plug 'Shougo/unite.vim'
-Plug 'Shougo/vimshell.vim'
-Plug 'tpope/vim-fireplace'
-Plug 'guns/vim-sexp'
+Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'godlygeek/tabular'
-Plug 'hynek/vim-python-pep8-indent'
-Plug 'begriffs/haskell-vim-now'
+Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
+Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'tpope/vim-abolish'
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'flazz/vim-colorschemes'
@@ -37,19 +34,23 @@ Plug 'rhysd/committia.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'jelera/vim-javascript-syntax'
-Plug 'dracula/vim'
-Plug 'jceb/vim-orgmode'
+Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'w0rp/ale'
+Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 
+if has('nvim')
+  Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/denite.nvim'
+endif
 if has('python') || has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   if has('nvim')
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plug 'zchee/deoplete-jedi'
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': 'python' }
+    Plug 'zchee/deoplete-jedi', { 'for': 'python' }
   else
-    Plug 'davidhalter/jedi-vim'
+    Plug 'davidhalter/jedi-vim', { 'for': 'python' }
   endif
 endif
 if exists('*gettabvar')
@@ -58,9 +59,6 @@ endif
 if has('nvim')
   Plug 'kassio/neoterm'
   let g:neoterm_size = 10
-endif
-if exists('g:nyaovim_version')
-  Plug 'rhysd/nyaovim-mini-browser'
 endif
 
 call plug#end()
@@ -374,7 +372,7 @@ autocmd FileType python setlocal completeopt-=preview
 
 function! s:ShowProjectDirectoryFile()
   let b:dirname = fnamemodify(expand('%:p'), ':h')
-  let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
+  let b:cvsroot = denite#util#path2project_directory(b:dirname, 1)
   if b:cvsroot == ''
     let b:opendir = b:dirname
   else
@@ -393,6 +391,7 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
+nnoremap <leader>d :Denite<space>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
@@ -402,7 +401,6 @@ nnoremap <leader>m :call NumberAndListToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
-nnoremap <leader>u :Unite<space>
 nnoremap <leader>x :GitFiles?<cr>
 nmap <leader>s <Plug>(easymotion-s)
 nmap <leader>j <Plug>(easymotion-j)
