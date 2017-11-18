@@ -8,36 +8,37 @@ filetype off
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'tpope/vim-fugitive'
-Plug 'sjl/gundo.vim'
-" Plug 'scrooloose/syntastic'
-Plug 'rking/ag.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'ervandew/supertab'
-Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
-Plug 'mattn/gist-vim'
-Plug 'mattn/webapi-vim'
-Plug 'tpope/vim-surround'
-Plug 'Lokaltog/vim-easymotion'
-Plug 'scrooloose/nerdcommenter'
-Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
-Plug 'guns/vim-sexp', { 'for': 'clojure' }
-Plug 'jiangmiao/auto-pairs'
-Plug 'godlygeek/tabular'
-Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
-Plug 'tpope/vim-abolish'
 Plug 'ConradIrwin/vim-bracketed-paste'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
+Plug 'ervandew/supertab'
 Plug 'flazz/vim-colorschemes'
-Plug 'rhysd/committia.vim'
-Plug 'nathanaelkane/vim-indent-guides'
+Plug 'godlygeek/tabular'
+Plug 'guns/vim-sexp', { 'for': 'clojure' }
+Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
+Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'jiangmiao/auto-pairs'
+Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
-Plug 'w0rp/ale'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'mattn/gist-vim'
+Plug 'mattn/webapi-vim'
+" Plug 'nathanaelkane/vim-indent-guides'
+Plug 'Yggdroot/indentLine'
+Plug 'rhysd/committia.vim'
+Plug 'rking/ag.vim'
+Plug 'scrooloose/nerdcommenter'
+Plug 'sjl/gundo.vim'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-vinegar'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'w0rp/ale'
 
 if has('nvim')
   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
