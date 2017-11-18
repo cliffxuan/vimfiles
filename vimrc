@@ -37,6 +37,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'w0rp/ale'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'tpope/vim-vinegar'
 
 if has('nvim')
   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -207,21 +208,7 @@ endif
 " Kill window
 nnoremap K :hide<cr>
 
-" Explorer
-nnoremap Q :call ToggleExplorer()<cr>
-if !isdirectory(expand('%'))
-  let w:org_buffer_name=expand('%:p')
-endif
-function! ToggleExplorer()
-  if !isdirectory(expand('%'))
-    let w:org_buffer_name=expand('%:p')
-    Explore
-  elseif exists('w:org_buffer_name')
-    execute 'e  ' . w:org_buffer_name
-  endif
-endfunction
-
-" Explorer
+" ToggleTab
 function! ToggleTab()
   if &expandtab
     set noexpandtab
@@ -255,6 +242,7 @@ command! Suw :w !sudo tee %
 
 " netrw settings
 " keep the curreent directory the same as the browsing directory
+let g:netrw_liststyle=3
 let g:netrw_keepdir= 0
 let g:netrw_list_hide= '.*\.pyc$'
 
