@@ -11,6 +11,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
+Plug 'editorconfig/editorconfig-vim'
 Plug 'ervandew/supertab'
 Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
@@ -21,6 +22,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
@@ -35,7 +37,6 @@ Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-vinegar'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
@@ -208,6 +209,21 @@ endif
 
 " Kill window
 nnoremap K :hide<cr>
+
+" Explorer
+nnoremap Q :call ToggleExplorer()<cr>
+if !isdirectory(expand('%'))
+  let w:org_buffer_name=expand('%:p')
+endif
+function! ToggleExplorer()
+  " if !isdirectory(expand('%'))
+  if &ft !=# 'netrw'
+    let w:org_buffer_name=expand('%:p')
+    Explore
+  elseif exists('w:org_buffer_name')
+    execute 'e  ' . w:org_buffer_name
+  endif
+endfunction
 
 " ToggleTab
 function! ToggleTab()
