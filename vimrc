@@ -12,6 +12,7 @@ Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
+Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'ervandew/supertab'
 Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
@@ -26,7 +27,6 @@ Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
-" Plug 'nathanaelkane/vim-indent-guides'
 Plug 'Yggdroot/indentLine'
 Plug 'rhysd/committia.vim'
 Plug 'rking/ag.vim'
@@ -528,3 +528,6 @@ let g:syntastic_javascript_checkers = ['eslint']
 
 " ag search project directory
 let g:ag_working_path_mode="r"
+
+" do not show indentation for json
+let g:vim_json_syntax_conceal = 0
