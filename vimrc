@@ -531,3 +531,5 @@ let g:ag_working_path_mode="r"
 
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
+
+let g:ale_python_mypy_options="--ignore-missing-imports"
