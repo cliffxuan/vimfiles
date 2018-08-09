@@ -339,3 +339,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print('command')
 endsnippet
+
+snippet setup "setup.py"
+from setuptools import setup
+
+setup(
+    name='myapp',
+    packages=['myapp'],
+    include_package_data=True,
+    author='cliff xuan'
+)
+endsnippet
