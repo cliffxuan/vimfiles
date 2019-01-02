@@ -32,6 +32,7 @@ Plug 'rhysd/committia.vim'
 Plug 'rking/ag.vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'sjl/gundo.vim'
+Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-fugitive'
@@ -40,6 +41,7 @@ Plug 'tpope/vim-repeat'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
+Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 
 if has('nvim')
   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -194,7 +196,7 @@ try
     colorscheme onedark
   else
     " colorscheme Tomorrow-Night-Bright
-    colorscheme gotham
+    colorscheme dracula
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
@@ -367,7 +369,7 @@ if has('python') || has('python3')
     let g:jedi#popup_on_dot = 1
     let g:jedi#show_call_signatures = 0
     let g:jedi#use_tabs_not_buffers = 0
-    let g:jedi#completions_command = "<c-j>"
+    " let g:jedi#completions_command = "<c-j>"
     let g:jedi#goto_assignments_command = "<localleader>g"
     let g:jedi#usages_command = "<localleader>n"
   endif
@@ -533,3 +535,5 @@ let g:ag_working_path_mode="r"
 let g:vim_json_syntax_conceal = 0
 
 let g:ale_python_mypy_options="--ignore-missing-imports"
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
