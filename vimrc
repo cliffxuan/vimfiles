@@ -42,6 +42,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
+Plug 'haishanh/night-owl.vim'
 
 if has('nvim')
   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -193,10 +194,10 @@ set background=dark
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme onedark
+    colorscheme dracula
   else
     " colorscheme Tomorrow-Night-Bright
-    colorscheme dracula
+    colorscheme night-owl
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
@@ -217,6 +218,7 @@ nnoremap Q :call ToggleExplorer()<cr>
 if !isdirectory(expand('%'))
   let w:org_buffer_name=expand('%:p')
 endif
+
 function! ToggleExplorer()
   " if !isdirectory(expand('%'))
   if &ft !=# 'netrw'
@@ -281,6 +283,12 @@ augroup ft_fugitive
   au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
+
+function! CopyFileName()
+  let filename = expand(@%)
+  echo filename
+  let @+ = filename
+endfunction
 
 function! NumberToggle()
   if !exists('&relativenumber')
@@ -408,7 +416,6 @@ nnoremap <leader>m :call NumberAndListToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
-nnoremap <leader>x :GitFiles?<cr>
 nmap <leader>s <Plug>(easymotion-s)
 nmap <leader>j <Plug>(easymotion-j)
 nmap <leader>k <Plug>(easymotion-k)
@@ -434,8 +441,11 @@ vnoremap <leader>gh :Gbrowse<cr>
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
-" Git commits
-nnoremap <leader>y :Commits<cr>
+" fzf vim
+nnoremap <leader>x :GitFiles?<cr>
+
+" copy file name
+nnoremap <leader>y :call CopyFileName()<cr>
 "folding
 set foldmethod=indent
 set foldlevelstart=20
