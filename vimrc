@@ -285,7 +285,7 @@ augroup END
 
 
 function! CopyFileName()
-  let filename = expand(@%)
+  let filename = expand('%:p')
   echo filename
   let @+ = filename
 endfunction
@@ -385,16 +385,27 @@ endif
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 
+
+function! s:GuessProjectRoot(directory)
+  let l:dir = a:directory
+  while l:dir != '/'
+    for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
+      if isdirectory(l:dir . '/' . l:marker)
+        return l:dir
+      endif
+    endfor
+    let l:dir = fnamemodify(l:dir, ':h')  " get parent directory
+  endwhile
+
+  " Nothing found, fallback to current working dir
+  return a:directory
+endfunction
+
+
 function! s:ShowProjectDirectoryFile()
-  let b:dirname = fnamemodify(expand('%:p'), ':h')
-  let b:cvsroot = denite#util#path2project_directory(b:dirname, 1)
-  if b:cvsroot == ''
-    let b:opendir = b:dirname
-  else
-    let b:opendir = b:cvsroot
-  endif
-  " execute('Unite ' . b:file_rec . ':' . b:opendir . ' -start-insert')
-  call fzf#run({'source': 'ag -g ""', 'dir': b:opendir,
+  let l:dirname = fnamemodify(expand('%:p'), ':h')
+  let l:opendir = s:GuessProjectRoot(l:dirname)
+  call fzf#run({'source': 'ag -g ""', 'dir': l:opendir,
         \'down': '40%', 'sink': 'e'
         \})
 endfunction
