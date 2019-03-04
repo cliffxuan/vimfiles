@@ -44,6 +44,7 @@ Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+Plug 'terryma/vim-multiple-cursors'
 
 " if has('nvim')
 "   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
