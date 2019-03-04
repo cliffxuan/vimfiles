@@ -43,21 +43,16 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 
-if has('nvim')
-  Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/denite.nvim'
-endif
+" if has('nvim')
+"   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+" else
+"   Plug 'Shougo/denite.nvim'
+" endif
 if has('python') || has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
-  if has('nvim')
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins', 'for': 'python' }
-    Plug 'zchee/deoplete-jedi', { 'for': 'python' }
-  else
-    Plug 'davidhalter/jedi-vim', { 'for': 'python' }
-  endif
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
@@ -366,21 +361,6 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 " supertab
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
-" autocomplete
-if has('python') || has('python3')
-  if has('nvim')
-    let g:deoplete#enable_at_startup = 1
-  else
-    "jedi
-    let g:jedi#documentation_command = "<localleader>m"
-    let g:jedi#popup_on_dot = 1
-    let g:jedi#show_call_signatures = 0
-    let g:jedi#use_tabs_not_buffers = 0
-    " let g:jedi#completions_command = "<c-j>"
-    let g:jedi#goto_assignments_command = "<localleader>g"
-    let g:jedi#usages_command = "<localleader>n"
-  endif
-endif
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 
@@ -416,6 +396,7 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
+nnoremap <leader>c :YcmCompleter GoTo<cr>
 nnoremap <leader>d :Denite<space>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
@@ -541,6 +522,11 @@ imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
+
+" make YCM compatible with UltiSnips (using supertab)
+let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
