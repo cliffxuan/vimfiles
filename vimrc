@@ -43,8 +43,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 Plug 'terryma/vim-multiple-cursors'
+Plug 'kiteco/vim-plugin', { 'for': 'python' }
 
 " if has('nvim')
 "   Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -397,7 +397,6 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
-nnoremap <leader>c :YcmCompleter GoTo<cr>
 nnoremap <leader>d :Denite<space>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
@@ -523,11 +522,6 @@ imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
-
-" make YCM compatible with UltiSnips (using supertab)
-let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
-let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-let g:SuperTabDefaultCompletionType = '<C-n>'
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
