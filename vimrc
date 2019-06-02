@@ -448,7 +448,7 @@ vnoremap <leader>z za
 
 " ale
 let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-let g:ale_fixers = {'python': ['autopep8']}
+let g:ale_fixers = {'python': ['black', 'autopep8']}
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
