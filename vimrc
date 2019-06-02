@@ -43,7 +43,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+" Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 Plug 'terryma/vim-multiple-cursors'
 
 " if has('nvim')
@@ -397,8 +397,8 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
-nnoremap <leader>c :YcmCompleter GoTo<cr>
-nnoremap <leader>d :Denite<space>
+" nnoremap <leader>c :YcmCompleter GoTo<cr>
+" nnoremap <leader>d :Denite<space>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
@@ -433,8 +433,8 @@ vnoremap <leader>gh :Gbrowse<cr>
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
-" fzf vim
-nnoremap <leader>x :GitFiles?<cr>
+" alx-fix
+nnoremap <leader>x :ALEFix<cr>
 
 " copy file name
 nnoremap <leader>y :call CopyFileName()<cr>
@@ -446,12 +446,9 @@ vnoremap <leader>z za
 " }}}
 "
 
-
-" syntastic
-let g:syntastic_check_on_open = 1
-
 " ale
-" let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+let g:ale_fixers = {'python': ['autopep8']}
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
