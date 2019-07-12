@@ -385,7 +385,7 @@ endfunction
 function! s:ShowProjectDirectoryFile()
   let l:dirname = fnamemodify(expand('%:p'), ':h')
   let l:opendir = s:GuessProjectRoot(l:dirname)
-  call fzf#run({'source': 'ag -g ""', 'dir': l:opendir,
+  call fzf#run({'source': 'rg --files', 'dir': l:opendir,
         \'down': '40%', 'sink': 'e'
         \})
 endfunction
