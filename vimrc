@@ -383,16 +383,10 @@ function! s:ShowProjectDirectoryFile()
         \'down': '40%', 'sink': 'e'
         \})
 endfunction
-"this does not work
-" call unite#custom#source('file,file/new,buffer,file_rec/async', 'ignore_globs', split(&wildignore, ','))
-"have to have a white_globs otherwise nothing will be filtered because of a bug in unite
-" call unite#custom#source('file,file/new,buffer,file_rec/async', 'white_globs', ['xxxxxxxxxx'])
 nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
-" nnoremap <leader>c :YcmCompleter GoTo<cr>
-" nnoremap <leader>d :Denite<space>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
