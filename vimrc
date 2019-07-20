@@ -18,6 +18,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
 Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
+Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
@@ -520,6 +521,11 @@ let g:ag_working_path_mode="r"
 
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
+
+" jedi
+let g:jedi#goto_command = "<localleader>d"
+let g:jedi#goto_assignments_command = "<localleader>g"
+let g:jedi#goto_definitions_command = ""
 
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
