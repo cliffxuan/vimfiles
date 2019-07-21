@@ -6,7 +6,7 @@ endif
 
 filetype off
 
-" use vim-plug as the plugin manager
+" vimplug is the plugin manager
 call plug#begin('~/.vim/plugged')
 
 Plug 'ConradIrwin/vim-bracketed-paste'
@@ -19,7 +19,6 @@ Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
 Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
@@ -46,6 +45,8 @@ Plug 'w0rp/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --clang-completer' }
+
 
 if has('python') || has('python3')
   Plug 'SirVer/ultisnips'
@@ -389,6 +390,8 @@ nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Ag<cr>
 nnoremap <leader>b :Buffers<cr>
+"<leader>c is for nerdcommenter
+nnoremap <leader>d :bdelete<cr>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
@@ -523,10 +526,12 @@ let g:ag_working_path_mode="r"
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
 
-" jedi
-let g:jedi#goto_command = "<localleader>d"
-let g:jedi#goto_assignments_command = "<localleader>g"
-let g:jedi#goto_definitions_command = ""
+" YCM
+" make YCM compatible with UltiSnips (using supertab)
+let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
+nnoremap <localleader>g :YcmCompleter GoTo<cr>
 
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
