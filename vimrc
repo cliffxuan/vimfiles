@@ -6,6 +6,7 @@ endif
 
 filetype off
 
+" use vim-plug as the plugin manager
 call plug#begin('~/.vim/plugged')
 
 Plug 'ConradIrwin/vim-bracketed-paste'
