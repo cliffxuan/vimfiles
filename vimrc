@@ -42,7 +42,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
@@ -329,7 +329,7 @@ endfunction
 "grep
 function! s:GrepOperator(type)
   let b:dirname = fnamemodify(expand('%:p'), ':h')
-  let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
+  " let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
   let saved_unnamed_register = @@
   if a:type ==# 'v'
     normal! `<v`>y
@@ -338,13 +338,14 @@ function! s:GrepOperator(type)
   else
     return
   endif
-  let excludes = ''
-  for d in ['.git', '.svn', '.hg', '.bzr']
-    let excludes = excludes . '--exclude-dir='
-          \. shellescape(d)  . ' '
-  endfor
-  silent execute "grep! -srnw --binary-files=without-match " . excludes . shellescape(@@) . " " . b:cvsroot
+  " let excludes = ''
+  " for d in ['.git', '.svn', '.hg', '.bzr']
+  "   let excludes = excludes . '--exclude-dir='
+  "         \. shellescape(d)  . ' '
+  " endfor
+  execute "echo " . shellescape(@@)
   copen
+  " silent execute "Rg " . shellescape(@@)
   let @@ = saved_unnamed_register
 endfunction
 
@@ -389,7 +390,7 @@ function! s:ShowProjectDirectoryFile()
 endfunction
 nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
-nnoremap <leader>a :Ag<cr>
+nnoremap <leader>a :Rg 
 nnoremap <leader>b :Buffers<cr>
 "<leader>c is for nerdcommenter
 nnoremap <leader>d :bdelete<cr>
@@ -424,8 +425,10 @@ nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
 
+" easymotion move to word
+nmap <leader>w <Plug>(easymotion-bd-w)
 " Clean trailing whitespace
-nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+nnoremap <leader><leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
 " alx-fix
 nnoremap <leader>x :ALEFix<cr>
