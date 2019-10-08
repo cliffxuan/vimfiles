@@ -31,7 +31,6 @@ Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
 Plug 'rhysd/committia.vim'
-" Plug 'rking/ag.vim'
 Plug 'scrooloose/nerdcommenter'
 Plug 'sjl/gundo.vim'
 Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
@@ -390,7 +389,7 @@ function! s:ShowProjectDirectoryFile()
 endfunction
 nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
-nnoremap <leader>a :Rg 
+nnoremap <leader>a :Rg<tab>
 nnoremap <leader>b :Buffers<cr>
 "<leader>c is for nerdcommenter
 nnoremap <leader>d :bdelete<cr>
@@ -405,7 +404,9 @@ nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 nmap <leader>s <Plug>(easymotion-s)
 nmap <leader>j <Plug>(easymotion-j)
+nmap <leader><leader>j <Plug>(easymotion-w)
 nmap <leader>k <Plug>(easymotion-k)
+nmap <leader><leader>k <Plug>(easymotion-b)
 " Split Open
 noremap <leader>v :vsp<cr>
 noremap <leader>ev :Vexplore<cr>
@@ -425,10 +426,8 @@ nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
 
-" easymotion move to word
-nmap <leader>w <Plug>(easymotion-bd-w)
 " Clean trailing whitespace
-nnoremap <leader><leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
 " alx-fix
 nnoremap <leader>x :ALEFix<cr>
