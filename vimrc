@@ -170,11 +170,11 @@ set list " show whitespace
 " show tabs and trailing whitespaces
 set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
-"warn me if my line is over 79 columns
+"warn me if my line is over 87 columns
 if exists('+colorcolumn')
-  set colorcolumn=79
+  set colorcolumn=87
 else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>79v.\+', -1)
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>87v.\+', -1)
 endif
 
 " set <leader> to ,
