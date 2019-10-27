@@ -46,7 +46,7 @@ Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --clang-completer' }
-
+Plug 'junegunn/goyo.vim'
 
 if has('python') || has('python3')
   Plug 'SirVer/ultisnips'
