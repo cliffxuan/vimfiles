@@ -1,8 +1,8 @@
-if !has('python')
+if !has('python3')
     finish
 endif
 function! FormatJson()
-python << EOF
+python3 << EOF
 import json
 import vim
 vim.current.buffer[:] = json.dumps(
