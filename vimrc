@@ -48,7 +48,7 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --clang-completer' }
 Plug 'junegunn/goyo.vim'
 
-if has('python') || has('python3')
+if has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
 endif
