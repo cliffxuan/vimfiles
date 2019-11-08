@@ -27,6 +27,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'majutsushi/tagbar'
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
@@ -116,6 +117,10 @@ function! Up(vcount)
     exe "normal! ". a:vcount ."k"
   endif
 endfunction
+
+"folding
+set foldmethod=indent
+set foldlevelstart=20
 
 "set title
 set title titlestring=[vim] "vim
@@ -396,22 +401,9 @@ nnoremap <leader>d :bdelete<cr>
 " edit and source $MYVIMRC
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
-nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
-nnoremap <leader>l :Lines<cr>
-nnoremap <leader>m :call NumberAndListToggle()<cr>
-" toggle relativenumber
-nnoremap <leader>n :call NumberToggle()<cr>
-nnoremap <leader>q :call QuickfixToggle()<cr>
-nmap <leader>s <Plug>(easymotion-s)
-nmap <leader>j <Plug>(easymotion-j)
-nmap <leader><leader>j <Plug>(easymotion-w)
-nmap <leader>k <Plug>(easymotion-k)
-nmap <leader><leader>k <Plug>(easymotion-b)
-" Split Open
-noremap <leader>v :vsp<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-noremap <leader><tab> :call ToggleTab()<cr>
+nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
 nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gs :Gstatus<cr>
 nnoremap <leader>gw :Gwrite<cr>
@@ -425,6 +417,20 @@ nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 " github
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
+nmap <leader><leader>j <Plug>(easymotion-w)
+nmap <leader><leader>k <Plug>(easymotion-b)
+nnoremap <leader>l :Lines<cr>
+nnoremap <leader>m :call NumberAndListToggle()<cr>
+" toggle relativenumber
+nnoremap <leader>n :call NumberToggle()<cr>
+nnoremap <leader>q :call QuickfixToggle()<cr>
+nmap <leader>s <Plug>(easymotion-s)
+nnoremap <leader>t :TagbarToggle<cr>
+" Split Open
+noremap <leader>v :vsp<cr>
+noremap <leader><tab> :call ToggleTab()<cr>
 
 " Clean trailing whitespace
 nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
@@ -434,9 +440,6 @@ nnoremap <leader>x :ALEFix<cr>
 
 " copy file name
 nnoremap <leader>y :call CopyFileName()<cr>
-"folding
-set foldmethod=indent
-set foldlevelstart=20
 noremap <leader>z za
 vnoremap <leader>z za
 " }}}
