@@ -7,7 +7,7 @@ endif
 filetype off
 
 " vimplug is the plugin manager
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.vimplugged')
 
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'Lokaltog/vim-easymotion'
