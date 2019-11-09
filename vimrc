@@ -46,7 +46,7 @@ Plug 'dense-analysis/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'ycm-core/YouCompleteMe', { 'do': './install.py --clang-completer' }
+Plug 'ycm-core/YouCompleteMe', { 'do': '/usr/bin/python3 install.py' }
 Plug 'junegunn/goyo.vim'
 
 if has('python3')
