@@ -47,12 +47,12 @@ Plug 'dense-analysis/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'ycm-core/YouCompleteMe', { 'do': '/usr/bin/python3 install.py' }
 Plug 'junegunn/goyo.vim'
 
 if has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
+  Plug 'ycm-core/YouCompleteMe', { 'do': '/usr/bin/python3 install.py' }
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
