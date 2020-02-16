@@ -15,7 +15,7 @@ Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'ervandew/supertab'
-" Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
 Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
@@ -366,10 +366,6 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 " supertab
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
-" no docstring window popup during completion
-autocmd FileType python setlocal completeopt-=preview
-
-
 function! s:GuessProjectRoot(directory)
   let l:dir = a:directory
   while l:dir != '/'
@@ -429,15 +425,17 @@ nnoremap <leader>m :call NumberAndListToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
+" Clean trailing whitespace
+nnoremap <leader>r mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 nmap <leader>s <Plug>(easymotion-s)
 nnoremap <leader>t :TagbarToggle<cr>
 " Split Open
 noremap <leader>v :vsp<cr>
 noremap <leader><tab> :call ToggleTab()<cr>
 
-" Clean trailing whitespace
-nnoremap <leader>w mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 
+" save
+nnoremap <leader>w :w<cr>
 " alx-fix
 nnoremap <leader>x :ALEFix<cr>
 
@@ -450,7 +448,7 @@ vnoremap <leader>z za
 
 " ale
 let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-let g:ale_fixers = {'python': ['black', 'autopep8']}
+let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports']}
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
@@ -541,6 +539,11 @@ let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
 let g:SuperTabDefaultCompletionType = '<C-n>'
 nnoremap <localleader>g :YcmCompleter GoTo<cr>
+" no docstring window popup during completion
+autocmd FileType python setlocal completeopt-=preview
+autocmd FileType go setlocal completeopt-=preview
+
+
 
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
