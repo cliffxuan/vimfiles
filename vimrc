@@ -16,7 +16,6 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'ervandew/supertab'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-Plug 'flazz/vim-colorschemes'
 Plug 'godlygeek/tabular'
 Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
 " Plug 'guns/vim-sexp', { 'for': 'clojure' }
@@ -48,6 +47,16 @@ Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
+
+" themes
+Plug 'joshdick/onedark.vim'
+Plug 'morhetz/gruvbox'
+Plug 'sickill/vim-monokai'
+Plug 'dracula/vim'
+Plug 'jnurmine/Zenburn'
+Plug 'chriskempson/base16-vim'
+Plug 'sonph/onehalf', {'rtp': 'vim/'}
+
 
 if has('python3')
   Plug 'SirVer/ultisnips'
@@ -195,7 +204,8 @@ try
   if has('nvim')
     colorscheme dracula
   else
-    colorscheme Tomorrow-Night-Bright
+    " colorscheme onedark
+    colorscheme gruvbox
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
