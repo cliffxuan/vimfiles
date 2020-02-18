@@ -198,6 +198,7 @@ let maplocalleader = ","
 
 syntax on
 set background=dark
+set termguicolors
 "if custom themes exists, use it
 "otherwise koehler
 try
@@ -205,7 +206,9 @@ try
     colorscheme dracula
   else
     " colorscheme onedark
-    colorscheme gruvbox
+    " colorscheme gruvbox
+    " colorscheme base16-tomorrow-night
+    colorscheme base16-gruvbox-dark-hard
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
