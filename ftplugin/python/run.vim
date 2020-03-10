@@ -4,7 +4,7 @@ nnoremap <buffer> <localleader>k :call <SID>pytest_one_test_case()<CR>
 
 function! s:run_py_file()
     let l:winview = winsaveview()
-    !python %
+    !python3 %
     call winrestview(l:winview)
 endfunction
 
