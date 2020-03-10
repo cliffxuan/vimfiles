@@ -203,7 +203,7 @@ set termguicolors
 "otherwise koehler
 try
   if has('nvim')
-    colorscheme dracula
+    colorscheme base16-dracula
   else
     " colorscheme onedark
     " colorscheme gruvbox
@@ -379,8 +379,8 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 " supertab
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
-function! s:GuessProjectRoot(directory)
-  let l:dir = a:directory
+function! GuessProjectRoot()
+  let l:dir = fnamemodify(expand('%:p'), ':h')
   while l:dir != '/'
     for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
       if isdirectory(l:dir . '/' . l:marker)
@@ -396,8 +396,7 @@ endfunction
 
 
 function! s:ShowProjectDirectoryFile()
-  let l:dirname = fnamemodify(expand('%:p'), ':h')
-  let l:opendir = s:GuessProjectRoot(l:dirname)
+  let l:opendir = GuessProjectRoot()
   call fzf#run({'source': 'rg --files', 'dir': l:opendir,
         \'down': '40%', 'sink': 'e'
         \})
@@ -437,6 +436,7 @@ nnoremap <leader>l :Lines<cr>
 nnoremap <leader>m :call NumberAndListToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>n :call NumberToggle()<cr>
+nnoremap <leader>o :exec "cd ". GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 " Clean trailing whitespace
 nnoremap <leader>r mz:%s/\s\+$//<cr>:let @/=''<cr>`z
