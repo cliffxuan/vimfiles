@@ -24,3 +24,4 @@ nnoremap <buffer> <localleader>p :GoDebugPrint<tab>
 nnoremap <buffer> <localleader>q :GoDebugStop<CR>
 nnoremap <buffer> <localleader>r :GoRun<CR>
 nnoremap <buffer> <localleader>s :GoDebugStart<CR>
+nnoremap <buffer> <localleader>t :GoTest<CR>
