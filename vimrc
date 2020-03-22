@@ -433,10 +433,11 @@ nmap <leader>k <Plug>(easymotion-k)
 nmap <leader><leader>j <Plug>(easymotion-w)
 nmap <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
-nnoremap <leader>m :call NumberAndListToggle()<cr>
-" toggle relativenumber
+nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :exec "cd ". GuessProjectRoot() <bar> :pwd<cr>
+" toggle relativenumber
+nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 " Clean trailing whitespace
 nnoremap <leader>r mz:%s/\s\+$//<cr>:let @/=''<cr>`z
@@ -525,7 +526,7 @@ if has('nvim')
   tnoremap <M-j> <C-\><C-n><C-w>j
   tnoremap <M-k> <C-\><C-n><C-w>k
   tnoremap <M-l> <C-\><C-n><C-w>l
-  nnoremap <leader>o :call neoterm#toggle()<cr>
+  nnoremap <leader>i :call neoterm#toggle()<cr>
 endif
 
 " Insert mode completion
