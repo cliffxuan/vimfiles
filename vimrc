@@ -526,7 +526,7 @@ if has('nvim')
   tnoremap <M-j> <C-\><C-n><C-w>j
   tnoremap <M-k> <C-\><C-n><C-w>k
   tnoremap <M-l> <C-\><C-n><C-w>l
-  nnoremap <leader>i :call neoterm#toggle()<cr>
+  nnoremap <leader>i :Ttoggle<cr>
 endif
 
 " Insert mode completion
