@@ -15,7 +15,7 @@ Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'ervandew/supertab'
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries', 'for': 'go' }
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
 Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
 " Plug 'guns/vim-sexp', { 'for': 'clojure' }
@@ -61,7 +61,16 @@ Plug 'sonph/onehalf', {'rtp': 'vim/'}
 if has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
-  Plug 'ycm-core/YouCompleteMe', { 'do': '/usr/bin/python3 install.py' }
+  function! BuildYCM(info)
+    " info is a dictionary with 3 fields
+    " - name:   name of the plugin
+    " - status: 'installed', 'updated', or 'unchanged'
+    " - force:  set on PlugInstall! or PlugUpdate!
+    if a:info.status == 'installed' || a:info.force
+      !python3 ./install.py
+    endif
+  endfunction
+  Plug 'ycm-core/YouCompleteMe', { 'do': 'BuildYCM' }
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
