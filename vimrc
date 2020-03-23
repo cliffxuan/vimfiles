@@ -47,6 +47,7 @@ Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
+Plug 'preservim/nerdtree'
 
 " themes
 Plug 'joshdick/onedark.vim'
@@ -417,6 +418,7 @@ nnoremap <leader>b :Buffers<cr>
 "<leader>c is for nerdcommenter
 nnoremap <leader>d :bdelete<cr>
 " edit and source $MYVIMRC
+noremap <leader>ee :NERDTreeToggle<cr>
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
