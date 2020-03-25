@@ -44,10 +44,12 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
+Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
 Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
 Plug 'preservim/nerdtree'
+Plug 'hashivim/vim-terraform'
 
 " themes
 Plug 'joshdick/onedark.vim'
@@ -97,9 +99,9 @@ if !has('nvim')
 endif
 set fileformat=unix
 set number
-if exists('&relativenumber')
-  set relativenumber
-endif
+" if exists('&relativenumber')
+"   set relativenumber
+" endif
 set hidden
 set numberwidth=4
 set expandtab
@@ -419,6 +421,9 @@ nnoremap <leader>b :Buffers<cr>
 nnoremap <leader>d :bdelete<cr>
 " edit and source $MYVIMRC
 noremap <leader>ee :NERDTreeToggle<cr>
+noremap <leader>ec :NERDTree %<cr>  " open directory of current file
+noremap <leader>eo :exec 'NERDTree ' . GuessProjectRoot()<cr>  " open project directory
+noremap <leader>ef :NERDTreeFind<cr>  " find current file in NERDTree
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
@@ -479,7 +484,7 @@ let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'
 if has('gui_running')
   " GUI Vim
 
-  set guifont=Menlo\ Regular\ for\ Powerline:h12
+  " set guifont=Menlo\ Regular\ for\ Powerline:h12
   " Remove all the UI cruft
   set guioptions-=T
   set guioptions-=l
@@ -508,6 +513,9 @@ nnorema <silent> <Esc>l <C-w>l
 "nerdcommenter
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
+
+"nerdtree
+let g:NERDTreeWinSize=60
 
 "cursors in insert mode when using tmux
 if exists('$TMUX')
@@ -568,7 +576,8 @@ nnoremap <localleader>g :YcmCompleter GoTo<cr>
 autocmd FileType python setlocal completeopt-=preview
 autocmd FileType go setlocal completeopt-=preview
 
-
+" Allow vim-terraform to align settings automatically with Tabularize.
+let g:terraform_align=1
 
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
