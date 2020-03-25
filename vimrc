@@ -292,8 +292,8 @@ let g:netrw_list_hide= '.*\.pyc$'
 
 " airline powerline fonts
 let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='luna'
+let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#buffer_nr_show = 1
@@ -478,7 +478,7 @@ vnoremap <leader>z za
 
 " ale
 let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports']}
+let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
