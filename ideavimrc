@@ -1,0 +1,18 @@
+noremap ; :
+noremap : ;
+set wildmenu
+
+" set <leader> to ,
+let mapleader = " "
+let maplocalleader = ","
+
+" plugins
+set easymotion
+set surround
+set commentary
+
+" easymotion
+nmap <leader>j <Plug>(easymotion-j)
+nmap <leader>k <Plug>(easymotion-k)
+nmap <leader><leader>j <Plug>(easymotion-w)
+nmap <leader><leader>k <Plug>(easymotion-b)

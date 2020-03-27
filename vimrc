@@ -81,6 +81,8 @@ endif
 if has('nvim')
   Plug 'kassio/neoterm'
   let g:neoterm_size = 10
+  " for intellij
+  Plug 'beeender/Comrade'
 endif
 
 call plug#end()
