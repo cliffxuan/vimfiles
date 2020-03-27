@@ -211,8 +211,8 @@ let maplocalleader = ","
 syntax on
 set background=dark
 set termguicolors
-"if custom themes exists, use it
-"otherwise koehler
+" if custom themes exists, use it
+" otherwise koehler
 try
   if has('nvim')
     colorscheme base16-dracula
@@ -518,13 +518,22 @@ let g:NERDDefaultAlign = 'left'
 let g:NERDTreeWinSize=60
 
 "cursors in insert mode when using tmux
-if exists('$TMUX')
-  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-else
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-endif
+" if exists('$TMUX')
+"   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+"   let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+" else
+"   let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+"   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+" endif
+" NOTE this is for vim in mintty but not possible to programatically set it
+" $TERM_PROGRAM is not set
+" if exists('$TERM_PROGRAM') && $TERM_PROGRAM == "mintty"
+"   let &t_ti.="\e[1 q"
+"   let &t_SI.="\e[5 q"
+"   let &t_EI.="\e[1 q"
+"   let &t_te.="\e[0 q"
+" endif
+
 
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
