@@ -515,6 +515,7 @@ nnorema <silent> <Esc>l <C-w>l
 "nerdcommenter
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
+let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 
 "nerdtree
 let g:NERDTreeWinSize=60
