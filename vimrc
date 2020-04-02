@@ -432,14 +432,11 @@ noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
 nnoremap <leader>gd :Gvdiff<cr>
-nnoremap <leader>gs :Gstatus<cr>
-nnoremap <leader>gw :Gwrite<cr>
+nnoremap <leader>gs :Git<cr>
 nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gp :Git add % -p<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
-nnoremap <leader>gm :Gmove<cr>
-nnoremap <leader>gr :Gremove<cr>
 nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
 " github
 nnoremap <leader>gh :Gbrowse<cr>
