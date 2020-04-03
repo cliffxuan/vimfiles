@@ -432,7 +432,7 @@ noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
 nnoremap <leader>gd :Gvdiff<cr>
-nnoremap <leader>gs :Git<cr>
+nnoremap <leader>gg :Git<cr>
 nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gp :Git add % -p<cr>
 nnoremap <leader>gb :Gblame<cr>
