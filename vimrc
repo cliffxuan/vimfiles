@@ -49,7 +49,7 @@ Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
 Plug 'preservim/nerdtree'
-Plug 'hashivim/vim-terraform'
+Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 
 " themes
 Plug 'joshdick/onedark.vim'
