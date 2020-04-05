@@ -443,12 +443,13 @@ nnoremap <leader>gp :Git add % -p<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
+nnoremap <leader>gr :Gread<cr>
+nnoremap <leader>gw :Gwrite<cr>
 nmap <leader>gj <Plug>(GitGutterNextHunk)
 nmap <leader>gk <Plug>(GitGutterPrevHunk)
 nmap gs <Plug>(GitGutterStageHunk)
 nmap gu <Plug>(GitGutterUndoHunk)
-nmap gv <Plug>(GitGutter)
-" github
+nmap gv <Plug>(GitGutterPreviewHunk)
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
 nmap <leader>j <Plug>(easymotion-j)
