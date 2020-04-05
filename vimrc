@@ -365,9 +365,6 @@ endfunction
 
 "grep
 function! s:GrepOperator(type)
-  let b:dirname = fnamemodify(expand('%:p'), ':h')
-  " let b:cvsroot = unite#util#path2project_directory(b:dirname, 1)
-  let saved_unnamed_register = @@
   if a:type ==# 'v'
     normal! `<v`>y
   elseif a:type ==# 'char'
@@ -375,15 +372,7 @@ function! s:GrepOperator(type)
   else
     return
   endif
-  " let excludes = ''
-  " for d in ['.git', '.svn', '.hg', '.bzr']
-  "   let excludes = excludes . '--exclude-dir='
-  "         \. shellescape(d)  . ' '
-  " endfor
-  execute "echo " . shellescape(@@)
-  copen
-  " silent execute "Rg " . shellescape(@@)
-  let @@ = saved_unnamed_register
+  execute "Rg " . @@
 endfunction
 
 
@@ -420,7 +409,6 @@ function! s:ShowProjectDirectoryFile()
         \'down': '40%', 'sink': 'e'
         \})
 endfunction
-nnoremap <leader>/ :set operatorfunc=<SID>GrepOperator<cr>g@
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Rg<tab>
 nnoremap <leader>b :Buffers<cr>
@@ -578,12 +566,6 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
-
-" use eslint as js linter
-let g:syntastic_javascript_checkers = ['eslint']
-
-" ag search project directory
-let g:ag_working_path_mode="r"
 
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
