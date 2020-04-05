@@ -310,6 +310,8 @@ augroup ft_fugitive
   au BufNewFile,BufRead .git/index setlocal nolist
 augroup END
 
+"don't allow vim-gitgutter to set up any mappings at all
+let g:gitgutter_map_keys = 0
 
 function! CopyFileName()
   let filename = expand('%:p')
@@ -449,8 +451,6 @@ nmap gv <Plug>(GitGutter)
 " github
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
-" <leader>h is used for gitgutter
-" preview, stage, and undo hunks with <leader>hp, <leader>hs, and <leader>hu
 nmap <leader>j <Plug>(easymotion-j)
 nmap <leader>k <Plug>(easymotion-k)
 nmap <leader><leader>j <Plug>(easymotion-w)
