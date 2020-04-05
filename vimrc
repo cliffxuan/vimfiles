@@ -452,6 +452,7 @@ nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>oc :exec "cd %:h"  <bar> :pwd<cr>
 nnoremap <leader>oo :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>op :exec "cd " . join(["%:h", ".."], "/")  <bar> :pwd<cr>
+nnoremap <leader>of :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
