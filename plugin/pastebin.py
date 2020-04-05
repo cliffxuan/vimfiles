@@ -20,25 +20,25 @@ class Pastebin(object):
 
     @classmethod
     def retrieve(cls, path):
-        raise NotImplemented
+        raise NotImplementedError
 
     @classmethod
     def paste(cls):
         if all(line.strip() == '' for line in vim.current.buffer):
             error_msg('empty buffer, abort pasting')
         else:
-            print 'pasting to {} ...'.format(cls.URL)
+            print('pasting to {} ...'.format(cls.URL))
             try:
                 url = cls.paste_impl()
-                print url
+                print(url)
                 vim.command('let @+= "{}\n"'.format(url))
             except Exception as exc:
-                print type(exc)
+                print(type(exc))
                 error_msg(str(exc))
 
     @classmethod
     def paste_impl(cls):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class Hastebin(Pastebin):
@@ -91,7 +91,7 @@ class Sprunge(Pastebin):
 
     @classmethod
     def retrieve(cls, path):
-        raise NotImplemented
+        raise NotImplementedError
 
     @classmethod
     def paste_impl(cls):
