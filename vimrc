@@ -312,6 +312,7 @@ augroup END
 
 "don't allow vim-gitgutter to set up any mappings at all
 let g:gitgutter_map_keys = 0
+let g:gitgutter_preview_win_floating = 1
 
 function! CopyFileName()
   let filename = expand('%:p')
