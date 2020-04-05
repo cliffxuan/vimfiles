@@ -450,7 +450,10 @@ nmap <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
-nnoremap <leader>o :exec "cd ". GuessProjectRoot() <bar> :pwd<cr>
+" cd into directories
+nnoremap <leader>oc :exec "cd %:h"  <bar> :pwd<cr>
+nnoremap <leader>oo :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
+nnoremap <leader>op :exec "cd " . join(["%:h", ".."], "/")  <bar> :pwd<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
