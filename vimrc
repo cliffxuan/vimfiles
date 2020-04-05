@@ -431,6 +431,7 @@ noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
+" g for git related mappings
 nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gg :Git<cr>
 nnoremap <leader>ga :Git add %<cr>
@@ -438,6 +439,11 @@ nnoremap <leader>gp :Git add % -p<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
+nmap <leader>gj <Plug>(GitGutterNextHunk)
+nmap <leader>gk <Plug>(GitGutterPrevHunk)
+nmap gs <Plug>(GitGutterStageHunk)
+nmap gu <Plug>(GitGutterUndoHunk)
+nmap gv <Plug>(GitGutter)
 " github
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
