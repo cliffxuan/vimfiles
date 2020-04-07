@@ -427,7 +427,7 @@ nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd
 nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gg :Git<cr>
 nnoremap <leader>ga :Git add %<cr>
-nnoremap <leader>gp :Git add % -p<cr>
+nnoremap <leader>gp :Git push<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
