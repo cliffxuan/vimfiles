@@ -73,7 +73,8 @@ if has('python3')
       !python3 ./install.py
     endif
   endfunction
-  Plug 'ycm-core/YouCompleteMe', { 'do': 'BuildYCM' }
+  " Plug 'ycm-core/YouCompleteMe', { 'do': 'BuildYCM' }
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
@@ -388,7 +389,11 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
 function! GuessProjectRoot()
-  let l:dir = fnamemodify(expand('%:p'), ':h')
+  if @% != ''
+    let l:dir = fnamemodify(expand('%:p'), ':h')
+  else
+    let l:dir = getcwd()
+  endif
   while l:dir != '/'
     for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
       if isdirectory(l:dir . '/' . l:marker)
@@ -399,7 +404,7 @@ function! GuessProjectRoot()
   endwhile
 
   " Nothing found, fallback to current working dir
-  return a:directory
+  return l:dir
 endfunction
 
 
