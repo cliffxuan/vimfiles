@@ -408,14 +408,20 @@ function! GuessProjectRoot()
 endfunction
 
 
-vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
-nnoremap <leader>a :Rg<tab>
+vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
+nnoremap <leader>aa :Rg<tab>
+nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b :Buffers<cr>
-"<leader>c is for nerdcommenter
-nnoremap <leader>d :bdelete<cr>
+" cd into directories
+nnoremap <leader>dc :exec "cd %:h"  <bar> :pwd<cr>
+nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
+nnoremap <leader>du :exec "cd " . join(["%:h", ".."], "/")  <bar> :pwd<cr>
+nnoremap <leader>dp :echo getcwd()<cr>
+nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 " edit and source $MYVIMRC
 noremap <leader>ee :NERDTreeToggle<cr>
 noremap <leader>ec :NERDTree %<cr>  " open directory of current file
+nnoremap <leader>ed :bdelete<cr>
 noremap <leader>eo :exec 'NERDTree ' . GuessProjectRoot()<cr>  " open project directory
 noremap <leader>ef :NERDTreeFind<cr>  " find current file in NERDTree
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
@@ -447,19 +453,14 @@ nmap <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
-" cd into directories
-nnoremap <leader>oc :exec "cd %:h"  <bar> :pwd<cr>
-nnoremap <leader>oo :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
-nnoremap <leader>op :exec "cd " . join(["%:h", ".."], "/")  <bar> :pwd<cr>
-nnoremap <leader>of :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
-" Clean trailing whitespace
-nnoremap <leader>r mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 nmap <leader>s <Plug>(easymotion-s)
 nnoremap <leader>t :TagbarToggle<cr>
 " Split Open
+" Clean trailing whitespace
+nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 noremap <leader>v :vsp<cr>
 noremap <leader><tab> :call ToggleTab()<cr>
 
