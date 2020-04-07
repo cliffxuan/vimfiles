@@ -408,12 +408,6 @@ function! GuessProjectRoot()
 endfunction
 
 
-function! s:ShowProjectDirectoryFile()
-  let l:opendir = GuessProjectRoot()
-  call fzf#run({'source': 'rg --files', 'dir': l:opendir,
-        \'down': '40%', 'sink': 'e'
-        \})
-endfunction
 vnoremap <leader>a :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>a :Rg<tab>
 nnoremap <leader>b :Buffers<cr>
@@ -428,7 +422,7 @@ noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-nnoremap <leader>f :call <SID>ShowProjectDirectoryFile()<cr>
+nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd()}))<cr>
 " g for git related mappings
 nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gg :Git<cr>
