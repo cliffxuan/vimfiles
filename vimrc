@@ -419,11 +419,11 @@ nnoremap <leader>dk :exec "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>
 nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 nnoremap <leader>dp :echo getcwd()<cr>
 " edit and source $MYVIMRC
-noremap <leader>ee :NERDTreeToggle<cr>
-noremap <leader>ec :NERDTree %<cr>  " open directory of current file
+noremap <leader>ee :execute 'NERDTree ' . GuessProjectRoot() . ' <bar> NERDTreeFind ' . expand('%')<cr>
+noremap <leader>ef :execute 'NERDTree ' . GuessProjectRoot()<cr>
+noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<cr>
+noremap <leader>ek :NERDTreeClose<cr>
 nnoremap <leader>ed :bdelete<cr>
-noremap <leader>eo :exec 'NERDTree ' . GuessProjectRoot()<cr>  " open project directory
-noremap <leader>ef :NERDTreeFind<cr>  " find current file in NERDTree
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
