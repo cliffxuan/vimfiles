@@ -446,10 +446,10 @@ nmap gu <Plug>(GitGutterUndoHunk)
 nmap gv <Plug>(GitGutterPreviewHunk)
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
-nmap <leader>j <Plug>(easymotion-j)
-nmap <leader>k <Plug>(easymotion-k)
-nmap <leader><leader>j <Plug>(easymotion-w)
-nmap <leader><leader>k <Plug>(easymotion-b)
+map <leader>j <Plug>(easymotion-j)
+map <leader>k <Plug>(easymotion-k)
+map <leader><leader>j <Plug>(easymotion-w)
+map <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
