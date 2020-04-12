@@ -73,8 +73,7 @@ if has('python3')
       !python3 ./install.py
     endif
   endfunction
-  " Plug 'ycm-core/YouCompleteMe', { 'do': 'BuildYCM' }
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
 endif
 if exists('*gettabvar')
   Plug 'airblade/vim-gitgutter'
@@ -436,7 +435,9 @@ nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gp :Git push<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
-nnoremap <leader>gl :!git gl -18<cr>:wincmd \|<cr>
+nnoremap <leader>gf :GFiles?<cr>
+nnoremap <leader>gl :Commits<cr>
+nnoremap <leader>go :BCommits<cr>
 nnoremap <leader>gr :Gread<cr>
 nnoremap <leader>gw :Gwrite<cr>
 nmap <leader>gj <Plug>(GitGutterNextHunk)
@@ -456,7 +457,7 @@ nnoremap <leader>n :call NumberToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
-nmap <leader>s <Plug>(easymotion-s)
+nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :TagbarToggle<cr>
 " Split Open
 " Clean trailing whitespace
