@@ -95,6 +95,7 @@ filetype plugin indent on
 
 if has('nvim')
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  autocmd TermOpen term://* startinsert
 endif
 
 set nobackup noswapfile
@@ -406,6 +407,19 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
+function! s:RunCurrentBuffer()
+  if has('nvim')
+    let l:prefix = 'term '
+  else
+    let l:prefix = '! '
+  endif
+  if &filetype ==# 'python'
+    execute l:prefix . "/usr/bin/env python3 %"
+  elseif &filetype ==# 'sh'
+    execute l:prefix . "/usr/bin/env bash %"
+  endif
+endfunction
+
 
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
@@ -423,6 +437,7 @@ noremap <leader>ef :execute 'NERDTree ' . GuessProjectRoot()<cr>
 noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<cr>
 noremap <leader>ek :NERDTreeClose<cr>
 nnoremap <leader>ed :bdelete<cr>
+noremap <leader>ep :UltiSnipsEdit<cr>
 noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
@@ -457,6 +472,7 @@ nnoremap <leader>n :call NumberToggle()<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
+nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :TagbarToggle<cr>
 " Split Open
@@ -518,7 +534,7 @@ let g:NERDDefaultAlign = 'left'
 let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 
 "nerdtree
-let g:NERDTreeWinSize=60
+let g:NERDTreeWinSize=30
 
 "cursors in insert mode when using tmux
 " if exists('$TMUX')
@@ -557,7 +573,7 @@ if has('nvim')
   tnoremap <M-j> <C-\><C-n><C-w>j
   tnoremap <M-k> <C-\><C-n><C-w>k
   tnoremap <M-l> <C-\><C-n><C-w>l
-  nnoremap <leader>i :Ttoggle<cr>
+  " nnoremap <leader>i :Ttoggle<cr>
 endif
 
 " Insert mode completion
