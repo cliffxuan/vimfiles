@@ -1,1 +1,1 @@
-Guifont Menlo for powerline:h18
+Guifont Menlo for powerline:h12
