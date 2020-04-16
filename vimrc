@@ -93,10 +93,10 @@ filetype plugin indent on
 
 "End vim-plug Scripts-------------------------
 
-if has('nvim')
-  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  autocmd TermOpen term://* startinsert
-endif
+" if has('nvim')
+"   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+"   autocmd TermOpen term://* startinsert
+" endif
 
 set nobackup noswapfile
 if !has('nvim')
