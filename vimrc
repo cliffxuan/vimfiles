@@ -438,7 +438,7 @@ noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<
 noremap <leader>ek :NERDTreeClose<cr>
 nnoremap <leader>ed :bdelete<cr>
 noremap <leader>ep :UltiSnipsEdit<cr>
-noremap <leader>er :execute 'e ' . resolve(expand($MYVIMRC))<cr>
+noremap <leader>er :execute 'tab new ' . resolve(expand($MYVIMRC))<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
