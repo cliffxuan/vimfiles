@@ -80,7 +80,8 @@ if exists('*gettabvar')
 endif
 if has('nvim')
   Plug 'kassio/neoterm'
-  let g:neoterm_size = 10
+  let g:neoterm_size=20
+  let g:neoterm_autojump=1
   if has('python3')
     " for intellij
     Plug 'beeender/Comrade'
@@ -291,7 +292,7 @@ command! Suw :w !sudo tee %
 
 " netrw settings
 " keep the curreent directory the same as the browsing directory
-let g:netrw_liststyle=3
+" let g:netrw_liststyle=1
 let g:netrw_keepdir= 0
 let g:netrw_list_hide= '.*\.pyc$'
 
@@ -469,12 +470,14 @@ map <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
+nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
 nnoremap <leader>s :Snippets<cr>
-nnoremap <leader>t :TagbarToggle<cr>
+nnoremap <leader>tt :botright Ttoggle<cr>
+nnoremap <leader>te :botright Ttoggle<cr>
 " Split Open
 " Clean trailing whitespace
 nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
