@@ -123,6 +123,7 @@ set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
 set clipboard^=unnamed,unnamedplus
+set shell=zsh
 " Wrapped lines goes down/up to next row, rather than next line in file.
 nnoremap <silent> j :<C-U>call Down(v:count)<cr>
 vnoremap <silent> j gj
