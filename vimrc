@@ -14,7 +14,6 @@ Plug 'Lokaltog/vim-easymotion'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
-Plug 'ervandew/supertab'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
 Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
@@ -387,9 +386,6 @@ function! CopyMatches(reg)
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
-" supertab
-let g:SuperTabDefaultCompletionType = "<c-n>"
-
 function! GuessProjectRoot()
   if @% != ''
     let l:dir = fnamemodify(expand('%:p'), ':h')
@@ -611,11 +607,9 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 let g:vim_json_syntax_conceal = 0
 
 " YCM
-" make YCM compatible with UltiSnips (using supertab)
-let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
-let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-let g:SuperTabDefaultCompletionType = '<C-n>'
-nnoremap <localleader>g :YcmCompleter GoTo<cr>
+let g:ycm_key_detailed_diagnostics = '<leader>ex'
+nnoremap gd :YcmCompleter GoToDefinition<cr>
+nnoremap gr :YcmCompleter GoToReferences<cr>
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 autocmd FileType go setlocal completeopt-=preview
