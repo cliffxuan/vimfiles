@@ -479,6 +479,9 @@ nmap gu <Plug>(GitGutterUndoHunk)
 nmap gv <Plug>(GitGutterPreviewHunk)
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
+nnoremap <leader>hh :History<cr>
+nnoremap <leader>hs :History/<cr>
+nnoremap <leader>hc :History:<cr>
 map <leader>j <Plug>(easymotion-j)
 map <leader>k <Plug>(easymotion-k)
 map <leader><leader>j <Plug>(easymotion-w)
