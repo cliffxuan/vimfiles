@@ -496,7 +496,7 @@ nnoremap <leader>q :call QuickfixToggle()<cr>
 nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>tt :botright Ttoggle<cr>
-nnoremap <leader>te :botright Ttoggle<cr>
+nnoremap <leader>te :botright Topen <bar> :execute "normal <Bslash><lt>c-w>T"<cr>
 " Split Open
 " Clean trailing whitespace
 nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
