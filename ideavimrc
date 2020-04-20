@@ -2,7 +2,7 @@ noremap ; :
 noremap : ;
 set wildmenu
 
-" set <leader> to ,
+" set <leader> to space and localleader to ,
 let mapleader = " "
 let maplocalleader = ","
 
@@ -12,7 +12,10 @@ set surround
 set commentary
 
 " easymotion
-nmap <leader>j <Plug>(easymotion-j)
-nmap <leader>k <Plug>(easymotion-k)
-nmap <leader><leader>j <Plug>(easymotion-w)
-nmap <leader><leader>k <Plug>(easymotion-b)
+map <leader>j <Plug>(easymotion-j)
+map <leader>k <Plug>(easymotion-k)
+map <leader><leader>j <Plug>(easymotion-w)
+map <leader><leader>k <Plug>(easymotion-b)
+
+" use system clipboard
+set clipboard+=unnamed
