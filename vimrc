@@ -63,6 +63,10 @@ Plug 'sonph/onehalf', {'rtp': 'vim/'}
 if has('python3')
   Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
+  " UltiSnips triggering
+  let g:UltiSnipsExpandTrigger = '<C-j>'
+  let g:UltiSnipsJumpForwardTrigger = '<C-j>'
+  let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
   function! BuildYCM(info)
     " info is a dictionary with 3 fields
     " - name:   name of the plugin
