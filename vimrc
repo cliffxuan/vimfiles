@@ -39,6 +39,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
+Plug 'lambdalisue/suda.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
@@ -228,9 +229,9 @@ try
     colorscheme base16-dracula
   else
     " colorscheme onedark
-    " colorscheme gruvbox
+    colorscheme gruvbox
     " colorscheme base16-tomorrow-night
-    colorscheme base16-gruvbox-dark-hard
+    " colorscheme base16-gruvbox-dark-hard
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
