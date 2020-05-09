@@ -65,13 +65,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/../utils.sh"
 
 run() {
+  echo "Nothing to do"
 }
 
 check() {
+  run | grep -q "Nothing to do"
 }
 
 
-provision
+provision "$@"
 endsnippet
 
 
@@ -84,9 +86,8 @@ snippet argparse "parsing arguments without getopts" b
 POSITIONAL=()
 while [[ \$# -gt 0 ]]
 do
-key="\$1"
-
-case $key in
+  key="\$1"
+  case $key in
     -e|--extension)
     EXTENSION="\$2"
     shift # past argument
@@ -110,7 +111,7 @@ case $key in
     POSITIONAL+=("\$1") # save it in an array for later
     shift # past argument
     ;;
-esac
+  esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
