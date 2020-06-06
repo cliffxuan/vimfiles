@@ -226,7 +226,9 @@ set termguicolors
 " otherwise koehler
 try
   if has('nvim')
-    colorscheme base16-dracula
+    " colorscheme base16-dracula
+    " colorscheme gruvbox
+    colorscheme onedark
   else
     " colorscheme onedark
     colorscheme gruvbox
