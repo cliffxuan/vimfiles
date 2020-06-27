@@ -298,9 +298,9 @@ command! -bang WQ wq<bang>
 command! Suw :w !sudo tee %
 
 " netrw settings
-" keep the curreent directory the same as the browsing directory
 " let g:netrw_liststyle=1
-let g:netrw_keepdir= 0
+" keep the curreent directory the same as the browsing directory
+" let g:netrw_keepdir= 0
 let g:netrw_list_hide= '.*\.pyc$'
 
 " airline powerline fonts
