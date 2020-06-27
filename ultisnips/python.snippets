@@ -290,9 +290,9 @@ endsnippet
 
 
 snippet pwd "current working directory" b
-import os
+from pathlib import Path
 
-PWD = os.path.abspath(os.path.dirname(__file__))
+PWD = Path(__file__).parent.absolute()
 endsnippet
 
 snippet tor "tornado server stub"
