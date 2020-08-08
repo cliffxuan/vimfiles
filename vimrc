@@ -252,16 +252,24 @@ nnoremap K :hide<cr>
 " Explorer
 nnoremap Q :call ToggleExplorer()<cr>
 if !isdirectory(expand('%'))
-  let w:org_buffer_name=expand('%:p')
+  let w:original_buffer_name=expand('%:p')
 endif
 
 function! ToggleExplorer()
-  " if !isdirectory(expand('%'))
-  if &ft !=# 'netrw'
-    let w:org_buffer_name=expand('%:p')
+  if exists('w:original_buffer_name')
+    execute 'e  ' . w:original_buffer_name
+    unlet w:original_buffer_name
+    if exists('w:original_cwd')
+      execute 'cd ' . w:original_cwd
+      unlet w:original_cwd
+    endif
+  elseif &ft !=# 'netrw'
+    let w:original_buffer_name=expand('%:p')
+    let w:original_cwd=getcwd()
     Explore
-  elseif exists('w:org_buffer_name')
-    execute 'e  ' . w:org_buffer_name
+    cd %:p:h
+  else
+    echo 'original buffer not found'
   endif
 endfunction
 
