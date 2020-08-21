@@ -2,15 +2,6 @@ nnoremap <buffer> <localleader>r :call <SID>run_py_file()<CR>
 nnoremap <buffer> <localleader>y :call <SID>pytest_file()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytest_one_test_case()<CR>
 
-function! Prefix()
-  if has('nvim')
-    return 'term'
-  else
-    return = '!'
-  endif
-endfunction
-
-
 function! s:run_py_file()
     let l:winview = winsaveview()
     !python3 %
@@ -19,7 +10,7 @@ endfunction
 
 
 function! s:pytest_file()
-    let l:prefix = Prefix()
+    let l:prefix = g:ShellCommandPrefix()
     let l:winview = winsaveview()
     execute l:prefix . " pytest %"
     call winrestview(l:winview)
@@ -27,7 +18,7 @@ endfunction
 
 
 function! s:pytest_one_test_case()
-    let l:prefix = Prefix()
+    let l:prefix = g:ShellCommandPrefix()
     let l:winview = winsaveview()
     let l:num = line('.')
     while l:num >= 1

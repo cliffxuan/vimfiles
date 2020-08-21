@@ -420,12 +420,16 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
-function! s:RunCurrentBuffer()
+function! g:ShellCommandPrefix()
   if has('nvim')
-    let l:prefix = 'term '
+    return 'term '
   else
-    let l:prefix = '! '
+    return '! '
   endif
+endfunction
+
+function! s:RunCurrentBuffer()
+  let l:prefix = g:ShellCommandPrefix()
   if &filetype ==# 'python'
     execute l:prefix . "/usr/bin/env python3 %"
   elseif &filetype ==# 'sh'
