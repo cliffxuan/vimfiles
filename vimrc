@@ -109,9 +109,9 @@ if !has('nvim')
 endif
 set fileformat=unix
 set number
-" if exists('&relativenumber')
-"   set relativenumber
-" endif
+if exists('&relativenumber')
+  set relativenumber
+endif
 set hidden
 set numberwidth=4
 set expandtab
@@ -535,7 +535,7 @@ let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'
 if has('gui_running')
   " GUI Vim
 
-  " set guifont=Menlo\ Regular\ for\ Powerline:h12
+  set guifont=Menlo\ Regular\ for\ Powerline:h12
   " Remove all the UI cruft
   set guioptions-=T
   set guioptions-=l

@@ -17,11 +17,8 @@ LINE2 = 'import ipdb; ipdb.set_trace()##########'
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
-
     whitespace = re.search('^(\s*)', vim.current.line).group(1)
-
     vim.current.buffer.append(whitespace + LINE, n_line - 1)
-
     vim.command( 'normal j1')
 
 
