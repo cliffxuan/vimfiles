@@ -32,6 +32,7 @@ Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
 Plug 'rhysd/committia.vim'
 Plug 'sjl/gundo.vim'
+Plug 'voldikss/vim-floaterm'
 " Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
 Plug 'tpope/vim-abolish'
 " Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
@@ -226,9 +227,9 @@ set termguicolors
 " otherwise koehler
 try
   if has('nvim')
-    " colorscheme base16-dracula
+    colorscheme base16-dracula
     " colorscheme gruvbox
-    colorscheme onedark
+    " colorscheme onedark
   else
     " colorscheme onedark
     colorscheme gruvbox
@@ -250,13 +251,20 @@ endif
 nnoremap K :hide<cr>
 
 " Explorer
-nnoremap Q :call ToggleExplorer()<cr>
-if !isdirectory(expand('%'))
-  let w:original_buffer_name=expand('%:p')
-endif
+nnoremap Q :call FileManager()<cr>
+
+function! FileManager()
+  if exists(':FloatermNew') && executable('lf')
+    execute "FloatermNew lf"
+    return 
+  endif
+  return ToggleExplorer()
+endfunction
+
 
 function! ToggleExplorer()
   if exists('w:original_buffer_name')
+    echo 'open ' . w:original_buffer_name
     execute 'e  ' . w:original_buffer_name
     unlet w:original_buffer_name
     if exists('w:original_cwd')
@@ -266,6 +274,7 @@ function! ToggleExplorer()
   elseif &ft !=# 'netrw'
     let w:original_buffer_name=expand('%:p')
     let w:original_cwd=getcwd()
+    echo 'open directory ' . expand('%:p:h')
     Explore
     cd %:p:h
   else
@@ -422,19 +431,33 @@ endfunction
 
 function! g:ShellCommandPrefix()
   if has('nvim')
-    return 'term '
+    if exists(':FloatermNew')
+      return 'FloatermNew '
+    else
+      return 'term '
+    endif
   else
     return '! '
   endif
 endfunction
 
 function! s:RunCurrentBuffer()
-  let l:prefix = g:ShellCommandPrefix()
-  if &filetype ==# 'python'
-    execute l:prefix . "/usr/bin/env python3 %"
-  elseif &filetype ==# 'sh'
-    execute l:prefix . "/usr/bin/env bash %"
+  let l:file = expand('%')
+  if &filetype ==# 'vim'
+    execute "source " . l:file
+    return
   endif
+
+  let l:mapping = {
+              \'python': '/usr/bin/env python3',
+              \'sh': '/usr/bin/env bash',
+              \}
+  if !has_key(l:mapping, &filetype)
+    echoerr "no command registered for filetype " . &filetype
+    return
+  endif
+  let l:prefix = g:ShellCommandPrefix()
+  execute join([g:ShellCommandPrefix(), l:mapping[&filetype], l:file], ' ')
 endfunction
 
 "https://vim.fandom.com/wiki/Capture_ex_command_output
@@ -539,7 +562,9 @@ let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'
 if has('gui_running')
   " GUI Vim
 
-  set guifont=Menlo\ Regular\ for\ Powerline:h12
+  if exists("&guifont")
+    set guifont=Menlo\ Regular\ for\ Powerline:h12
+  endif
   " Remove all the UI cruft
   set guioptions-=T
   set guioptions-=l
