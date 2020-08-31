@@ -191,7 +191,7 @@ nnoremap <S-Tab> :bprevious<cr>
 " Wildmenu completion {{{
 "
 set wildmenu
-set wildmode=list:longest
+set wildmode=longest:full,full
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
@@ -533,7 +533,8 @@ nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
 nnoremap <leader>s :Snippets<cr>
-nnoremap <leader>tt :botright Ttoggle<cr>
+" nnoremap <leader>tt :botright Ttoggle<cr>
+nnoremap <leader>tt :FloatermToggle<cr>
 nnoremap <leader>te :botright Topen <bar> :execute "normal <Bslash><lt>c-w>T"<cr>
 " Split Open
 " Clean trailing whitespace
