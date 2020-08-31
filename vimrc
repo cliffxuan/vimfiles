@@ -30,7 +30,6 @@ Plug 'majutsushi/tagbar'
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
-Plug 'rhysd/committia.vim'
 Plug 'sjl/gundo.vim'
 Plug 'voldikss/vim-floaterm'
 " Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
@@ -51,6 +50,7 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
 Plug 'preservim/nerdtree'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
+Plug 'airblade/vim-gitgutter'
 
 " themes
 Plug 'joshdick/onedark.vim'
@@ -80,29 +80,12 @@ if has('python3')
   endfunction
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
 endif
-if exists('*gettabvar')
-  Plug 'airblade/vim-gitgutter'
-endif
-if has('nvim')
-  Plug 'kassio/neoterm'
-  let g:neoterm_size=20
-  let g:neoterm_autojump=1
-  if has('python3')
-    " for intellij
-    Plug 'beeender/Comrade'
-  endif
-endif
 
 call plug#end()
 
 filetype plugin indent on
 
 "End vim-plug Scripts-------------------------
-
-" if has('nvim')
-"   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-"   autocmd TermOpen term://* startinsert
-" endif
 
 set nobackup noswapfile
 if !has('nvim')
@@ -256,7 +239,7 @@ nnoremap Q :call FileManager()<cr>
 function! FileManager()
   if exists(':FloatermNew') && executable('lf')
     execute "FloatermNew lf"
-    return 
+    return
   endif
   return ToggleExplorer()
 endfunction
@@ -533,12 +516,10 @@ nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
 nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
 nnoremap <leader>s :Snippets<cr>
-" nnoremap <leader>tt :botright Ttoggle<cr>
-nnoremap <leader>tt :FloatermToggle<cr>
-nnoremap <leader>te :botright Topen <bar> :execute "normal <Bslash><lt>c-w>T"<cr>
-" Split Open
+nnoremap <leader>t :FloatermToggle<cr>
 " Clean trailing whitespace
 nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
+" Split Open
 noremap <leader>v :vsp<cr>
 noremap <leader><tab> :call ToggleTab()<cr>
 
@@ -562,7 +543,6 @@ let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
   " GUI Vim
-
   if exists("&guifont")
     set guifont=Menlo\ Regular\ for\ Powerline:h12
   endif
@@ -579,18 +559,6 @@ if has('gui_macvim')
 endif
 " }}}
 
-" switch window
-" this works in neovim and macvim
-nnorema <silent> <M-h> <C-w>h
-nnorema <silent> <M-j> <C-w>j
-nnorema <silent> <M-k> <C-w>k
-nnorema <silent> <M-l> <C-w>l
-" this is for terminal vim
-nnorema <silent> <Esc>h <C-w>h
-nnorema <silent> <Esc>j <C-w>j
-nnorema <silent> <Esc>k <C-w>k
-nnorema <silent> <Esc>l <C-w>l
-
 "nerdcommenter
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
@@ -598,23 +566,6 @@ let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 
 "nerdtree
 let g:NERDTreeWinSize=30
-
-"cursors in insert mode when using tmux
-" if exists('$TMUX')
-"   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-"   let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-" else
-"   let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-"   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-" endif
-" NOTE this is for vim in mintty but not possible to programatically set it
-" $TERM_PROGRAM is not set
-" if exists('$TERM_PROGRAM') && $TERM_PROGRAM == "mintty"
-"   let &t_ti.="\e[1 q"
-"   let &t_SI.="\e[5 q"
-"   let &t_EI.="\e[1 q"
-"   let &t_te.="\e[0 q"
-" endif
 
 
 " Search for selected text, forwards or backwards.
@@ -629,23 +580,18 @@ vnoremap <silent> # :<C-U>
       \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
       \gV:call setreg('"', old_reg, old_regtype)<cr>
 
-" neovim terminal
+" terminal
+tnoremap <Esc> <C-\><C-n>
 if has('nvim')
-  tnoremap <Esc> <C-\><C-n>
-  tnoremap <M-h> <C-\><C-n><C-w>h
-  tnoremap <M-j> <C-\><C-n><C-w>j
-  tnoremap <M-k> <C-\><C-n><C-w>k
-  tnoremap <M-l> <C-\><C-n><C-w>l
-  " nnoremap <leader>i :Ttoggle<cr>
-  autocmd TermOpen * startinsert
+  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  autocmd TermOpen term://* startinsert
 endif
 
-" Insert mode completion
+" fzf completion
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
-
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
@@ -663,6 +609,11 @@ autocmd FileType go setlocal completeopt-=preview
 " Allow vim-terraform to align settings automatically with Tabularize.
 let g:terraform_align=1
 
+" Ale
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
+
+" Floaterm
+let g:floaterm_autoclose=2  " Always close floaterm window
+let g:floaterm_gitcommit="tabe"
