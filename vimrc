@@ -60,26 +60,17 @@ Plug 'dracula/vim'
 Plug 'jnurmine/Zenburn'
 Plug 'chriskempson/base16-vim'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
-
-
-if has('python3')
-  Plug 'SirVer/ultisnips'
-  let g:UltiSnipsSnippetDirectories=['ultisnips']
-  " UltiSnips triggering
-  let g:UltiSnipsExpandTrigger = '<C-j>'
-  let g:UltiSnipsJumpForwardTrigger = '<C-j>'
-  let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
-  function! BuildYCM(info)
-    " info is a dictionary with 3 fields
-    " - name:   name of the plugin
-    " - status: 'installed', 'updated', or 'unchanged'
-    " - force:  set on PlugInstall! or PlugUpdate!
-    if a:info.status == 'installed' || a:info.force
-      !python3 ./install.py --go-completer
-    endif
-  endfunction
-  Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
-endif
+Plug 'SirVer/ultisnips'
+function! BuildYCM(info)
+  " info is a dictionary with 3 fields
+  " - name:   name of the plugin
+  " - status: 'installed', 'updated', or 'unchanged'
+  " - force:  set on PlugInstall! or PlugUpdate!
+  if a:info.status == 'installed' || a:info.force
+    !python3 ./install.py --go-completer
+  endif
+endfunction
+Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
 
 call plug#end()
 
@@ -598,13 +589,6 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
 
-" YCM
-let g:ycm_key_detailed_diagnostics = '<leader>ex'
-nnoremap gd :YcmCompleter GoToDefinition<cr>
-nnoremap gr :YcmCompleter GoToReferences<cr>
-" no docstring window popup during completion
-autocmd FileType python setlocal completeopt-=preview
-autocmd FileType go setlocal completeopt-=preview
 
 " Allow vim-terraform to align settings automatically with Tabularize.
 let g:terraform_align=1
@@ -617,3 +601,17 @@ nmap <silent> <C-j> <Plug>(ale_next_wrap)
 " Floaterm
 let g:floaterm_autoclose=2  " Always close floaterm window
 let g:floaterm_gitcommit="tabe"
+
+" UltiSnips triggering
+let g:UltiSnipsSnippetDirectories=['ultisnips']
+let g:UltiSnipsExpandTrigger = '<C-j>'
+let g:UltiSnipsJumpForwardTrigger = '<C-j>'
+let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+
+" YCM
+let g:ycm_key_detailed_diagnostics = '<leader>ex'
+nnoremap gd :YcmCompleter GoToDefinition<cr>
+nnoremap gr :YcmCompleter GoToReferences<cr>
+" no docstring window popup during completion
+autocmd FileType python setlocal completeopt-=preview
+autocmd FileType go setlocal completeopt-=preview
