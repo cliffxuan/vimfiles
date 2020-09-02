@@ -1,5 +1,5 @@
-if 0 | endif
-"Start vim-plug Scripts-----------------------------
+" vim: set foldmethod=marker foldlevel=0 nomodeline:
+"Start vim-plug Scripts----------------------------- {{{
 if &compatible
   set nocompatible               " Be iMproved
 endif
@@ -40,6 +40,12 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'lambdalisue/suda.vim'
 Plug 'vim-airline/vim-airline'
+  let g:airline_powerline_fonts = 1
+  let g:airline_theme='luna'
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#left_sep = ' '
+  let g:airline#extensions#tabline#left_alt_sep = '|'
+  let g:airline#extensions#tabline#buffer_nr_show = 1
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
@@ -72,11 +78,12 @@ endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
 
 call plug#end()
+"End vim-plug Scripts-------------------------
+"}}}
 
+" settings {{{
 filetype plugin indent on
 syntax on
-
-"End vim-plug Scripts-------------------------
 
 set nobackup noswapfile
 set encoding=utf-8
@@ -108,7 +115,6 @@ set titlestring+=\ "seperator
 set titlestring+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set titleold="" " Do not show 'Thanks for flying vim' on exit
 
-
 " statusline
 set laststatus=2 "The value of this option influences when the last window will have a status line: 2: always
 set statusline=%.40F "file path max 40
@@ -127,6 +133,10 @@ set statusline+=\ "seperator
 set statusline+=%r "Readonly flag, text is "[RO]".
 
 set autoindent
+set list " show whitespace
+" show tabs and trailing whitespaces
+set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
+" }}}
 
 " tabs {{{
 set shiftwidth=4  " sw
@@ -150,33 +160,6 @@ augroup tabs
 augroup end
 " }}}
 
-" wrapped lines goes down/up to next row, rather than next line in file.
-nnoremap <silent> j :<C-U>call Down(v:count)<cr>
-vnoremap <silent> j gj
-
-nnoremap <silent> k :<C-U>call Up(v:count)<cr>
-vnoremap <silent> k gk
-
-function! Down(vcount)
-  if a:vcount == 0
-    exe "normal! gj"
-  else
-    exe "normal! ". a:vcount ."j"
-  endif
-endfunction
-
-function! Up(vcount)
-  if a:vcount == 0
-    exe "normal! gk"
-  else
-    exe "normal! ". a:vcount ."k"
-  endif
-endfunction
-
-" Buffer Cycling
-nnoremap <Tab> :bnext<cr>
-nnoremap <S-Tab> :bprevious<cr>
-
 " Wildmenu completion {{{
 "
 set wildmenu
@@ -193,10 +176,6 @@ set wildignore+=migrations                       " Django migrations
 set wildignore+=*.pyc,*.pyo,*pyd                 " Python byte code
 set wildignore+=*.orig                           " Merge resolution files}
 " }}}
-
-set list " show whitespace
-" show tabs and trailing whitespaces
-set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
 "warn me if my line is over 88 columns
 if exists('+colorcolumn')
@@ -279,13 +258,6 @@ command! Suw :w !sudo tee %
 " let g:netrw_keepdir= 0
 let g:netrw_list_hide= '.*\.pyc$'
 
-" airline powerline fonts
-let g:airline_powerline_fonts = 1
-let g:airline_theme='luna'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#buffer_nr_show = 1
 
 "don't allow vim-gitgutter to set up any mappings at all
 let g:gitgutter_map_keys = 0
@@ -380,6 +352,7 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
+" key map {{{
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
@@ -444,7 +417,6 @@ nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 noremap <leader>v :vsp<cr>
 noremap <leader><tab> :call ToggleTab()<cr>
 
-
 " save
 nnoremap <leader>w :w<cr>
 " alx-fix
@@ -454,8 +426,47 @@ nnoremap <leader>x :ALEFix<cr>
 nnoremap <leader>y :call CopyFileName()<cr>
 noremap <leader>z za
 vnoremap <leader>z za
+
+" Search for selected text, forwards or backwards.
+vnoremap <silent> * :<C-U>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
+      \gvy/<C-R><C-R>=substitute(
+      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+      \gV:call setreg('"', old_reg, old_regtype)<cr>
+vnoremap <silent> # :<C-U>
+      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
+      \gvy?<C-R><C-R>=substitute(
+      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
+      \gV:call setreg('"', old_reg, old_regtype)<cr>
+
+" wrapped lines goes down/up to next row, rather than next line in file.
+nnoremap <silent> j :<C-U>call Down(v:count)<cr>
+vnoremap <silent> j gj
+
+nnoremap <silent> k :<C-U>call Up(v:count)<cr>
+vnoremap <silent> k gk
+
+function! Down(vcount)
+  if a:vcount == 0
+    exe "normal! gj"
+  else
+    exe "normal! ". a:vcount ."j"
+  endif
+endfunction
+
+function! Up(vcount)
+  if a:vcount == 0
+    exe "normal! gk"
+  else
+    exe "normal! ". a:vcount ."k"
+  endif
+endfunction
+
+" Buffer Cycling
+nnoremap <Tab> :bnext<cr>
+nnoremap <S-Tab> :bprevious<cr>
+
 " }}}
-"
 
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
@@ -488,18 +499,6 @@ let g:NERDTreeWinSize=30
 let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 " }}}
 
-
-" Search for selected text, forwards or backwards.
-vnoremap <silent> * :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
-      \gvy/<C-R><C-R>=substitute(
-      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
-      \gV:call setreg('"', old_reg, old_regtype)<cr>
-vnoremap <silent> # :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
-      \gvy?<C-R><C-R>=substitute(
-      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
-      \gV:call setreg('"', old_reg, old_regtype)<cr>
 
 " terminal {{{
 tnoremap <Esc> <C-\><C-n>
