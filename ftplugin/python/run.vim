@@ -1,4 +1,3 @@
-nnoremap <buffer> <localleader>r :call <SID>run_py_file()<CR>
 nnoremap <buffer> <localleader>y :call <SID>pytest_file()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytest_one_test_case()<CR>
 
