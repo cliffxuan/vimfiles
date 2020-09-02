@@ -79,14 +79,10 @@ filetype plugin indent on
 "End vim-plug Scripts-------------------------
 
 set nobackup noswapfile
-if !has('nvim')
-  set encoding=utf-8
-endif
+set encoding=utf-8
 set fileformat=unix
 set number
-if exists('&relativenumber')
-  set relativenumber
-endif
+set relativenumber
 set hidden
 set numberwidth=4
 set expandtab
@@ -224,35 +220,6 @@ nnoremap K :hide<cr>
 
 " Explorer
 nnoremap Q :call FileManager()<cr>
-
-function! FileManager()
-  if exists(':FloatermNew') && executable('lf')
-    execute "FloatermNew lf"
-    return
-  endif
-  return ToggleExplorer()
-endfunction
-
-
-function! ToggleExplorer()
-  if exists('w:original_buffer_name')
-    echo 'open ' . w:original_buffer_name
-    execute 'e  ' . w:original_buffer_name
-    unlet w:original_buffer_name
-    if exists('w:original_cwd')
-      execute 'cd ' . w:original_cwd
-      unlet w:original_cwd
-    endif
-  elseif &ft !=# 'netrw'
-    let w:original_buffer_name=expand('%:p')
-    let w:original_cwd=getcwd()
-    echo 'open directory ' . expand('%:p:h')
-    Explore
-    cd %:p:h
-  else
-    echo 'original buffer not found'
-  endif
-endfunction
 
 " ToggleTab
 function! ToggleTab()
@@ -401,37 +368,6 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
-function! g:ShellCommandPrefix()
-  if has('nvim')
-    if exists(':FloatermNew')
-      return 'FloatermNew --autoclose=0'
-    else
-      return 'term '
-    endif
-  else
-    return '! '
-  endif
-endfunction
-
-function! s:RunCurrentBuffer()
-  let l:file = expand('%')
-  if &filetype ==# 'vim'
-    execute "source " . l:file
-    return
-  endif
-
-  let l:mapping = {
-              \'python': '/usr/bin/env python3',
-              \'sh': '/usr/bin/env bash',
-              \}
-  if !has_key(l:mapping, &filetype)
-    echoerr "no command registered for filetype " . &filetype
-    return
-  endif
-  let l:prefix = g:ShellCommandPrefix()
-  execute join([g:ShellCommandPrefix(), l:mapping[&filetype], l:file], ' ')
-endfunction
-
 "https://vim.fandom.com/wiki/Capture_ex_command_output
 function! TabMessage(cmd)
   redir => message
@@ -503,7 +439,7 @@ nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
 nnoremap <leader>q :call QuickfixToggle()<cr>
-nnoremap <leader>r :call <SID>RunCurrentBuffer()<cr>
+nmap <leader>r <Plug>RunCurrentBuffer
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :FloatermToggle<cr>
 " Clean trailing whitespace
