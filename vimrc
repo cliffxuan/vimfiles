@@ -91,8 +91,6 @@ set hidden
 set numberwidth=4
 set expandtab
 set tabstop=8
-set softtabstop=4
-set shiftwidth=4
 set noignorecase "case sensitive
 set backspace=2 "make backspace work like most other applications
 set hlsearch incsearch
