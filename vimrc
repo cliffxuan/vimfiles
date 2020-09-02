@@ -85,8 +85,6 @@ set number
 set relativenumber
 set hidden
 set numberwidth=4
-set expandtab
-set tabstop=8
 set noignorecase "case sensitive
 set backspace=2 "make backspace work like most other applications
 set hlsearch incsearch
@@ -97,28 +95,6 @@ set autoread
 set autowrite
 set clipboard^=unnamed,unnamedplus
 set shell=zsh
-" Wrapped lines goes down/up to next row, rather than next line in file.
-nnoremap <silent> j :<C-U>call Down(v:count)<cr>
-vnoremap <silent> j gj
-
-nnoremap <silent> k :<C-U>call Up(v:count)<cr>
-vnoremap <silent> k gk
-
-function! Down(vcount)
-  if a:vcount == 0
-    exe "normal! gj"
-  else
-    exe "normal! ". a:vcount ."j"
-  endif
-endfunction
-
-function! Up(vcount)
-  if a:vcount == 0
-    exe "normal! gk"
-  else
-    exe "normal! ". a:vcount ."k"
-  endif
-endfunction
 
 "folding
 set foldmethod=indent
@@ -151,6 +127,51 @@ set statusline+=\ "seperator
 set statusline+=%r "Readonly flag, text is "[RO]".
 
 set autoindent
+
+" tabs {{{
+set shiftwidth=4  " sw
+set tabstop=4     " ts
+set softtabstop=4 " sts
+set expandtab     " et
+
+augroup tabs
+  autocmd!
+  autocmd FileType css        setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType html       setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType javascript setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType json       setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType ruby       setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType sh         setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType typescript setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType vim        setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType yaml       setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType python     setlocal sw=4 ts=8 sts=4 et
+  autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
+augroup end
+" }}}
+
+" wrapped lines goes down/up to next row, rather than next line in file.
+nnoremap <silent> j :<C-U>call Down(v:count)<cr>
+vnoremap <silent> j gj
+
+nnoremap <silent> k :<C-U>call Up(v:count)<cr>
+vnoremap <silent> k gk
+
+function! Down(vcount)
+  if a:vcount == 0
+    exe "normal! gj"
+  else
+    exe "normal! ". a:vcount ."j"
+  endif
+endfunction
+
+function! Up(vcount)
+  if a:vcount == 0
+    exe "normal! gk"
+  else
+    exe "normal! ". a:vcount ."k"
+  endif
+endfunction
 
 " Buffer Cycling
 nnoremap <Tab> :bnext<cr>
@@ -265,14 +286,6 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#buffer_nr_show = 1
-
-" fugitive {{{
-
-augroup ft_fugitive
-  au!
-
-  au BufNewFile,BufRead .git/index setlocal nolist
-augroup END
 
 "don't allow vim-gitgutter to set up any mappings at all
 let g:gitgutter_map_keys = 0
@@ -463,6 +476,12 @@ if has('gui_macvim')
 endif
 " }}}
 
+" fugitive {{{
+augroup ft_fugitive
+  au!
+  au BufNewFile,BufRead .git/index setlocal nolist
+augroup END
+" }}}
 
 " nerdtree  {{{
 let g:NERDTreeWinSize=30
