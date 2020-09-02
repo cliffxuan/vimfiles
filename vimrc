@@ -16,7 +16,6 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
-Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
 " Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
@@ -75,6 +74,7 @@ Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
 call plug#end()
 
 filetype plugin indent on
+syntax on
 
 "End vim-plug Scripts-------------------------
 
@@ -188,7 +188,6 @@ endif
 let mapleader = " "
 let maplocalleader = ","
 
-syntax on
 set background=dark
 set termguicolors
 " if custom themes exists, use it
@@ -368,22 +367,6 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
-"https://vim.fandom.com/wiki/Capture_ex_command_output
-function! TabMessage(cmd)
-  redir => message
-  silent execute a:cmd
-  redir END
-  if empty(message)
-    echoerr "no output"
-  else
-    " use "new" instead of "tabnew" below if you prefer split windows instead of tabs
-    tabnew
-    setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted nomodified
-    silent put=message
-  endif
-endfunction
-command! -nargs=+ -complete=command TabMessage call TabMessage(<q-args>)
-
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
@@ -461,10 +444,6 @@ vnoremap <leader>z za
 " }}}
 "
 
-" ale
-let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
-
 " environments (GUI/Console) ---------------------------------------------- {{{
 if has('gui_running')
   " GUI Vim
@@ -484,13 +463,11 @@ if has('gui_macvim')
 endif
 " }}}
 
-"nerdcommenter
-let g:NERDSpaceDelims = 1
-let g:NERDDefaultAlign = 'left'
-let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 
-"nerdtree
+" nerdtree  {{{
 let g:NERDTreeWinSize=30
+let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
+" }}}
 
 
 " Search for selected text, forwards or backwards.
@@ -505,47 +482,59 @@ vnoremap <silent> # :<C-U>
       \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
       \gV:call setreg('"', old_reg, old_regtype)<cr>
 
-" terminal
+" terminal {{{
 tnoremap <Esc> <C-\><C-n>
 if has('nvim')
   let $NVIM_TUI_ENABLE_TRUE_COLOR=1
   autocmd TermOpen term://* startinsert
 endif
+" }}}
 
-" fzf completion
+" fzf {{{
 imap <c-x><c-k> <plug>(fzf-complete-word)
 imap <c-x><c-f> <plug>(fzf-complete-path)
 imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 imap <c-x><c-l> <plug>(fzf-complete-line)
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
+" }}}
 
+" vim-json {{{
 " do not show indentation for json
 let g:vim_json_syntax_conceal = 0
+" }}}
 
-
+" vim-terraform {{{
 " Allow vim-terraform to align settings automatically with Tabularize.
 let g:terraform_align=1
+" }}}
 
-" Ale
+" ale  {{{
+let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
 let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
-" floaterm
+" }}}
+
+" floaterm {{{
 let g:floaterm_autoclose=2  " Always close floaterm window
 let g:floaterm_gitcommit="tabe"
+" }}}
 
-" UltiSnips triggering
+" ultisnips {{{
 let g:UltiSnipsSnippetDirectories=['ultisnips']
 let g:UltiSnipsExpandTrigger = '<C-j>'
 let g:UltiSnipsJumpForwardTrigger = '<C-j>'
 let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+" }}}
 
-" YCM
+" ycm {{{
 let g:ycm_key_detailed_diagnostics = '<leader>ex'
 nnoremap gd :YcmCompleter GoToDefinition<cr>
 nnoremap gr :YcmCompleter GoToReferences<cr>
 " no docstring window popup during completion
 autocmd FileType python setlocal completeopt-=preview
 autocmd FileType go setlocal completeopt-=preview
+" }}}
