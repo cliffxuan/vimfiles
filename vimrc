@@ -406,7 +406,7 @@ endfunction
 function! g:ShellCommandPrefix()
   if has('nvim')
     if exists(':FloatermNew')
-      return 'FloatermNew '
+      return 'FloatermNew --autoclose=0'
     else
       return 'term '
     endif
@@ -598,7 +598,7 @@ let g:ale_python_mypy_options="--ignore-missing-imports"
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 
-" Floaterm
+" floaterm
 let g:floaterm_autoclose=2  " Always close floaterm window
 let g:floaterm_gitcommit="tabe"
 
