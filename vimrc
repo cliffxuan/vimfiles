@@ -70,8 +70,8 @@ function! BuildYCM(info)
     !python3 ./install.py --go-completer
   endif
 endfunction
-Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
-
+" Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
 filetype plugin indent on
@@ -609,9 +609,23 @@ let g:UltiSnipsJumpForwardTrigger = '<C-j>'
 let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
 " YCM
-let g:ycm_key_detailed_diagnostics = '<leader>ex'
-nnoremap gd :YcmCompleter GoToDefinition<cr>
-nnoremap gr :YcmCompleter GoToReferences<cr>
-" no docstring window popup during completion
-autocmd FileType python setlocal completeopt-=preview
-autocmd FileType go setlocal completeopt-=preview
+" let g:ycm_key_detailed_diagnostics = '<leader>ex'
+" nnoremap gd :YcmCompleter GoToDefinition<cr>
+" nnoremap gr :YcmCompleter GoToReferences<cr>
+" " no docstring window popup during completion
+" autocmd FileType python setlocal completeopt-=preview
+" autocmd FileType go setlocal completeopt-=preview
+" use <tab> for trigger completion and navigate to the next complete item
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <Tab>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+nmap <silent> gd <Plug>(coc-definition)
