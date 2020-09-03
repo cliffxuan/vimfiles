@@ -14,13 +14,13 @@ Plug 'Lokaltog/vim-easymotion'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'elzr/vim-json', { 'for': 'json' }
+  let g:vim_json_syntax_conceal = 0
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
 " Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
-Plug 'jmcantrell/vim-virtualenv', { 'for': 'python' }
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-dirvish'
@@ -29,16 +29,17 @@ Plug 'majutsushi/tagbar'
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
-Plug 'sjl/gundo.vim'
 Plug 'voldikss/vim-floaterm'
+  let g:floaterm_autoclose=2  " Always close floaterm window
+  let g:floaterm_gitcommit="tabe"
 " Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
 Plug 'tpope/vim-abolish'
 " Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
-Plug 'lambdalisue/suda.vim'
 Plug 'vim-airline/vim-airline'
   let g:airline_powerline_fonts = 1
   let g:airline_theme='luna'
@@ -48,16 +49,26 @@ Plug 'vim-airline/vim-airline'
   let g:airline#extensions#tabline#buffer_nr_show = 1
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
+  let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
+  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
+  let g:ale_python_mypy_options="--ignore-missing-imports"
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
-Plug 'haishanh/night-owl.vim'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
 Plug 'preservim/nerdtree'
+  let g:NERDTreeWinSize=30
+  let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
+  let g:terraform_align=1
 Plug 'airblade/vim-gitgutter'
+  "don't allow vim-gitgutter to set up any mappings
+  let g:gitgutter_map_keys = 0
+  let g:gitgutter_preview_win_floating = 1
+Plug 'rhysd/git-messenger.vim'
 
 " themes
+Plug 'haishanh/night-owl.vim'
 Plug 'joshdick/onedark.vim'
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
@@ -66,6 +77,12 @@ Plug 'jnurmine/Zenburn'
 Plug 'chriskempson/base16-vim'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'SirVer/ultisnips'
+  let g:UltiSnipsSnippetDirectories=['ultisnips']
+  let g:UltiSnipsExpandTrigger = '<C-j>'
+  let g:UltiSnipsJumpForwardTrigger = '<C-j>'
+  let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
+
+" completion
 function! BuildYCM(info)
   " info is a dictionary with 3 fields
   " - name:   name of the plugin
@@ -76,14 +93,19 @@ function! BuildYCM(info)
   endif
 endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
+  let g:ycm_key_detailed_diagnostics = '<leader>ex'
 
 call plug#end()
 "End vim-plug Scripts-------------------------
 "}}}
 
-" settings {{{
+" basic settings {{{
 filetype plugin indent on
 syntax on
+
+" set <leader> to and localleader
+let mapleader = " "
+let maplocalleader = ","
 
 set nobackup noswapfile
 set encoding=utf-8
@@ -104,7 +126,7 @@ set clipboard^=unnamed,unnamedplus
 set shell=zsh
 
 "folding
-set foldmethod=indent
+" set foldmethod=indent
 set foldlevelstart=20
 
 "set title
@@ -157,7 +179,7 @@ augroup tabs
   autocmd FileType yaml       setlocal sw=2 ts=2 sts=2 et
   autocmd FileType python     setlocal sw=4 ts=8 sts=4 et
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
-augroup end
+augroup END
 " }}}
 
 " Wildmenu completion {{{
@@ -177,6 +199,7 @@ set wildignore+=*.pyc,*.pyo,*pyd                 " Python byte code
 set wildignore+=*.orig                           " Merge resolution files}
 " }}}
 
+" display {{{
 "warn me if my line is over 88 columns
 if exists('+colorcolumn')
   set colorcolumn=88
@@ -184,56 +207,38 @@ else
   au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>88v.\+', -1)
 endif
 
-" set <leader> to ,
-let mapleader = " "
-let maplocalleader = ","
-
 set background=dark
 set termguicolors
 " if custom themes exists, use it
 " otherwise koehler
 try
   if has('nvim')
-    colorscheme base16-dracula
-    " colorscheme gruvbox
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+    colorscheme gruvbox
+    " colorscheme night-owl
+    " colorscheme base16-dracula
     " colorscheme onedark
   else
-    " colorscheme onedark
-    colorscheme gruvbox
+    colorscheme onedark
+    " colorscheme gruvbox
     " colorscheme base16-tomorrow-night
     " colorscheme base16-gruvbox-dark-hard
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
-
-" map ; to :
-noremap ; :
-if !has("gui_vimr")
-  " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
-  noremap : ;
-endif
-
-" Kill window
-nnoremap K :hide<cr>
-
-" Explorer
-nnoremap Q :call FileManager()<cr>
+" }}}
 
 " ToggleTab
 function! ToggleTab()
   if &expandtab
-    set noexpandtab
-    echo 'tab on'
+    setlocal noexpandtab
+    echo 'tab on: tabstop=' . &tabstop
   else
-    set expandtab
+    setlocal expandtab
     echo 'tab off'
   endif
 endfunction
-
-" Emacs bindings in command line mode
-cnoremap <c-a> <home>
-cnoremap <c-e> <end>
 
 " filter command
 command! -nargs=? Filter let @a='' | execute 'g/<args>/y A' | new | setlocal bt=nofile | put! a
@@ -258,10 +263,6 @@ command! Suw :w !sudo tee %
 " let g:netrw_keepdir= 0
 let g:netrw_list_hide= '.*\.pyc$'
 
-
-"don't allow vim-gitgutter to set up any mappings at all
-let g:gitgutter_map_keys = 0
-let g:gitgutter_preview_win_floating = 1
 
 function! CopyFileName()
   let filename = expand('%:p')
@@ -353,6 +354,23 @@ function! GuessProjectRoot()
 endfunction
 
 " key map {{{
+" map ; to :
+noremap ; :
+if !has("gui_vimr")
+  " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
+  noremap : ;
+endif
+
+" Kill window
+nnoremap K :hide<cr>
+" Explorer
+nnoremap Q :call FileManager()<cr>
+
+" Emacs bindings in command line mode
+cnoremap <c-a> <home>
+cnoremap <c-e> <end>
+
+
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
@@ -384,6 +402,7 @@ nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gf :GFiles?<cr>
 nnoremap <leader>gl :Commits<cr>
+nnoremap <leader>gm :GitMessenger<cr>
 nnoremap <leader>go :BCommits<cr>
 nnoremap <leader>gr :Gread<cr>
 nnoremap <leader>gw :Gwrite<cr>
@@ -466,6 +485,9 @@ endfunction
 nnoremap <Tab> :bnext<cr>
 nnoremap <S-Tab> :bprevious<cr>
 
+" ale
+nmap <silent> <C-k> <Plug>(ale_previous_wrap)
+nmap <silent> <C-j> <Plug>(ale_next_wrap)
 " }}}
 
 " environments (GUI/Console) ---------------------------------------------- {{{
@@ -494,17 +516,12 @@ augroup ft_fugitive
 augroup END
 " }}}
 
-" nerdtree  {{{
-let g:NERDTreeWinSize=30
-let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
-" }}}
-
-
 " terminal {{{
 tnoremap <Esc> <C-\><C-n>
 if has('nvim')
-  let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  autocmd TermOpen term://* startinsert
+  augroup nvim_term_insert
+    autocmd TermOpen term://* startinsert
+  augroup END
 endif
 " }}}
 
@@ -517,42 +534,12 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 " }}}
 
-" vim-json {{{
-" do not show indentation for json
-let g:vim_json_syntax_conceal = 0
-" }}}
-
-" vim-terraform {{{
-" Allow vim-terraform to align settings automatically with Tabularize.
-let g:terraform_align=1
-" }}}
-
-" ale  {{{
-let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
-let g:ale_python_mypy_options="--ignore-missing-imports"
-nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-nmap <silent> <C-j> <Plug>(ale_next_wrap)
-
-" }}}
-
-" floaterm {{{
-let g:floaterm_autoclose=2  " Always close floaterm window
-let g:floaterm_gitcommit="tabe"
-" }}}
-
-" ultisnips {{{
-let g:UltiSnipsSnippetDirectories=['ultisnips']
-let g:UltiSnipsExpandTrigger = '<C-j>'
-let g:UltiSnipsJumpForwardTrigger = '<C-j>'
-let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
-" }}}
-
 " ycm {{{
-let g:ycm_key_detailed_diagnostics = '<leader>ex'
 nnoremap gd :YcmCompleter GoToDefinition<cr>
 nnoremap gr :YcmCompleter GoToReferences<cr>
 " no docstring window popup during completion
-autocmd FileType python setlocal completeopt-=preview
-autocmd FileType go setlocal completeopt-=preview
+augroup ycm_no_doc
+  autocmd FileType python setlocal completeopt-=preview
+  autocmd FileType go setlocal completeopt-=preview
+augroup END
 " }}}
