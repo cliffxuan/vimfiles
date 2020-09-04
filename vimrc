@@ -22,8 +22,12 @@ Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+  let $FZF_DEFAULT_COMMAND = 'rg --files'
 Plug 'junegunn/fzf.vim'
+  let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
 Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
+  let g:clap_layout = { 'width': '60%', 'height': '40%' }
+  let g:clap_theme = 'material_design_dark'
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'majutsushi/tagbar'
@@ -31,8 +35,8 @@ Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
 Plug 'voldikss/vim-floaterm'
-  let g:floaterm_autoclose=2  " Always close floaterm window
-  let g:floaterm_gitcommit="tabe"
+  let g:floaterm_autoclose = 2  " Always close floaterm window
+  let g:floaterm_gitcommit = "tabe"
 " Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
 Plug 'tpope/vim-abolish'
 " Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
@@ -62,20 +66,18 @@ Plug 'preservim/nerdtree'
   let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
   let g:terraform_align=1
-Plug 'airblade/vim-gitgutter'
-  "don't allow vim-gitgutter to set up any mappings
-  let g:gitgutter_map_keys = 0
-  let g:gitgutter_preview_win_floating = 1
+Plug 'mhinz/vim-signify'
 Plug 'rhysd/git-messenger.vim'
+Plug 'sheerun/vim-polyglot'
 
 " themes
-Plug 'haishanh/night-owl.vim'
-Plug 'joshdick/onedark.vim'
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
 Plug 'dracula/vim'
 Plug 'jnurmine/Zenburn'
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
+Plug 'haishanh/night-owl.vim'
+
+" snippet
 Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   let g:UltiSnipsExpandTrigger = '<C-j>'
@@ -161,22 +163,24 @@ set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 " }}}
 
 " tabs {{{
-set shiftwidth=4  " sw
+set shiftwidth=2  " sw
 set tabstop=4     " ts
-set softtabstop=4 " sts
+set softtabstop=2 " sts
 set expandtab     " et
+
+command! ShowTabs :echo printf("shiftwidth=%d tabstop=%d softtabstop=%d expandtab=%d", &sw, &ts, &sts, &et)
 
 augroup tabs
   autocmd!
-  autocmd FileType css        setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType html       setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType javascript setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType json       setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType ruby       setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType sh         setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType typescript setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType vim        setlocal sw=2 ts=2 sts=2 et
-  autocmd FileType yaml       setlocal sw=2 ts=2 sts=2 et
+  autocmd FileType css        setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType html       setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType javascript setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType json       setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType ruby       setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType sh         setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType typescript setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType vim        setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType yaml       setlocal sw=2 ts=4 sts=2 et
   autocmd FileType python     setlocal sw=4 ts=8 sts=4 et
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
 augroup END
@@ -216,13 +220,9 @@ try
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     colorscheme gruvbox
     " colorscheme night-owl
-    " colorscheme base16-dracula
-    " colorscheme onedark
   else
-    colorscheme onedark
-    " colorscheme gruvbox
-    " colorscheme base16-tomorrow-night
-    " colorscheme base16-gruvbox-dark-hard
+    colorscheme monokai
+    " colorscheme dracula
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
@@ -372,9 +372,10 @@ cnoremap <c-e> <end>
 
 
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
-nnoremap <leader>aa :Clap grep<cr>
+nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b :Buffers<cr>
+nnoremap <leader>c :Clap colors<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
@@ -392,7 +393,8 @@ noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd()}))<cr>
+" nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd()}))<cr>
+nnoremap <leader>f :Files<cr>
 " g for git related mappings
 nnoremap <leader>gd :Gvdiff<cr>
 nnoremap <leader>gg :Git<cr>
@@ -406,8 +408,10 @@ nnoremap <leader>gm :GitMessenger<cr>
 nnoremap <leader>go :BCommits<cr>
 nnoremap <leader>gr :Gread<cr>
 nnoremap <leader>gw :Gwrite<cr>
-nmap <leader>gj <Plug>(GitGutterNextHunk)
-nmap <leader>gk <Plug>(GitGutterPrevHunk)
+nmap <leader>gj <plug>(signify-next-hunk)
+nmap <leader>gk <plug>(signify-prev-hunk)
+nmap <leader>gJ 9999<leader>gj
+nmap <leader>gK 9999<leader>gk
 nmap gs <Plug>(GitGutterStageHunk)
 nmap gu <Plug>(GitGutterUndoHunk)
 nmap gv <Plug>(GitGutterPreviewHunk)
@@ -426,8 +430,7 @@ nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
-" nnoremap <leader>q :call QuickfixToggle()<cr>
-nnoremap <leader>q :Clap<cr>
+nnoremap <leader>q :call QuickfixToggle()<cr>
 nmap <leader>r <Plug>RunCurrentBuffer
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :FloatermToggle<cr>
@@ -518,7 +521,7 @@ augroup END
 " }}}
 
 " terminal {{{
-tnoremap <Esc> <C-\><C-n>
+tnoremap <C-o> <C-\><C-n>
 if has('nvim')
   augroup nvim_term_insert
     autocmd TermOpen term://* startinsert
