@@ -23,6 +23,7 @@ Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'majutsushi/tagbar'
@@ -74,7 +75,6 @@ Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
 Plug 'dracula/vim'
 Plug 'jnurmine/Zenburn'
-Plug 'chriskempson/base16-vim'
 Plug 'sonph/onehalf', {'rtp': 'vim/'}
 Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -372,7 +372,7 @@ cnoremap <c-e> <end>
 
 
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
-nnoremap <leader>aa :Rg<tab>
+nnoremap <leader>aa :Clap grep<cr>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b :Buffers<cr>
 " cd into directories
@@ -388,7 +388,7 @@ noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<
 noremap <leader>ek :NERDTreeClose<cr>
 nnoremap <leader>ed :bdelete<cr>
 noremap <leader>ep :UltiSnipsEdit<cr>
-noremap <leader>er :execute 'tab new ' . resolve(expand($MYVIMRC))<cr>
+noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
@@ -426,7 +426,8 @@ nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
-nnoremap <leader>q :call QuickfixToggle()<cr>
+" nnoremap <leader>q :call QuickfixToggle()<cr>
+nnoremap <leader>q :Clap<cr>
 nmap <leader>r <Plug>RunCurrentBuffer
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :FloatermToggle<cr>
