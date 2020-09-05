@@ -76,6 +76,9 @@ Plug 'sickill/vim-monokai'
 Plug 'dracula/vim'
 Plug 'jnurmine/Zenburn'
 Plug 'haishanh/night-owl.vim'
+Plug 'ayu-theme/ayu-vim'
+Plug 'arcticicestudio/nord-vim'
+Plug 'junegunn/seoul256.vim'
 
 " snippet
 Plug 'SirVer/ultisnips'
