@@ -13,11 +13,8 @@ Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
-Plug 'elzr/vim-json', { 'for': 'json' }
-  let g:vim_json_syntax_conceal = 0
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
-" Plug 'guns/vim-sexp', { 'for': 'clojure' }
 Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'jiangmiao/auto-pairs'
@@ -34,12 +31,11 @@ Plug 'majutsushi/tagbar'
 Plug 'mattn/gist-vim'
 Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
+  let g:indentLine_setColors = 0
 Plug 'voldikss/vim-floaterm'
   let g:floaterm_autoclose = 2  " Always close floaterm window
   let g:floaterm_gitcommit = "tabe"
-" Plug 'tomlion/vim-solidity', { 'for': 'solidity' }
 Plug 'tpope/vim-abolish'
-" Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
@@ -79,6 +75,7 @@ Plug 'haishanh/night-owl.vim'
 Plug 'ayu-theme/ayu-vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'junegunn/seoul256.vim'
+Plug 'altercation/vim-colors-solarized'
 
 " snippet
 Plug 'SirVer/ultisnips'
