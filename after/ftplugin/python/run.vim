@@ -4,7 +4,7 @@ nnoremap <buffer> <localleader>k :call <SID>pytest_one_test_case()<CR>
 function! s:pytest_file()
     let l:prefix = g:ShellCommandPrefix()
     let l:winview = winsaveview()
-    execute l:prefix . " pytest " . expand('%')
+    execute l:prefix . " pytest -s " . expand('%')
     call winrestview(l:winview)
 endfunction
 
@@ -22,7 +22,7 @@ function! s:pytest_one_test_case()
         let l:num = l:num - 1
     endwhile
     if len(l:name)
-        execute l:prefix . " set -x; pytest " . expand('%') . " -k " . l:name
+        execute l:prefix . " set -x; pytest -s " . expand('%') . " -k " . l:name
     else
         echo 'no testcase found'
     endif

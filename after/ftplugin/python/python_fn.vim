@@ -9,7 +9,7 @@
 "
 " Save this file to $VIMFILES/ftplugin/python.vim. You can have multiple
 " python ftplugins by creating $VIMFILES/ftplugin/python and saving your
-" ftplugins in that directory. If saving this to the global ftplugin 
+" ftplugins in that directory. If saving this to the global ftplugin
 " directory, this is the recommended method, since vim ships with an
 " ftplugin/python.vim file already.
 " You can set the global variable "g:py_select_leading_comments" to 0
@@ -27,16 +27,14 @@
 " vim (>= 7)
 "
 " Shortcuts:
-"   <localleader>t      -- Jump to beginning of block
-"   <localleader>e      -- Jump to end of block
-"   <localleader>v      -- Select (Visual Line Mode) block
-"   <localleader><      -- Shift block to left
-"   <localleader>>      -- Shift block to right
-"   <localleader>c      -- Comment selection
-"   <localleader>u      -- Uncomment selection
-"   <localleader>sc     -- Select current/previous class
-"   <localleader>sf     -- Select current/previous function
-"   <localleader>jL   -- Jump to previous line with the same/lower indentation
+"   <localleader>t  -- Jump to beginning of block
+"   <localleader>e  -- Jump to end of block
+"   <localleader>v  -- Select (Visual Line Mode) block
+"   <localleader><  -- Shift block to left
+"   <localleader>>  -- Shift block to right
+"   <localleader>sc -- Select current/previous class
+"   <localleader>sf -- Select current/previous function
+"   <localleader>jL -- Jump to previous line with the same/lower indentation
 "   <localleader>jl -- Jump to next line with the same/lower indentation
 
 " Only do this when not done yet for this buffer
@@ -53,11 +51,6 @@ vnoremap <localleader>e   :<C-U>PEoB<CR>m'gv``
 noremap  <localleader>v   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``
 noremap  <localleader><   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``<
 noremap  <localleader>>   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``>
-
-noremap  <localleader>c   :call PythonCommentSelection()<CR>:update<CR>
-vnoremap <localleader>c   :call PythonCommentSelection()<CR>:update<CR>
-noremap  <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
-vnoremap <localleader>u   :call PythonUncommentSelection()<CR>:update<CR>
 
 noremap  <localleader>sc   :call PythonSelectObject("class")<CR>
 noremap  <localleader>sf   :call PythonSelectObject("function")<CR>
@@ -96,8 +89,8 @@ function! PythonBoB(line, direction, force_sel_comments)
   let mark = ln
   let indent_valid = strlen(getline(ln))
   let ln = ln + a:direction
-  if (a:direction == 1) && (!a:force_sel_comments) && 
-      \ exists("g:py_select_trailing_comments") && 
+  if (a:direction == 1) && (!a:force_sel_comments) &&
+      \ exists("g:py_select_trailing_comments") &&
       \ (!g:py_select_trailing_comments)
     let sel_comments = 0
   else
@@ -139,55 +132,6 @@ function! PythonDec(obj, direction)
     let flag = flag."b"
   endif
   let res = search(objregexp, flag)
-endfunction
-
-
-" Comment out selected lines
-" commentString is inserted in non-empty lines, and should be aligned with
-" the block
-function! PythonCommentSelection()  range
-  let commentString = "#"
-  let cl = a:firstline
-  let ind = 1000    " I hope nobody use so long lines! :)
-
-  " Look for smallest indent
-  while (cl <= a:lastline)
-    if strlen(getline(cl))
-      let cind = indent(cl)
-      let ind = ((ind < cind) ? ind : cind)
-    endif
-    let cl = cl + 1
-  endwhile
-  if (ind == 1000)
-    let ind = 1
-  else
-    let ind = ind + 1
-  endif
-
-  let cl = a:firstline
-  execute ":".cl
-  " Insert commentString in each non-empty line, in column ind
-  while (cl <= a:lastline)
-    if strlen(getline(cl))
-      execute "normal ".ind."|i".commentString
-    endif
-    execute "normal \<Down>"
-    let cl = cl + 1
-  endwhile
-endfunction
-
-" Uncomment selected lines
-function! PythonUncommentSelection()  range
-  " commentString could be different than the one from CommentSelection()
-  " For example, this could be "# \\="
-  let commentString = "#"
-  let cl = a:firstline
-  while (cl <= a:lastline)
-    let ul = substitute(getline(cl),
-             \"\\(\\s*\\)".commentString."\\(.*\\)$", "\\1\\2", "")
-    call setline(cl, ul)
-    let cl = cl + 1
-  endwhile
 endfunction
 
 
@@ -244,7 +188,7 @@ function! PythonNextLine(direction)
   let ln = ln + a:direction
 
   while((ln >= 1) && (ln <= line('$')))
-    if (!indent_valid) && strlen(getline(ln)) 
+    if (!indent_valid) && strlen(getline(ln))
         break
     else
       if (strlen(getline(ln)))

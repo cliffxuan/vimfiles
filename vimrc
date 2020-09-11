@@ -15,8 +15,7 @@ Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
-Plug 'hynek/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   let $FZF_DEFAULT_COMMAND = 'rg --files'
@@ -28,8 +27,6 @@ Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'majutsushi/tagbar'
-Plug 'mattn/gist-vim'
-Plug 'mattn/webapi-vim'
 Plug 'Yggdroot/indentLine'
   let g:indentLine_setColors = 0
 Plug 'voldikss/vim-floaterm'
@@ -41,6 +38,8 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
+Plug 'kana/vim-textobj-user'
+Plug 'kana/vim-textobj-indent'
 Plug 'vim-airline/vim-airline'
   let g:airline_powerline_fonts = 1
   let g:airline_theme='luna'
@@ -65,7 +64,7 @@ Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'mhinz/vim-signify'
 Plug 'rhysd/git-messenger.vim'
 Plug 'sheerun/vim-polyglot'
-
+  let g:polyglot_disabled = ['python', 'markdown', 'autoindent']
 " themes
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
@@ -229,18 +228,9 @@ catch /^Vim\%((\a\+)\)\=:E185/
 endtry
 " }}}
 
-" ToggleTab
-function! ToggleTab()
-  if &expandtab
-    setlocal noexpandtab
-    echo 'tab on: tabstop=' . &tabstop
-  else
-    setlocal expandtab
-    echo 'tab off'
-  endif
-endfunction
+" commands {{{
 
-" filter command
+" filter lines
 command! -nargs=? Filter let @a='' | execute 'g/<args>/y A' | new | setlocal bt=nofile | put! a
 
 " Typos
@@ -256,6 +246,32 @@ command! -bang WQ wq<bang>
 
 " sudo
 command! Suw :w !sudo tee %
+
+function! CopyMatches(reg)
+  let hits = []
+  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
+  let reg = empty(a:reg) ? '+' : a:reg
+  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
+endfunction
+command! -register CopyMatches call CopyMatches(<q-reg>)
+
+function! s:list_buffers()
+  redir => list
+  silent ls
+  redir END
+  return split(list, "\n")
+endfunction
+
+function! s:delete_buffers(lines)
+  execute 'bwipeout' join(map(a:lines, {_, line -> split(line)[0]}))
+endfunction
+
+command! BD call fzf#run(fzf#wrap({
+  \ 'source': s:list_buffers(),
+  \ 'sink*': { lines -> s:delete_buffers(lines) },
+  \ 'options': '--multi --reverse --bind ctrl-a:select-all+accept'
+\ }))
+" }}}
 
 " netrw settings
 " let g:netrw_liststyle=1
@@ -325,14 +341,6 @@ function! s:GrepOperator(type)
   execute "Rg " . @@
 endfunction
 
-
-function! CopyMatches(reg)
-  let hits = []
-  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
-  let reg = empty(a:reg) ? '+' : a:reg
-  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
-endfunction
-command! -register CopyMatches call CopyMatches(<q-reg>)
 
 function! GuessProjectRoot()
   if @% != ''
@@ -438,7 +446,6 @@ nnoremap <leader>t :FloatermToggle<cr>
 nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 " Split Open
 noremap <leader>v :vsp<cr>
-noremap <leader><tab> :call ToggleTab()<cr>
 
 " save
 nnoremap <leader>w :w<cr>
