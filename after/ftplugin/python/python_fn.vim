@@ -1,47 +1,50 @@
 " -*- vim -*-
-" FILE: python_fn.vim
-" LAST MODIFICATION: 2008-08-28 8:19pm
-" (C) Copyright 2001-2005 Mikael Berthe <bmikael@lists.lilotux.net>
-" Maintained by Jon Franklin <jvfranklin@gmail.com>
-" Version: 1.13
-
-" USAGE:
-"
-" Save this file to $VIMFILES/ftplugin/python.vim. You can have multiple
-" python ftplugins by creating $VIMFILES/ftplugin/python and saving your
-" ftplugins in that directory. If saving this to the global ftplugin
-" directory, this is the recommended method, since vim ships with an
-" ftplugin/python.vim file already.
-" You can set the global variable "g:py_select_leading_comments" to 0
-" if you don't want to select comments preceding a declaration (these
-" are usually the description of the function/class).
-" You can set the global variable "g:py_select_trailing_comments" to 0
-" if you don't want to select comments at the end of a function/class.
-" If these variables are not defined, both leading and trailing comments
-" are selected.
-" Example: (in your .vimrc) "let g:py_select_leading_comments = 0"
-" You may want to take a look at the 'shiftwidth' option for the
-" shift commands...
-"
-" REQUIREMENTS:
-" vim (>= 7)
-"
 " Shortcuts:
-"   <localleader>t  -- Jump to beginning of block
-"   <localleader>e  -- Jump to end of block
-"   <localleader>v  -- Select (Visual Line Mode) block
-"   <localleader><  -- Shift block to left
-"   <localleader>>  -- Shift block to right
-"   <localleader>sc -- Select current/previous class
-"   <localleader>sf -- Select current/previous function
-"   <localleader>jL -- Jump to previous line with the same/lower indentation
-"   <localleader>jl -- Jump to next line with the same/lower indentation
+"   ]f             -- start of next function
+"   [f             -- start of function
+"   ]F             -- end of function
+"   [F             -- end of previous function
+"   [t             -- Jump to previous line with the same/lower indentation
+"   ]t             -- Jump to next line with the same/lower indentation
+"   <localleader>t -- Jump to beginning of block
+"   <localleader>e -- Jump to end of block
+"   <localleader>v -- Select (Visual Line Mode) block
+"   <localleader>< -- Shift block to left
+"   <localleader>> -- Shift block to right
 
 " Only do this when not done yet for this buffer
 if exists("b:loaded_py_ftplugin")
   finish
 endif
 let b:loaded_py_ftplugin = 1
+
+setlocal foldmethod=indent
+
+" unmap the default m/M from the Pythonsense plugin for function
+let s:mappings = [
+      \ [']m', ']f', 'PythonsenseStartOfNextPythonFunction'], 
+      \ ['[m', '[f', 'PythonsenseStartOfPythonFunction'],
+      \ [']M', ']F', 'PythonsenseEndOfPythonFunction'], 
+      \ ['[M', '[F', 'PythonsenseEndOfPreviousPythonFunction'],
+      \ [']]', ']c', 'PythonsenseStartOfNextPythonClass'], 
+      \ ['[[', '[c', 'PythonsenseStartOfPythonClass'],
+      \ ['[]', '[C', 'PythonsenseEndOfPreviousPythonClass'],
+      \ ['][', ']C', 'PythonsenseEndOfPythonClass'], 
+\ ]
+for s:m in s:mappings
+  let s:old = s:m[0]
+  let s:new = s:m[1]
+  let s:name = '<Plug>(' . s:m[2] . ')'
+  if mapcheck(s:old) == s:name
+    execute join(['unmap <buffer>' . s:old], ' ')
+  endif
+  execute join(['map <buffer>', s:new, s:name], ' ')
+endfor
+
+"   Jump to next line with the same/lower indentation
+noremap <buffer> ]t   :call PythonNextLine(1)<CR>
+"   Jump to previous line with the same/lower indentation
+noremap <buffer> [t   :call PythonNextLine(-1)<CR>
 
 noremap  <localleader>t   :PBoB<CR>
 vnoremap <localleader>t   :<C-U>PBoB<CR>m'gv``
@@ -51,31 +54,6 @@ vnoremap <localleader>e   :<C-U>PEoB<CR>m'gv``
 noremap  <localleader>v   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``
 noremap  <localleader><   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``<
 noremap  <localleader>>   :PBoB<CR>:normal! V<CR>:<C-U>PEoB<CR>m'gv``>
-
-noremap  <localleader>sc   :call PythonSelectObject("class")<CR>
-noremap  <localleader>sf   :call PythonSelectObject("function")<CR>
-
-"   Jump to next line with the same/lower indentation
-noremap  <localleader>jl   :call PythonNextLine(1)<CR>
-"   Jump to previous line with the same/lower indentation
-noremap  <localleader>jL   :call PythonNextLine(-1)<CR>
-
-" jump to previous class
-noremap  <localleader>jC   :call PythonDec("class", -1)<CR>
-vnoremap <localleader>jC   :call PythonDec("class", -1)<CR>
-
-" jump to next class
-noremap  <localleader>jc   :call PythonDec("class", 1)<CR>
-vnoremap <localleader>jc   :call PythonDec("class", 1)<CR>
-
-" jump to previous function
-noremap  <localleader>jF   :call PythonDec("function", -1)<CR>
-vnoremap <localleader>jF   :call PythonDec("function", -1)<CR>
-
-" jump to next function
-noremap  <localleader>jf  :call PythonDec("function", 1)<CR>
-vnoremap <localleader>jf   :call PythonDec("function", 1)<CR>
-
 
 :com! PBoB execute "normal ".PythonBoB(line('.'), -1, 1)."G"
 :com! PEoB execute "normal ".PythonBoB(line('.'), 1, 1)."G"
