@@ -31,6 +31,8 @@ Plug 'Yggdroot/indentLine'
 Plug 'voldikss/vim-floaterm'
   let g:floaterm_autoclose = 2  " Always close floaterm window
   let g:floaterm_gitcommit = "tabe"
+  " let g:floaterm_width = 0.96
+  " let g:floaterm_height = 0.8
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
@@ -389,7 +391,8 @@ vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>bb :Buffers<cr>
-nnoremap <leader>bD :call DeleteOtherBuffers()<cr>
+nnoremap <leader>bd :bdelete<cr>
+nnoremap <leader>bw :call DeleteOtherBuffers()<cr>
 nnoremap <leader>c :Clap colors<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
