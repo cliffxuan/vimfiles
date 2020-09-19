@@ -26,11 +26,11 @@ let s:mappings = [
       \ ['[m', '[f', 'PythonsenseStartOfPythonFunction'],
       \ [']M', ']F', 'PythonsenseEndOfPythonFunction'], 
       \ ['[M', '[F', 'PythonsenseEndOfPreviousPythonFunction'],
+\ ]
       " \ [']]', ']c', 'PythonsenseStartOfNextPythonClass'], 
       " \ ['[[', '[c', 'PythonsenseStartOfPythonClass'],
       " \ ['[]', '[C', 'PythonsenseEndOfPreviousPythonClass'],
       " \ ['][', ']C', 'PythonsenseEndOfPythonClass'], 
-\ ]
 for s:m in s:mappings
   let s:old = s:m[0]
   let s:new = s:m[1]

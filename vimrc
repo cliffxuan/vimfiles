@@ -267,6 +267,11 @@ function! s:delete_buffers(lines)
   execute 'bwipeout' join(map(a:lines, {_, line -> split(line)[0]}))
 endfunction
 
+function! DeleteOtherBuffers()
+  let l:buffers = map(s:list_buffers(), {_, line -> split(line)[0]})
+  execute 'bwipeout' join(filter(l:buffers, {_, buf -> buf != bufnr('%')}))
+endfunction
+
 command! BD call fzf#run(fzf#wrap({
   \ 'source': s:list_buffers(),
   \ 'sink*': { lines -> s:delete_buffers(lines) },
@@ -383,7 +388,8 @@ cnoremap <c-e> <end>
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
-nnoremap <leader>b :Buffers<cr>
+nnoremap <leader>bb :Buffers<cr>
+nnoremap <leader>bD :call DeleteOtherBuffers()<cr>
 nnoremap <leader>c :Clap colors<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
@@ -396,7 +402,6 @@ noremap <leader>ee :execute 'NERDTree ' . GuessProjectRoot() . ' <bar> NERDTreeF
 noremap <leader>ef :execute 'NERDTree ' . GuessProjectRoot()<cr>
 noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<cr>
 noremap <leader>ek :NERDTreeClose<cr>
-nnoremap <leader>ed :bdelete<cr>
 noremap <leader>ep :UltiSnipsEdit<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
