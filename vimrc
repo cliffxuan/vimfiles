@@ -271,7 +271,12 @@ endfunction
 
 function! DeleteOtherBuffers()
   let l:buffers = map(s:list_buffers(), {_, line -> split(line)[0]})
-  execute 'bwipeout' join(filter(l:buffers, {_, buf -> buf != bufnr('%')}))
+  let l:other_buffers = filter(l:buffers, {_, buf -> buf != bufnr('%')})
+  if len(l:other_buffers) > 0
+    execute 'bwipeout' join(l:other_buffers)
+  else
+    echo 'no other buffers found'
+  endif
 endfunction
 
 command! BD call fzf#run(fzf#wrap({
@@ -390,9 +395,7 @@ cnoremap <c-e> <end>
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
-nnoremap <leader>bb :Buffers<cr>
-nnoremap <leader>bd :bdelete<cr>
-nnoremap <leader>bw :call DeleteOtherBuffers()<cr>
+nnoremap <leader>b :Buffers<cr>
 nnoremap <leader>c :Clap colors<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
@@ -439,6 +442,8 @@ nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
 map <leader>j <Plug>(easymotion-j)
 map <leader>k <Plug>(easymotion-k)
+nnoremap <leader><leader>d :bwipeout<cr>
+nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
 nnoremap <leader>l :Lines<cr>
