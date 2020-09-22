@@ -1,5 +1,6 @@
 nnoremap <buffer> <localleader>y :call <SID>pytest_file()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytest_one_test_case()<CR>
+nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --in-place %<CR>
 
 function! s:pytest_file()
     let l:prefix = g:ShellCommandPrefix()
