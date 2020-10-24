@@ -78,6 +78,7 @@ Plug 'ayu-theme/ayu-vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'altercation/vim-colors-solarized'
+Plug 'yuttie/hydrangea-vim'
 
 " snippet
 Plug 'SirVer/ultisnips'
@@ -221,10 +222,15 @@ try
   if has('nvim')
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     colorscheme gruvbox
+    " colorscheme monokai
+    " colorscheme nord
+    " colorscheme dracula
+    " colorscheme hydrangea
     " colorscheme night-owl
   else
     colorscheme monokai
     " colorscheme dracula
+    " colorscheme hydrangea
   endif
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
@@ -416,27 +422,26 @@ noremap <leader>en :vnew<cr>
 " nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd()}))<cr>
 nnoremap <leader>f :Files<cr>
 " g for git related mappings
-nnoremap <leader>gd :Gvdiff<cr>
-nnoremap <leader>gg :Git<cr>
 nnoremap <leader>ga :Git add %<cr>
+nnoremap <leader>gd :SignifyHunkDiff<cr>
+nnoremap <leader>gg :Git<cr>
 nnoremap <leader>gp :Git push<cr>
 nnoremap <leader>gb :Gblame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gf :GFiles?<cr>
+nnoremap <leader>gh :Gbrowse<cr>
+vnoremap <leader>gh :Gbrowse<cr>
 nnoremap <leader>gl :Commits<cr>
 nnoremap <leader>gm :GitMessenger<cr>
 nnoremap <leader>go :BCommits<cr>
 nnoremap <leader>gr :Gread<cr>
 nnoremap <leader>gw :Gwrite<cr>
+nnoremap <leader>gu :SignifyHunkUndo<cr>
+nnoremap <leader>gv :Gvdiff<cr>
 nmap <leader>gj <plug>(signify-next-hunk)
 nmap <leader>gk <plug>(signify-prev-hunk)
 nmap <leader>gJ 9999<leader>gj
 nmap <leader>gK 9999<leader>gk
-nmap gs <Plug>(GitGutterStageHunk)
-nmap gu <Plug>(GitGutterUndoHunk)
-nmap gv <Plug>(GitGutterPreviewHunk)
-nnoremap <leader>gh :Gbrowse<cr>
-vnoremap <leader>gh :Gbrowse<cr>
 nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
