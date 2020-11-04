@@ -11,20 +11,26 @@ function! s:pytestFile()
 endfunction
 
 
-function! s:pytestOneTestCase()
-  let l:prefix = g:ShellCommandPrefix()
-  let l:winview = winsaveview()
-  let l:num = line('.')
-  while l:num >= 1
-    let l:str = getline(l:num)
-    let l:name = matchstr(l:str, '\(def \)\@<=test\S*(\@=')
-    if len(l:name) > 0
-      break
-    endif
-    let l:num = l:num - 1
+function! s:_getTestName(lineNum)
+  let num = a:lineNum
+  while num >= 1
+    for pat in ['\(def \)\@<=test\S*(\@=',  '\(class \)\@<=Test\S*(\@=']
+      let name = matchstr(getline(num), pat)
+      if len(name) > 0
+        return name
+      endif
+    endfor
+    let num = num - 1
   endwhile
+  return ''
+endfunction
+
+
+function! s:pytestOneTestCase()
+  let l:winview = winsaveview()
+  let l:name = s:_getTestName(line('.'))
   if len(l:name)
-    execute l:prefix . " set -x; pytest -s " . expand('%') . " -k " . l:name
+    execute g:ShellCommandPrefix() . " set -x; pytest -s " . expand('%') . " -k " . l:name
   else
     echo 'no testcase found'
   endif
