@@ -30,7 +30,7 @@ function! s:pytestOneTestCase()
   let l:winview = winsaveview()
   let l:name = s:_getTestName(line('.'))
   if len(l:name)
-    execute g:ShellCommandPrefix() . " set -x; pytest -s " . expand('%') . " -k " . l:name
+    execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . " -k " . l:name
   else
     echo 'no testcase found'
   endif
