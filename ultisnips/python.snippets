@@ -292,7 +292,7 @@ endsnippet
 snippet pwd "current working directory" b
 from pathlib import Path
 
-PWD = Path(__file__).parent.absolute()
+PWD = Path(__file__).absolute().parent
 endsnippet
 
 snippet tor "tornado server stub"
