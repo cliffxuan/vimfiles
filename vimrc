@@ -16,7 +16,7 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
 Plug 'jiangmiao/auto-pairs'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf',  " installation is done by zinit { 'dir': '~/.fzf', 'do': './install --all' }
   let $FZF_DEFAULT_COMMAND = 'rg --files'
 Plug 'junegunn/fzf.vim'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
@@ -99,6 +99,8 @@ function! BuildYCM(info)
 endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
   let g:ycm_key_detailed_diagnostics = '<leader>ex'
+  let g:ycm_server_keep_logfiles = 1
+  let g:ycm_server_log_level = 'debug'
 
 call plug#end()
 "End vim-plug Scripts-------------------------
@@ -129,10 +131,6 @@ set autoread
 set autowrite
 set clipboard^=unnamed,unnamedplus
 set shell=zsh
-
-"folding
-" set foldmethod=indent
-set foldlevelstart=20
 
 "set title
 set title titlestring=[vim] "vim
@@ -186,6 +184,17 @@ augroup tabs
   autocmd FileType yaml       setlocal sw=2 ts=4 sts=2 et
   autocmd FileType python     setlocal sw=4 ts=8 sts=4 et
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
+augroup END
+" }}}
+
+
+" foldmethod{{{
+set foldmethod=syntax
+set foldlevelstart=20
+
+augroup folding
+  autocmd!
+  autocmd FileType python setlocal foldmethod=indent
 augroup END
 " }}}
 
