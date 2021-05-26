@@ -1,6 +1,6 @@
 nnoremap <buffer> <localleader>y :call <SID>pytestFile()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytestOneTestCase()<CR>
-nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --in-place %<CR>
+nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --expand-star-imports --in-place %<CR>
 nnoremap <buffer> <localleader>d :call <SID>convertDict()<CR>
 
 function! s:pytestFile()
