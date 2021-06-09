@@ -13,24 +13,36 @@ endfunction
 
 function! s:_getTestName(lineNum)
   let num = a:lineNum
+  let testFunction = '\(^def \)\@<=test\S*(\@='
+  let testMethod = '\(\s\+def \)\@<=test\S*(\@='
+  let testClass = '\(^class \)\@<=Test\S*(\@='
+  let methodName = ""
   while num >= 1
-    for pat in ['\(def \)\@<=test\S*(\@=',  '\(class \)\@<=Test\S*(\@=']
-      let name = matchstr(getline(num), pat)
-      if len(name) > 0
-        return name
+    let funcName = matchstr(getline(num), testFunction)
+    if len(funcName) > 0
+      return funcName
+    endif
+    if len(methodName) == 0
+      let methodName = matchstr(getline(num), testMethod)
+    endif
+    let className = matchstr(getline(num), testClass)
+    if len(className) > 0
+      if len(methodName) == 0
+        return className
+      else
+        return className . '::' . methodName
       endif
-    endfor
+    endif
     let num = num - 1
   endwhile
   return ''
 endfunction
 
-
 function! s:pytestOneTestCase()
   let l:winview = winsaveview()
   let l:name = s:_getTestName(line('.'))
   if len(l:name)
-    execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . " -k " . l:name
+    execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . "::" . l:name
   else
     echo 'no testcase found'
   endif
