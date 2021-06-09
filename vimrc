@@ -53,7 +53,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
   let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform'}
+  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform', 'javascript': ['prettier'], 'css': ['prettier'], 'typescript': ['prettier']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
