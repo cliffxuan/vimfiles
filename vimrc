@@ -53,7 +53,10 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
   let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 'terraform': 'terraform', 'javascript': ['prettier'], 'css': ['prettier'], 'typescript': ['prettier']}
+  let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt']}
+  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 
+        \'terraform': 'terraform', 'javascript': ['prettier'], 
+        \'css': ['prettier'], 'typescript': ['prettier']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
@@ -101,6 +104,10 @@ Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
   let g:ycm_key_detailed_diagnostics = '<leader>ex'
   let g:ycm_server_keep_logfiles = 1
   let g:ycm_server_log_level = 'debug'
+  let g:ycm_language_server =
+        \[ { 'name': 'haskell', 'filetypes': [ 'haskell', 'hs', 'lhs' ],
+        \'cmdline': [ 'haskell-language-server-wrapper' , '--lsp'],
+        \'project_root_files': ['*.cabal', 'stack.yaml', 'cabal.project', 'package.yaml', 'hie.yaml'] } ]
 
 call plug#end()
 "End vim-plug Scripts-------------------------
