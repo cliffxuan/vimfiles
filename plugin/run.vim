@@ -8,6 +8,8 @@ function! s:RunCurrentBuffer()
   let l:mapping = {
               \'python': '/usr/bin/env python3',
               \'sh': '/usr/bin/env bash',
+              \'typescript': '/usr/bin/env ts-node',
+              \'haskell': '/usr/bin/env runhaskell',
               \}
   if !has_key(l:mapping, &filetype)
     echoerr "no command registered for filetype " . &filetype

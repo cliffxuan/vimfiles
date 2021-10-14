@@ -109,6 +109,9 @@ Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
         \[ { 'name': 'haskell', 'filetypes': [ 'haskell', 'hs', 'lhs' ],
         \'cmdline': [ 'haskell-language-server-wrapper' , '--lsp'],
         \'project_root_files': ['*.cabal', 'stack.yaml', 'cabal.project', 'package.yaml', 'hie.yaml'] } ]
+  let g:ycm_autoclose_preview_window_after_insertion = 1
+  let g:ycm_autoclose_preview_window_after_completion = 1
+  let g:ycm_auto_hover = ''
 
 call plug#end()
 "End vim-plug Scripts-------------------------
@@ -462,6 +465,7 @@ nmap <leader>gK 9999<leader>gk
 nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
+nmap <leader>i <Plug>(YCMHover)
 map <leader>j <Plug>(easymotion-j)
 map <leader>k <Plug>(easymotion-k)
 nnoremap <leader><leader>d :bwipeout<cr>
