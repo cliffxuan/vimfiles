@@ -446,7 +446,7 @@ nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gd :SignifyHunkDiff<cr>
 nnoremap <leader>gg :Git<cr>
 nnoremap <leader>gp :Git push<cr>
-nnoremap <leader>gb :Gblame<cr>
+nnoremap <leader>gb :Git blame<cr>
 nnoremap <leader>gc :Gcommit<cr>
 nnoremap <leader>gf :GFiles?<cr>
 nnoremap <leader>gh :Gbrowse<cr>
