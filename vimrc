@@ -53,11 +53,11 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
   let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-  let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt']}
-  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
-        \'terraform': 'terraform', 'javascript': ['prettier'],
+  let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
+  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'], 
+        \'terraform': 'terraform', 'javascript': ['prettier'], 
         \'css': ['prettier'], 'typescript': ['prettier'],
-        \'haskell':['ormolu']}
+        \'haskell':['ormolu'], 'rust':['rustfmt']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
@@ -72,6 +72,7 @@ Plug 'mhinz/vim-signify'
 Plug 'rhysd/git-messenger.vim'
 Plug 'sheerun/vim-polyglot'
   let g:polyglot_disabled = ['python', 'markdown', 'autoindent']
+Plug 'rust-lang/rust.vim', {'for': 'rust'}
 " themes
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
@@ -98,7 +99,11 @@ function! BuildYCM(info)
   " - status: 'installed', 'updated', or 'unchanged'
   " - force:  set on PlugInstall! or PlugUpdate!
   if a:info.status == 'installed' || a:info.force
+<<<<<<< HEAD
     !python3 ./install.py --go-completer --ts-completer
+=======
+    !python3 ./install.py --go-completer --ts-completer --rust-completer
+>>>>>>> rust
   endif
 endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
