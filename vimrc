@@ -99,11 +99,7 @@ function! BuildYCM(info)
   " - status: 'installed', 'updated', or 'unchanged'
   " - force:  set on PlugInstall! or PlugUpdate!
   if a:info.status == 'installed' || a:info.force
-<<<<<<< HEAD
-    !python3 ./install.py --go-completer --ts-completer
-=======
     !python3 ./install.py --go-completer --ts-completer --rust-completer
->>>>>>> rust
   endif
 endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
