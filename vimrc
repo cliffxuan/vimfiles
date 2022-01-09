@@ -11,6 +11,7 @@ call plug#begin('~/.vimplugged')
 
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'Lokaltog/vim-easymotion'
+Plug 'justinmk/vim-sneak'
 Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
@@ -403,11 +404,11 @@ endfunction
 
 " key map {{{
 " map ; to :
-noremap ; :
-if !has("gui_vimr")
-  " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
-  noremap : ;
-endif
+" noremap ; :
+" if !has("gui_vimr")
+"   " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
+"   noremap : ;
+" endif
 
 " Kill window
 nnoremap K :hide<cr>
