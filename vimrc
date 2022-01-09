@@ -409,7 +409,8 @@ endfunction
 "   " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
 "   noremap : ;
 " endif
-
+map f <Plug>Sneak_s
+map F <Plug>Sneak_S
 " Kill window
 nnoremap K :hide<cr>
 " Explorer
@@ -480,7 +481,7 @@ nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
 nnoremap <leader>p :call NumberAndListToggle()<cr>
-nnoremap <leader>q :call QuickfixToggle()<cr>
+nnoremap <leader>q :bdelete<cr>
 nmap <leader>r <Plug>RunCurrentBuffer
 nnoremap <leader>s :Snippets<cr>
 nnoremap <leader>t :FloatermToggle<cr>
