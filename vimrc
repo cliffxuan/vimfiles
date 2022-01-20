@@ -142,7 +142,7 @@ set showcmd "Show (partial) command in the last line of the screen.
 set dictionary=/usr/share/dict/words
 set autoread
 set autowrite
-set clipboard^=unnamed,unnamedplus
+" set clipboard^=unnamed,unnamedplus
 set shell=zsh
 
 "set title
@@ -415,6 +415,8 @@ map F <Plug>Sneak_S
 nnoremap K :hide<cr>
 " Explorer
 nnoremap Q :call FileManager()<cr>
+nmap P "+p
+vmap Y "+y
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
