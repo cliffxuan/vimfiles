@@ -46,7 +46,7 @@ Plug 'jeetsukumaran/vim-pythonsense', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'vim-airline/vim-airline'
   let g:airline_powerline_fonts = 1
-  let g:airline_theme='luna'
+  let g:airline_theme='ayu_dark'
   let g:airline#extensions#tabline#enabled = 1
   let g:airline#extensions#tabline#left_sep = ' '
   let g:airline#extensions#tabline#left_alt_sep = '|'
@@ -415,8 +415,6 @@ map F <Plug>Sneak_S
 nnoremap K :hide<cr>
 " Explorer
 nnoremap Q :call FileManager()<cr>
-nmap P "+p
-vmap Y "+y
 
 " Emacs bindings in command line mode
 cnoremap <c-a> <home>
@@ -482,7 +480,7 @@ nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
 " toggle relativenumber
-nnoremap <leader>p :call NumberAndListToggle()<cr>
+nnoremap <leader>p "+p
 nnoremap <leader>q :bdelete<cr>
 nmap <leader>r <Plug>RunCurrentBuffer
 nnoremap <leader>s :Snippets<cr>
@@ -499,6 +497,7 @@ nnoremap <leader>x :ALEFix<cr>
 
 " copy file name
 nnoremap <leader>y :call CopyFileName()<cr>
+vnoremap <leader>y "+y
 noremap <leader>z za
 vnoremap <leader>z za
 
