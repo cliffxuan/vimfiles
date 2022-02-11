@@ -450,7 +450,7 @@ nnoremap <leader>gd :SignifyHunkDiff<cr>
 nnoremap <leader>gg :Git<cr>
 nnoremap <leader>gp :Git push<cr>
 nnoremap <leader>gb :Git blame<cr>
-nnoremap <leader>gc :Gcommit<cr>
+nnoremap <leader>gc :Git commit<cr>
 nnoremap <leader>gf :GFiles?<cr>
 nnoremap <leader>gh :Gbrowse<cr>
 vnoremap <leader>gh :Gbrowse<cr>
