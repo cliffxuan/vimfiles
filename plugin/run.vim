@@ -16,7 +16,7 @@ function! s:RunCurrentBuffer()
     return
   endif
   let l:prefix = g:ShellCommandPrefix()
-  execute join([g:ShellCommandPrefix(), l:mapping[&filetype], l:file], ' ')
+  execute join([g:ShellCommandPrefix(), l:mapping[&filetype], '"' . l:file . '"'], ' ')
 endfunction
 
 nnoremap <Plug>RunCurrentBuffer :call <SID>RunCurrentBuffer()<cr>
