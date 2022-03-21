@@ -10,6 +10,7 @@ function! s:RunCurrentBuffer()
               \'sh': '/usr/bin/env bash',
               \'typescript': '/usr/bin/env ts-node',
               \'haskell': '/usr/bin/env runhaskell',
+              \'rust': '/usr/bin/env runrust',
               \}
   if !has_key(l:mapping, &filetype)
     echoerr "no command registered for filetype " . &filetype
