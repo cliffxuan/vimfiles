@@ -85,6 +85,7 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'yuttie/hydrangea-vim'
+Plug 'NLKNguyen/papercolor-theme'
 
 " snippet
 Plug 'SirVer/ultisnips'
@@ -243,7 +244,8 @@ set termguicolors
 try
   if has('nvim')
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-    colorscheme gruvbox
+    colorscheme PaperColor
+    " colorscheme gruvbox
     " colorscheme monokai
     " colorscheme nord
     " colorscheme dracula

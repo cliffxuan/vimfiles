@@ -270,25 +270,6 @@ BaseHandler.prepare = prepare.__get__(None, BaseHandler)
 BaseHandler.write = write.__get__(None, BaseHandler)
 endsnippet
 
-
-snippet setup "setup.py" b
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-
-VERSION = '0.0.1'
-
-setup(name='foo',
-      version=VERSION,
-      description='Package Description',
-      author='Cliff Xuan',
-      packages=['foo'],
-      install_requires=[])
-endsnippet
-
-
 snippet pwd "current working directory" b
 from pathlib import Path
 
@@ -342,12 +323,13 @@ endsnippet
 
 
 snippet setup "setup.py"
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 setup(
     name='myapp',
-    packages=['myapp'],
-    include_package_data=True,
+    packages=find_namespace_packages(),
+	py_modules=["utils"], # For a small module distribution
+	package_data={"": ["*.json", "*.md"]},
     author='cliff xuan'
 )
 endsnippet
@@ -409,4 +391,8 @@ snippet np "numpy pandas plotly.express"
 import numpy as np
 import pandas as pd
 import plotly.express as px
+endsnippet
+
+snippet dt "import datetime as dt"
+import datetime as dt
 endsnippet
