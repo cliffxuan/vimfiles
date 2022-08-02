@@ -60,6 +60,7 @@ Plug 'dense-analysis/ale'
         \'css': ['prettier'], 'typescript': ['prettier'],
         \'haskell':['ormolu'], 'rust':['rustfmt']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
+  let g:ale_hover_cursor = 0
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
 Plug 'terryma/vim-multiple-cursors'
@@ -564,6 +565,13 @@ endif
 if has('gui_macvim')
   set macmeta
 endif
+
+if exists("g:neovide")
+  " Put anything you want to happen only in Neovide here
+  set guifont=MesloLGS\ NF:h12
+  let g:neovide_remember_window_size = v:true
+  let g:neovide_cursor_antialiasing=v:false
+endif
 " }}}
 
 " fugitive {{{
@@ -598,5 +606,6 @@ nnoremap gr :YcmCompleter GoToReferences<cr>
 augroup ycm_no_doc
   autocmd FileType python setlocal completeopt-=preview
   autocmd FileType go setlocal completeopt-=preview
+  autocmd FileType rust setlocal completeopt-=preview
 augroup END
 " }}}
