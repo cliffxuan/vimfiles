@@ -58,7 +58,8 @@ Plug 'dense-analysis/ale'
   let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': 'terraform', 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'],
-        \'haskell':['ormolu'], 'rust':['rustfmt']}
+        \'haskell':['ormolu'], 'rust':['rustfmt'],
+        \'sh':['shfmt']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
   let g:ale_hover_cursor = 0
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
