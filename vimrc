@@ -61,6 +61,7 @@ Plug 'dense-analysis/ale'
         \'haskell':['ormolu'], 'rust':['rustfmt'],
         \'sh':['shfmt']}
   let g:ale_python_mypy_options="--ignore-missing-imports"
+  let g:ale_sh_shfmt_options = "-i 2"
   let g:ale_hover_cursor = 0
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
