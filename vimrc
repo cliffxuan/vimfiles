@@ -21,9 +21,6 @@ Plug 'junegunn/fzf',  " installation is done by zinit { 'dir': '~/.fzf', 'do': '
   let $FZF_DEFAULT_COMMAND = 'rg --files'
 Plug 'junegunn/fzf.vim'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
-Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
-  let g:clap_layout = { 'width': '60%', 'height': '40%' }
-  let g:clap_theme = 'material_design_dark'
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
 Plug 'majutsushi/tagbar'
