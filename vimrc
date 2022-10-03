@@ -116,11 +116,6 @@ Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
   let g:ycm_autoclose_preview_window_after_completion = 1
   let g:ycm_auto_hover = ''
 
-" nvim only
-if has('nvim')
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-endif
-
 call plug#end()
 "End vim-plug Scripts-------------------------
 "}}}
