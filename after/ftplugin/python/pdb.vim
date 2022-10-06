@@ -11,8 +11,8 @@ let s:python_command = s:using_python3 ? "py3 " : "py "
 exec s:python_until_eof
 import re
 import vim
-LINE = 'import pdb; pdb.set_trace()##########'
-LINE2 = 'import ipdb; ipdb.set_trace()##########'
+LINE = '__import__("pdb").set_trace()  # !!!!!!!!!!'
+LINE2 = '__import__("ipdb").set_trace()  # !!!!!!!!!!'
 
 
 def set_breakpoint():

@@ -105,6 +105,7 @@ function! BuildYCM(info)
   endif
 endfunction
 Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
+  let g:ycm_key_invoke_completion = '<C-l>'
   let g:ycm_key_detailed_diagnostics = '<leader>ex'
   let g:ycm_server_keep_logfiles = 1
   let g:ycm_server_log_level = 'debug'
@@ -115,6 +116,7 @@ Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
   let g:ycm_autoclose_preview_window_after_insertion = 1
   let g:ycm_autoclose_preview_window_after_completion = 1
   let g:ycm_auto_hover = ''
+
 
 call plug#end()
 "End vim-plug Scripts-------------------------

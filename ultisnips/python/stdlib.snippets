@@ -1,0 +1,187 @@
+snippet ifm "if main" b
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
+endsnippet
+
+snippet sb "Shebang header for python scripts" b
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+$0
+endsnippet
+
+snippet lg "basic logging" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(
+    filename=logfile,
+    level=logging.DEBUG,
+    format=format)
+endsnippet
+
+snippet lg "logging to stream" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+ch = logging.StreamHandler()
+ch.setFormatter(logging.Formatter(format))
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+endsnippet
+
+snippet lg "logging to stream and file" b
+format = '%(asctime)s - %(levelname)s - %(message)s'
+ch = logging.StreamHandler()
+ch.setFormatter(logging.Formatter(format))
+fh = logging.FileHandler('spam.log')
+fh.setFormatter(logging.Formatter(format))
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+logger.addHandler(fh)
+endsnippet
+
+snippet lg "logging to stream and file (dictConfig)" b
+def get_logger():
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+            'simple': {'format': '%(asctime)s - %(levelname)s - %(message)s'}
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple'
+            },
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': 'output.log',
+                'formatter': 'simple'
+            },
+        },
+        'loggers': {
+            __name__: {
+                'handlers': ['console', 'file'],
+                'level': 'DEBUG'
+            }
+        }
+    }
+    logging.config.dictConfig(LOGGING)
+    return logging.getLogger(__name__)
+
+logger = get_logger()
+endsnippet
+
+snippet ap "argparse" b
+import argparse
+
+
+def argument_parser():
+    parser = argparse.ArgumentParser(description="describe me")
+    parser.add_argument(
+        "filename", type=argparse.FileType("r"), help="name of the file to convert"
+    )
+    parser.add_argument(
+        "--source_format", "-sf", choices=["xml", "json"], help="source format"
+    )
+    parser.add_argument(
+        "target_format",
+        default="xml",
+        nargs="?",
+        choices=["xml", "json"],
+        help="target format",
+    )
+    return parser
+
+
+def main(argv=None):
+    args = argument_parser().parse_args(argv)
+endsnippet
+
+snippet ko "kickoff a python script" b
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+"""
+
+
+def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
+endsnippet
+
+snippet dt "import datetime as dt"
+import datetime as dt
+endsnippet
+
+
+snippet tt "import typing as t"
+import typing as t
+endsnippet
+
+
+snippet setup "setup.py"
+from setuptools import setup, find_namespace_packages
+
+setup(
+    name='myapp',
+    packages=find_namespace_packages(),
+	py_modules=["utils"], # For a small module distribution
+	package_data={"": ["*.json", "*.md"]},
+    author='cliff xuan'
+)
+endsnippet
+
+
+snippet dp "date picker argument parser"
+import argparse
+import datatime as dt
+
+
+def argument_parser(description="command"):
+    parser = argparse.ArgumentParser(description=description)
+
+    # date selector
+    parser.add_argument("--end-date", "-ed", help="end date", type=valid_date)
+    parser.add_argument("--days", "-d", type=int, help="days")
+    parser.add_argument("--start-date", "-sd", help="start date", type=valid_date)
+    return parser
+
+
+def parse_dates(args):
+    if args.start_date and args.end_date:
+        start_date, end_date = args.start_date, args.end_date
+    elif args.start_date and args.days:
+        start_date = args.start_date
+        end_date = args.start_date + dt.timedelta(days=args.days)
+    elif args.end_date and args.days:
+        start_date = args.end_date - dt.timedelta(days=args.days)
+        end_date = args.end_date
+    elif args.start_date:
+        start_date = args.start_date
+        end_date = dt.date.today()
+    elif args.end_date:
+        end_date = args.end_date
+        start_date = end_date - dt.timedelta(days=1)
+    else:
+        end_date = dt.date.today()
+        start_date = end_date - dt.timedelta(days=args.days or 1)
+    print(
+        f"start_date: {start_date}, end_date: {end_date},"
+        f" days: {(end_date - start_date).days}"
+    )
+    return start_date, end_date
+
+
+def convert_date_range(start_date, end_date):
+    start_time = dt.datetime.combine(start_date, dt.time.min)
+    end_time = dt.datetime.combine(end_date, dt.time.max)
+    return start_time, end_time
+endsnippet
