@@ -15,8 +15,13 @@ function! s:FormatJson()
 exec s:python_until_eof
 import json
 import vim
-vim.current.buffer[:] = json.dumps(
+formatted = json.dumps(
   json.loads('\n'.join(vim.current.buffer)), indent=2).split('\n')
+if vim.current.buffer[:] != formatted:
+  vim.current.buffer[:] = formatted
+  vim.command('echo "json formatted"')
+else:
+  vim.command('echo "no change"')
 
 EOF
 endfunction
