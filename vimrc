@@ -53,7 +53,7 @@ Plug 'dense-analysis/ale'
   let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
   let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
   let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
-        \'terraform': 'terraform', 'javascript': ['prettier'],
+        \'terraform': ['terraform'], 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'],
         \'haskell':['ormolu'], 'rust':['rustfmt'],
         \'sh':['shfmt']}
