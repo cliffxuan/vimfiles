@@ -104,19 +104,33 @@ function! BuildYCM(info)
     !python3 ./install.py --go-completer --ts-completer --rust-completer
   endif
 endfunction
-Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
-  let g:ycm_key_invoke_completion = '<C-l>'
-  let g:ycm_key_detailed_diagnostics = '<leader>ex'
-  let g:ycm_server_keep_logfiles = 1
-  let g:ycm_server_log_level = 'debug'
-  let g:ycm_language_server =
-        \[ { 'name': 'haskell', 'filetypes': [ 'haskell', 'hs', 'lhs' ],
-        \'cmdline': [ 'haskell-language-server-wrapper' , '--lsp'],
-        \'project_root_files': ['*.cabal', 'stack.yaml', 'cabal.project', 'package.yaml', 'hie.yaml'] } ]
-  let g:ycm_autoclose_preview_window_after_insertion = 1
-  let g:ycm_autoclose_preview_window_after_completion = 1
-  let g:ycm_auto_hover = ''
 
+if has('nvim')
+  Plug 'neovim/nvim-lspconfig'
+  Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
+  Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
+else
+  Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
+    let g:ycm_key_invoke_completion = '<C-l>'
+    let g:ycm_key_detailed_diagnostics = '<leader>ex'
+    let g:ycm_server_keep_logfiles = 1
+    let g:ycm_server_log_level = 'debug'
+    let g:ycm_language_server =
+          \[ { 'name': 'haskell', 'filetypes': [ 'haskell', 'hs', 'lhs' ],
+          \'cmdline': [ 'haskell-language-server-wrapper' , '--lsp'],
+          \'project_root_files': ['*.cabal', 'stack.yaml', 'cabal.project', 'package.yaml', 'hie.yaml'] } ]
+    let g:ycm_autoclose_preview_window_after_insertion = 1
+    let g:ycm_autoclose_preview_window_after_completion = 1
+    let g:ycm_auto_hover = ''
+    nnoremap gd :YcmCompleter GoToDefinition<cr>
+    nnoremap gr :YcmCompleter GoToReferences<cr>
+    " no docstring window popup during completion
+    augroup ycm_no_doc
+      autocmd FileType python setlocal completeopt-=preview
+      autocmd FileType go setlocal completeopt-=preview
+      autocmd FileType rust setlocal completeopt-=preview
+    augroup END
+end
 
 call plug#end()
 "End vim-plug Scripts-------------------------
@@ -358,6 +372,7 @@ function! QuickfixToggle()
 endfunction
 
 " toggle number and list
+" TODO is this still used?
 function! NumberAndListToggle()
   if &number || (exists('&relativenumber') && &relativenumber) || &list
     set nonumber
@@ -472,7 +487,11 @@ nmap <leader>gK 9999<leader>gk
 nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
-nmap <leader>i <Plug>(YCMHover)
+if has('nvim')
+  " vim.keymap.set('n', '<leader>i', vim.diagnostic.setloclist, opts)
+else
+  nmap <leader>i <Plug>(YCMHover)
+end
 map <leader>j <Plug>(easymotion-j)
 map <leader>k <Plug>(easymotion-k)
 nnoremap <leader><leader>d :bwipeout<cr>
@@ -599,14 +618,10 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 " Advanced customization using autoload functions
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 " }}}
-
-" ycm {{{
-nnoremap gd :YcmCompleter GoToDefinition<cr>
-nnoremap gr :YcmCompleter GoToReferences<cr>
-" no docstring window popup during completion
-augroup ycm_no_doc
-  autocmd FileType python setlocal completeopt-=preview
-  autocmd FileType go setlocal completeopt-=preview
-  autocmd FileType rust setlocal completeopt-=preview
-augroup END
-" }}}
+"
+"
+" if has("nvim")
+"   lua <<EOF
+"   print("hi")
+"   EOF
+" endif
