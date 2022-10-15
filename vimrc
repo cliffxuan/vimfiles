@@ -110,6 +110,8 @@ if has('nvim')
   Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
   Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
   Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
+  Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
+  Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
@@ -445,7 +447,7 @@ vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b :Buffers<cr>
-nnoremap <leader>c :Clap colors<cr>
+nnoremap <leader>c :Commands<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
