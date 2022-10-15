@@ -109,6 +109,7 @@ if has('nvim')
   Plug 'neovim/nvim-lspconfig'
   Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
   Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
+  Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
@@ -488,7 +489,7 @@ nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
 if has('nvim')
-  " vim.keymap.set('n', '<leader>i', vim.diagnostic.setloclist, opts)
+  " vim.keymap.set('n', '<leader>i', vim.lsp.buf.hover, bufopts)
 else
   nmap <leader>i <Plug>(YCMHover)
 end
@@ -620,8 +621,6 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 " }}}
 "
 "
-" if has("nvim")
-"   lua <<EOF
-"   print("hi")
-"   EOF
-" endif
+if has("nvim")
+  lua require("config")
+endif
