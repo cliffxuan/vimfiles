@@ -109,7 +109,9 @@ if has('nvim')
   Plug 'neovim/nvim-lspconfig'
   Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
   Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
-  Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
+  " Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
+  " Plug 'hrsh7th/cmp-cmdline'  " cmdline source for nvim-cmp
+  " Plug 'hrsh7th/cmp-path'  " path source for nvim-cmp
   Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
 else
