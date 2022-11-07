@@ -1,11 +1,16 @@
-nnoremap <buffer> <localleader>y :call <SID>testFile()<CR>
+nnoremap <buffer> <localleader>a :call <SID>testFile(1)<CR>
+nnoremap <buffer> <localleader>y :call <SID>testFile(0)<CR>
 nnoremap <buffer> <localleader>c :call <SID>mkCargo()<CR>
 nnoremap <buffer> <localleader>k :call <SID>testOneTestCase()<CR>
 
-function! s:testFile()
+function! s:testFile(includeIgnored)
   let l:prefix = g:ShellCommandPrefix()
   let l:winview = winsaveview()
-  execute l:prefix . " runrust --test " . expand('%')
+  if a:includeIgnored
+    execute l:prefix . " runrust --test " . expand('%') . " -- --include-ignored"
+  else
+    execute l:prefix . " runrust --test " . expand('%')
+  endif
   call winrestview(l:winview)
 endfunction
 
@@ -20,8 +25,13 @@ function! s:_getTestName(lineNum)
   while num >= 1
     if match(getline(num), testMark) >= 0
       let i = 1
-      while getline(num + i) == '' || getline(num + i)[:1] == "//"
-        let i += 1
+      while 1
+        let curline = getline(num + i)
+        if curline == '' || curline[:1] == "//" || match(curline, '# *\[ *ignore *\]') >= 0
+          let i += 1
+        else
+          break
+        endif
       endwhile
       let funcName = matchstr(getline(num + i), testFunction)
       return funcName
@@ -37,7 +47,7 @@ function! s:testOneTestCase()
   let l:name = s:_getTestName(line('.'))
   if len(l:name)
     execute g:ShellCommandPrefix() 
-      \ . " runrust --test " . expand('%') . " -- " . l:name
+      \ . " runrust --test " . expand('%') . " -- --include-ignored " . l:name
   else
     echo 'no testcase found'
   endif
