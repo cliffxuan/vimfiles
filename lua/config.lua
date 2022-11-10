@@ -155,3 +155,21 @@ cmp.setup({
 --     { name = 'cmdline' }
 --   })
 -- })
+
+
+local action_layout = require("telescope.actions.layout")
+require("telescope").setup{
+  defaults = {
+    mappings = {
+      n = {
+        ["<M-p>"] = action_layout.toggle_preview
+      },
+      i = {
+        ["<M-p>"] = action_layout.toggle_preview
+      },
+    },
+    layout_config = {
+      horizontal = { height = 0.95, width = 0.95, preview_width = 0.6 }
+    }
+  }
+}

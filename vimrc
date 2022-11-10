@@ -114,6 +114,8 @@ if has('nvim')
   " Plug 'hrsh7th/cmp-path'  " path source for nvim-cmp
   Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
@@ -466,8 +468,14 @@ noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-" nnoremap <leader>f :call fzf#run(fzf#wrap({'source': 'rg --files', 'dir': getcwd()}))<cr>
-nnoremap <leader>f :Files<cr>
+if has('nvim')
+  nnoremap <leader>ff <cmd>Telescope find_files<cr>
+  nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+  nnoremap <leader>fb <cmd>Telescope buffers<cr>
+  nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+else
+  nnoremap <leader>f :Files<cr>
+end
 " g for git related mappings
 nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gd :SignifyHunkDiff<cr>
