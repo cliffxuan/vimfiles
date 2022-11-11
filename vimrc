@@ -75,7 +75,10 @@ Plug 'junegunn/seoul256.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'yuttie/hydrangea-vim'
 Plug 'NLKNguyen/papercolor-theme'
-
+Plug 'itchyny/lightline.vim'
+  let g:lightline = {'colorscheme': 'PaperColor'}
+  let g:lightline.separator = { 'left': '', 'right': '' }
+  let g:lightline.subseparator = {'left': '', 'right': '' }
 " snippet
 Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -439,7 +442,11 @@ cnoremap <c-e> <end>
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
-nnoremap <leader>b :Buffers<cr>
+if has('nvim')
+  nnoremap <leader>b <cmd>Telescope buffers<cr>
+else
+  nnoremap <leader>b :Buffers<cr>
+end
 nnoremap <leader>c :Commands<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
@@ -454,10 +461,10 @@ noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 if has('nvim')
-  nnoremap <leader>ff <cmd>Telescope find_files<cr>
-  nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-  nnoremap <leader>fb <cmd>Telescope buffers<cr>
-  nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+  nnoremap <leader>f <cmd>Telescope find_files<cr>
+  " nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+  " nnoremap <leader>fb <cmd>Telescope buffers<cr>
+  " nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 else
   nnoremap <leader>f :Files<cr>
 end
