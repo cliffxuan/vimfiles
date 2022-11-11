@@ -157,15 +157,18 @@ cmp.setup({
 -- })
 
 
+local actions = require("telescope.actions")
 local action_layout = require("telescope.actions.layout")
 require("telescope").setup{
   defaults = {
     mappings = {
       n = {
-        ["<M-p>"] = action_layout.toggle_preview
+        ["<M-p>"] = action_layout.toggle_preview,
       },
       i = {
-        ["<M-p>"] = action_layout.toggle_preview
+        ["<M-p>"] = action_layout.toggle_preview,
+        ["<C-j>"] = actions.move_selection_next,
+        ["<C-k>"] = actions.move_selection_previous,
       },
     },
     layout_config = {
