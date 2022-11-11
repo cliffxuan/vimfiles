@@ -41,14 +41,6 @@ Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-textobj-indent'
 Plug 'jeetsukumaran/vim-pythonsense', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'vim-airline/vim-airline'
-  let g:airline_powerline_fonts = 1
-  let g:airline_theme='ayu_dark'
-  let g:airline#extensions#tabline#enabled = 1
-  let g:airline#extensions#tabline#left_sep = ' '
-  let g:airline#extensions#tabline#left_alt_sep = '|'
-  let g:airline#extensions#tabline#buffer_nr_show = 1
-Plug 'vim-airline/vim-airline-themes'
 Plug 'dense-analysis/ale'
   let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
   let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
@@ -64,9 +56,6 @@ Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/goyo.vim'
-Plug 'preservim/nerdtree'
-  let g:NERDTreeWinSize=30
-  let NERDTreeIgnore = ['\.pyc$', '\.egg-info$', '__pycache__', '__pycache__']
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
   let g:terraform_align=1
 Plug 'mhinz/vim-signify'
@@ -459,10 +448,6 @@ nnoremap <leader>dk :exec "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>
 nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 nnoremap <leader>dp :echo getcwd()<cr>
 " edit and source $MYVIMRC
-noremap <leader>ee :execute 'NERDTree ' . GuessProjectRoot() . ' <bar> NERDTreeFind ' . expand('%')<cr>
-noremap <leader>ef :execute 'NERDTree ' . GuessProjectRoot()<cr>
-noremap <leader>ej :execute 'NERDTree %' . ' <bar> NERDTreeFind ' . expand('%')<cr>
-noremap <leader>ek :NERDTreeClose<cr>
 noremap <leader>ep :UltiSnipsEdit<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
