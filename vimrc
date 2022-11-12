@@ -1,5 +1,5 @@
 " vim: set foldmethod=marker foldlevel=0 nomodeline:
-"Start vim-plug Scripts----------------------------- {{{
+"start vim-plug scripts {{{
 if &compatible
   set nocompatible               " Be iMproved
 endif
@@ -34,6 +34,10 @@ Plug 'voldikss/vim-floaterm'
 Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
+  augroup ft_fugitive
+    au!
+    au BufNewFile,BufRead .git/index setlocal nolist
+  augroup END
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
@@ -137,7 +141,6 @@ end
 call plug#end()
 "End vim-plug Scripts-------------------------
 "}}}
-
 " basic settings {{{
 filetype plugin indent on
 syntax on
@@ -194,7 +197,6 @@ set list " show whitespace
 " show tabs and trailing whitespaces
 set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 " }}}
-
 " tabs {{{
 set shiftwidth=2  " sw
 set tabstop=4     " ts
@@ -218,8 +220,6 @@ augroup tabs
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
 augroup END
 " }}}
-
-
 " foldmethod{{{
 set foldmethod=syntax
 set foldlevelstart=20
@@ -229,9 +229,7 @@ augroup folding
   autocmd FileType python setlocal foldmethod=indent
 augroup END
 " }}}
-
-" Wildmenu completion {{{
-"
+" wildmenu completion {{{
 set wildmenu
 set wildmode=longest:full,full
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -246,7 +244,6 @@ set wildignore+=migrations                       " Django migrations
 set wildignore+=*.pyc,*.pyo,*pyd                 " Python byte code
 set wildignore+=*.orig                           " Merge resolution files}
 " }}}
-
 " display {{{
 "warn me if my line is over 88 columns
 if exists('+colorcolumn')
@@ -278,7 +275,6 @@ catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
 " }}}
-
 " commands {{{
 
 " filter lines
@@ -333,97 +329,16 @@ command! BD call fzf#run(fzf#wrap({
   \ 'options': '--multi --reverse --bind ctrl-a:select-all+accept'
 \ }))
 " }}}
+" keymaps {{{
+" auto close
+inoremap " ""<left>
+" inoremap ' ''<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap {<CR> {<CR>}<ESC>O
+inoremap {;<CR> {<CR>};<ESC>O
 
-
-function! CopyFileName()
-  let filename = expand('%:p')
-  echo filename
-  let @+ = filename
-endfunction
-
-function! NumberToggle()
-  if !exists('&relativenumber')
-    return
-  endif
-  if(&relativenumber == 1)
-    setlocal norelativenumber
-    setlocal number
-  else
-    setlocal relativenumber
-  endif
-endfunction
-
-" toggle quickfix
-let g:quickfix_is_open = 0
-function! QuickfixToggle()
-  if g:quickfix_is_open
-    cclose
-    let g:quickfix_is_open = 0
-    execute g:quickfix_return_to_window . "wincmd w"
-  else
-    let g:quickfix_return_to_window = winnr()
-    copen
-    let g:quickfix_is_open = 1
-  endif
-endfunction
-
-" toggle number and list
-" TODO is this still used?
-function! NumberAndListToggle()
-  if &number || (exists('&relativenumber') && &relativenumber) || &list
-    set nonumber
-    if exists('&relativenumber')
-      set norelativenumber
-    endif
-    set nolist
-  else
-    set number
-    if exists('&relativenumber')
-      set relativenumber
-    endif
-    set list
-  endif
-endfunction
-
-"grep
-function! s:GrepOperator(type)
-  if a:type ==# 'v'
-    normal! `<v`>y
-  elseif a:type ==# 'char'
-    normal! `[v`]y
-  else
-    return
-  endif
-  execute "Rg " . @@
-endfunction
-
-
-function! GuessProjectRoot()
-  if @% != ''
-    let l:dir = fnamemodify(expand('%:p'), ':h')
-  else
-    let l:dir = getcwd()
-  endif
-  while index(['/', '.'], l:dir) == -1
-    for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
-      if isdirectory(l:dir . '/' . l:marker)
-        return l:dir
-      endif
-    endfor
-    let l:dir = fnamemodify(l:dir, ':h')  " get parent directory
-  endwhile
-
-  " Nothing found, fallback to current working dir
-  return l:dir
-endfunction
-
-" key map {{{
-" map ; to :
-" noremap ; :
-" if !has("gui_vimr")
-"   " this doesn't work in vimr https://github.com/qvacua/vimr/issues/552
-"   noremap : ;
-" endif
 map f <Plug>Sneak_s
 map F <Plug>Sneak_S
 " Kill window
@@ -565,9 +480,108 @@ nnoremap <S-Tab> :bprevious<cr>
 " ale
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
-" }}}
 
-" environments (GUI/Console) ---------------------------------------------- {{{
+" fzf
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+" Advanced customization using autoload functions
+inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
+
+" terminal
+tnoremap <C-o> <C-\><C-n>
+if has('nvim')
+  augroup nvim_term_insert
+    autocmd TermOpen term://* startinsert
+  augroup END
+endif
+
+" }}}
+" functions {{{
+function! CopyFileName()
+  let filename = expand('%:p')
+  echo filename
+  let @+ = filename
+endfunction
+
+function! NumberToggle()
+  if !exists('&relativenumber')
+    return
+  endif
+  if(&relativenumber == 1)
+    setlocal norelativenumber
+    setlocal number
+  else
+    setlocal relativenumber
+  endif
+endfunction
+
+" toggle quickfix
+let g:quickfix_is_open = 0
+function! QuickfixToggle()
+  if g:quickfix_is_open
+    cclose
+    let g:quickfix_is_open = 0
+    execute g:quickfix_return_to_window . "wincmd w"
+  else
+    let g:quickfix_return_to_window = winnr()
+    copen
+    let g:quickfix_is_open = 1
+  endif
+endfunction
+
+" toggle number and list
+" TODO is this still used?
+function! NumberAndListToggle()
+  if &number || (exists('&relativenumber') && &relativenumber) || &list
+    set nonumber
+    if exists('&relativenumber')
+      set norelativenumber
+    endif
+    set nolist
+  else
+    set number
+    if exists('&relativenumber')
+      set relativenumber
+    endif
+    set list
+  endif
+endfunction
+
+"grep
+function! s:GrepOperator(type)
+  if a:type ==# 'v'
+    normal! `<v`>y
+  elseif a:type ==# 'char'
+    normal! `[v`]y
+  else
+    return
+  endif
+  execute "Rg " . @@
+endfunction
+
+
+function! GuessProjectRoot()
+  if @% != ''
+    let l:dir = fnamemodify(expand('%:p'), ':h')
+  else
+    let l:dir = getcwd()
+  endif
+  while index(['/', '.'], l:dir) == -1
+    for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
+      if isdirectory(l:dir . '/' . l:marker)
+        return l:dir
+      endif
+    endfor
+    let l:dir = fnamemodify(l:dir, ':h')  " get parent directory
+  endwhile
+  " Nothing found, fallback to current working dir
+  return l:dir
+endfunction
+
+" }}}
+" gui/console {{{
 if has('gui_running')
   " GUI Vim
   if exists("&guifont")
@@ -592,33 +606,10 @@ if exists("g:neovide")
   let g:neovide_cursor_antialiasing=v:false
 endif
 " }}}
+" nvim lua {{{
 
-" fugitive {{{
-augroup ft_fugitive
-  au!
-  au BufNewFile,BufRead .git/index setlocal nolist
-augroup END
-" }}}
-
-" terminal {{{
-tnoremap <C-o> <C-\><C-n>
-if has('nvim')
-  augroup nvim_term_insert
-    autocmd TermOpen term://* startinsert
-  augroup END
-endif
-" }}}
-
-" fzf {{{
-imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-imap <c-x><c-l> <plug>(fzf-complete-line)
-" Advanced customization using autoload functions
-inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
-" }}}
-"
-"
 if has("nvim")
   lua require("config")
 endif
+
+" }}}
