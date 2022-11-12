@@ -80,7 +80,16 @@ Plug 'altercation/vim-colors-solarized'
 Plug 'yuttie/hydrangea-vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
-  let g:lightline = {'colorscheme': 'PaperColor'}
+  let g:lightline = {
+        \ 'colorscheme': 'powerline',
+        \ 'active': {
+        \   'left': [ [ 'mode', 'paste' ],
+        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+        \ },
+        \ 'component_function': {
+        \   'gitbranch': 'FugitiveHead'
+        \ },
+        \ }
   let g:lightline.separator = { 'left': '', 'right': '' }
   let g:lightline.subseparator = {'left': '', 'right': '' }
 " snippet
@@ -178,10 +187,9 @@ set laststatus=2 "The value of this option influences when the last window will 
 set statusline=%.40F "file path max 40
 set statusline+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
 set statusline+=\ "seperator
-set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 set statusline+=%< "truncate from here
+set statusline+=%{exists('g:loaded_fugitive')?FugitiveHead():''}
 set statusline+=%= "align right
-set statusline+=%{exists('g:loaded_fugitive')?fugitive#statusline():''}
 set statusline+=%y "Type of file in the buffer, e.g., "[vim]".  See 'filetype'.
 set statusline+=\ "seperator
 set statusline+=[%{&fileencoding}]
@@ -189,6 +197,7 @@ set statusline+=\ "seperator
 set statusline+=[%{&fileformat}]
 set statusline+=\ "seperator
 set statusline+=%r "Readonly flag, text is "[RO]".
+set statusline+=[%l/%L\ \ %c\ (%p%%)] "line num, total, cursor col, percentage
 
 set autoindent
 set list " show whitespace
