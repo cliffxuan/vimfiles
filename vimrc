@@ -329,10 +329,16 @@ command! BD call fzf#run(fzf#wrap({
 " }}}
 " keymaps {{{
 " auto close
+inoremap ' ''<left>
 inoremap " ""<left>
 inoremap ( ()<left>
 inoremap [ []<left>
 inoremap { {}<left>
+
+augroup disableAutoCloseSingleQuote
+  autocmd!
+  autocmd FileType TelescopePrompt inoremap <buffer> ' '
+augroup END
 
 map f <Plug>Sneak_s
 map F <Plug>Sneak_S
@@ -345,7 +351,7 @@ nnoremap Q :call FileManager()<cr>
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-
+" leader
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
