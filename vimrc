@@ -16,7 +16,7 @@ Plug 'begriffs/haskell-vim-now', { 'for': 'haskell' }
 Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
-Plug 'jiangmiao/auto-pairs'
+" Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/fzf',  " installation is done by zinit { 'dir': '~/.fzf', 'do': './install --all' }
   let $FZF_DEFAULT_COMMAND = 'rg --files'
 Plug 'junegunn/fzf.vim'
@@ -108,6 +108,9 @@ if has('nvim')
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+  Plug 'nvim-telescope/telescope-fzf-native.nvim', {
+        \ 'do': 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake 
+        \ --build build --config Release && cmake --install build --prefix build' }
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
