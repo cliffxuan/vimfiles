@@ -334,12 +334,6 @@ command! BD call fzf#run(fzf#wrap({
 \ }))
 " }}}
 
-" netrw settings
-" let g:netrw_liststyle=1
-" keep the curreent directory the same as the browsing directory
-" let g:netrw_keepdir= 0
-let g:netrw_list_hide= '.*\.pyc$'
-
 
 function! CopyFileName()
   let filename = expand('%:p')
@@ -465,9 +459,6 @@ noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 if has('nvim')
   nnoremap <leader>f <cmd>Telescope find_files<cr>
-  " nnoremap <leader>fg <cmd>Telescope live_grep<cr>
-  " nnoremap <leader>fb <cmd>Telescope buffers<cr>
-  " nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 else
   nnoremap <leader>f :Files<cr>
 end
