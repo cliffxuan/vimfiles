@@ -112,9 +112,7 @@ if has('nvim')
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
-  Plug 'nvim-telescope/telescope-fzf-native.nvim', {
-        \ 'do': 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake 
-        \ --build build --config Release && cmake --install build --prefix build' }
+  Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
