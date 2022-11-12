@@ -330,12 +330,9 @@ command! BD call fzf#run(fzf#wrap({
 " keymaps {{{
 " auto close
 inoremap " ""<left>
-" inoremap ' ''<left>
 inoremap ( ()<left>
 inoremap [ []<left>
 inoremap { {}<left>
-inoremap {<CR> {<CR>}<ESC>O
-inoremap {;<CR> {<CR>};<ESC>O
 
 map f <Plug>Sneak_s
 map F <Plug>Sneak_S
