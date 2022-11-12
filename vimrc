@@ -46,16 +46,18 @@ Plug 'kana/vim-textobj-indent'
 Plug 'jeetsukumaran/vim-pythonsense', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'dense-analysis/ale'
-  let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
   let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
   let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': ['terraform'], 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'],
         \'haskell':['ormolu'], 'rust':['rustfmt'],
         \'sh':['shfmt']}
-  let g:ale_python_mypy_options="--ignore-missing-imports"
-  let g:ale_sh_shfmt_options = "-i 2"
   let g:ale_hover_cursor = 0
+  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_echo_msg_error_str = '🚫'
+  let g:ale_echo_msg_warning_str = '⚡'
+  let g:ale_sh_shfmt_options = "-i 2"
+  let g:ale_python_mypy_options="--ignore-missing-imports"
 Plug 'OmniSharp/omnisharp-vim', { 'for': 'cs' }
 Plug 'Glench/Vim-Jinja2-Syntax', { 'for': 'jinja' }
 Plug 'terryma/vim-multiple-cursors'
@@ -84,14 +86,31 @@ Plug 'itchyny/lightline.vim'
         \ 'colorscheme': 'powerline',
         \ 'active': {
         \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+        \   'right': [ [ 'lineinfo' ],
+        \              [ 'percent' ],
+        \              [ 'fileformat', 'fileencoding', 'filetype', 'ale' ] ]
         \ },
         \ 'component_function': {
-        \   'gitbranch': 'FugitiveHead'
+        \   'gitbranch': 'FugitiveHead',
+        \   'ale': 'AleStatus',
         \ },
+        \ 'mode_map': {
+          \ 'n' : 'N',
+          \ 'i' : 'I',
+          \ 'R' : 'R',
+          \ 'v' : 'V',
+          \ 'V' : 'VL',
+          \ "\<C-v>": 'VB',
+          \ 'c' : 'C',
+          \ 's' : 'S',
+          \ 'S' : 'SL',
+          \ "\<C-s>": 'SB',
+          \ 't': 'T',
+          \ },
+          \ 'separator': { 'left': '', 'right': '' },
+          \ 'subseparator': {'left': '', 'right': '' }
         \ }
-  let g:lightline.separator = { 'left': '', 'right': '' }
-  let g:lightline.subseparator = {'left': '', 'right': '' }
 " snippet
 Plug 'SirVer/ultisnips'
   let g:UltiSnipsSnippetDirectories=['ultisnips']
@@ -588,6 +607,24 @@ function! GuessProjectRoot()
   endwhile
   " Nothing found, fallback to current working dir
   return l:dir
+endfunction
+
+function! AleStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    if l:counts.total == 0
+      return "✅"
+    else
+      let l:status = ""
+      if l:all_non_errors > 0
+        let l:status = l:status . printf("%d ⚡", all_non_errors)
+      endif
+      if l:all_errors > 0
+        let l:status = l:status . printf("%d 🚫", all_errors)
+      endif
+      return l:status
+    endif
 endfunction
 
 " }}}
