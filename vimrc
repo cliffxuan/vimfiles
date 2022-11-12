@@ -320,40 +320,14 @@ command! -bang WQ wq<bang>
 " sudo
 command! Suw :w !sudo tee %
 
-function! CopyMatches(reg)
-  let hits = []
-  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
-  let reg = empty(a:reg) ? '+' : a:reg
-  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
-endfunction
-command! -register CopyMatches call CopyMatches(<q-reg>)
-
-function! s:list_buffers()
-  redir => list
-  silent ls
-  redir END
-  return split(list, "\n")
-endfunction
-
-function! s:delete_buffers(lines)
-  execute 'bwipeout' join(map(a:lines, {_, line -> split(line)[0]}))
-endfunction
-
-function! DeleteOtherBuffers()
-  let l:buffers = map(s:list_buffers(), {_, line -> split(line)[0]})
-  let l:other_buffers = filter(l:buffers, {_, buf -> buf != bufnr('%')})
-  if len(l:other_buffers) > 0
-    execute 'bwipeout' join(l:other_buffers)
-  else
-    echo 'no other buffers found'
-  endif
-endfunction
-
 command! BD call fzf#run(fzf#wrap({
   \ 'source': s:list_buffers(),
   \ 'sink*': { lines -> s:delete_buffers(lines) },
   \ 'options': '--multi --reverse --bind ctrl-a:select-all+accept'
 \ }))
+
+command! -register CopyMatches call CopyMatches(<q-reg>)
+
 " }}}
 " keymaps {{{
 " auto close
@@ -546,38 +520,6 @@ function! NumberToggle()
   endif
 endfunction
 
-" toggle quickfix
-let g:quickfix_is_open = 0
-function! QuickfixToggle()
-  if g:quickfix_is_open
-    cclose
-    let g:quickfix_is_open = 0
-    execute g:quickfix_return_to_window . "wincmd w"
-  else
-    let g:quickfix_return_to_window = winnr()
-    copen
-    let g:quickfix_is_open = 1
-  endif
-endfunction
-
-" toggle number and list
-" TODO is this still used?
-function! NumberAndListToggle()
-  if &number || (exists('&relativenumber') && &relativenumber) || &list
-    set nonumber
-    if exists('&relativenumber')
-      set norelativenumber
-    endif
-    set nolist
-  else
-    set number
-    if exists('&relativenumber')
-      set relativenumber
-    endif
-    set list
-  endif
-endfunction
-
 "grep
 function! s:GrepOperator(type)
   if a:type ==# 'v'
@@ -625,6 +567,34 @@ function! AleStatus() abort
       endif
       return l:status
     endif
+endfunction
+
+function! CopyMatches(reg)
+  let hits = []
+  %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
+  let reg = empty(a:reg) ? '+' : a:reg
+  execute 'let @'.reg.' = join(hits, "\n") . "\n"'
+endfunction
+
+function! s:list_buffers()
+  redir => list
+  silent ls
+  redir END
+  return split(list, "\n")
+endfunction
+
+function! s:delete_buffers(lines)
+  execute 'bwipeout' join(map(a:lines, {_, line -> split(line)[0]}))
+endfunction
+
+function! DeleteOtherBuffers()
+  let l:buffers = map(s:list_buffers(), {_, line -> split(line)[0]})
+  let l:other_buffers = filter(l:buffers, {_, buf -> buf != bufnr('%')})
+  if len(l:other_buffers) > 0
+    execute 'bwipeout' join(l:other_buffers)
+  else
+    echo 'no other buffers found'
+  endif
 endfunction
 
 " }}}
