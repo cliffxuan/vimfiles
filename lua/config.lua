@@ -117,9 +117,9 @@ cmp.setup({
           }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
       }),
     sources = cmp.config.sources({
-        { name = 'nvim_lsp' },
-      }, {
         { name = 'ultisnips' },
+      }, {
+        { name = 'nvim_lsp' },
       }, {
         { name = 'buffer' },
       }),
