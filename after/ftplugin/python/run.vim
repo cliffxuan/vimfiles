@@ -2,6 +2,7 @@ nnoremap <buffer> <localleader>y :call <SID>pytestFile()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytestOneTestCase()<CR>
 nnoremap <buffer> <localleader>u :call <SID>unitTestFile()<CR>
 nnoremap <buffer> <localleader>s :call <SID>unitTestOneTestCase()<CR>
+nnoremap <buffer> <localleader>f :!black %<CR>
 nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --expand-star-imports --in-place %; isort %; black %<CR>
 nnoremap <buffer> <localleader>d :call <SID>convertDict()<CR>
 
@@ -23,8 +24,8 @@ endfunction
 
 function! s:_getTestName(lineNum, separator)
   let num = a:lineNum
-  let testFunction = '\(^def \)\@<=test\S*(\@='
-  let testMethod = '\(\s\+def \)\@<=test\S*(\@='
+  let testFunction = '\(^\(async \|\)def \)\@<=test\S*(\@='
+  let testMethod = '\(\s\+\(async \|\)def \)\@<=test\S*(\@='
   let testClass = '\(^class \)\@<=Test\S*(\@='
   let methodName = ""
   while num >= 1
@@ -52,7 +53,8 @@ function! s:pytestOneTestCase()
   let l:winview = winsaveview()
   let l:name = s:_getTestName(line('.'), '::')
   if len(l:name)
-    execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . "::" . l:name
+    " execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . "::" . l:name
+    execute g:ShellCommandPrefix() . " set -x; pytest -vv -s " . expand('%') . " -k " . l:name
   else
     echo 'no testcase found'
   endif
