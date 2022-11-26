@@ -108,8 +108,6 @@ Plug 'itchyny/lightline.vim'
           \ "\<C-s>": 'SB',
           \ 't': 'T',
           \ },
-          \ 'separator': { 'left': '', 'right': '' },
-          \ 'subseparator': {'left': '', 'right': '' }
         \ }
 " snippet
 Plug 'SirVer/ultisnips'
