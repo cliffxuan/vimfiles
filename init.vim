@@ -361,7 +361,7 @@ vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Telescope live_grep default_text=
 nnoremap <leader>as :exec 'Telescope live_grep default_text=' . substitute(@/, '\\[<>]', '', 'g')<cr>
 if has('nvim')
-  nnoremap <leader>b <cmd>Telescope buffers<cr>
+  nnoremap <leader>b <cmd>Telescope buffers layout_strategy=vertical<cr>
 else
   nnoremap <leader>b :Buffers<cr>
 end
