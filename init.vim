@@ -18,7 +18,7 @@ Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'godlygeek/tabular'
 Plug 'junegunn/fzf',  " installation is done by zinit { 'dir': '~/.fzf', 'do': './install --all' }
   let $FZF_DEFAULT_COMMAND = 'rg --files'
-Plug 'junegunn/fzf.vim'
+Plug 'cliffxuan/fzf.vim'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
 Plug 'justinmk/vim-dirvish'
 Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
@@ -139,7 +139,7 @@ if has('nvim')
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
-  " Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
+  Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 else
   Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
     let g:ycm_key_invoke_completion = '<C-l>'
@@ -378,11 +378,7 @@ noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-if has('nvim')
-  nnoremap <leader>f <cmd>Telescope find_files<cr>
-else
-  nnoremap <leader>f :Files<cr>
-end
+nnoremap <leader>f :Files<cr>
 " g for git related mappings
 nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gd :SignifyHunkDiff<cr>
@@ -418,7 +414,8 @@ nnoremap <leader><leader>d :bwipeout<cr>
 nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
-nnoremap <leader>l :Lines<cr>
+" config.lua
+" vim.keymap.set('n', '<leader>l', vim.diagnostic.setloclist, opts)
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
