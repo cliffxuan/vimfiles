@@ -116,17 +116,6 @@ Plug 'SirVer/ultisnips'
   let g:UltiSnipsJumpForwardTrigger = '<C-j>'
   let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
-" completion
-function! BuildYCM(info)
-  " info is a dictionary with 3 fields
-  " - name:   name of the plugin
-  " - status: 'installed', 'updated', or 'unchanged'
-  " - force:  set on PlugInstall! or PlugUpdate!
-  if a:info.status == 'installed' || a:info.force
-    !python3 ./install.py --go-completer --ts-completer --rust-completer
-  endif
-endfunction
-
 if has('nvim')
   Plug 'neovim/nvim-lspconfig'
   Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
@@ -139,27 +128,6 @@ if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
   Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
-else
-  Plug 'ycm-core/YouCompleteMe', { 'do': function('BuildYCM') }
-    let g:ycm_key_invoke_completion = '<C-l>'
-    let g:ycm_key_detailed_diagnostics = '<leader>ex'
-    let g:ycm_server_keep_logfiles = 1
-    let g:ycm_server_log_level = 'debug'
-    let g:ycm_language_server =
-          \[ { 'name': 'haskell', 'filetypes': [ 'haskell', 'hs', 'lhs' ],
-          \'cmdline': [ 'haskell-language-server-wrapper' , '--lsp'],
-          \'project_root_files': ['*.cabal', 'stack.yaml', 'cabal.project', 'package.yaml', 'hie.yaml'] } ]
-    let g:ycm_autoclose_preview_window_after_insertion = 1
-    let g:ycm_autoclose_preview_window_after_completion = 1
-    let g:ycm_auto_hover = ''
-    nnoremap gd :YcmCompleter GoToDefinition<cr>
-    nnoremap gr :YcmCompleter GoToReferences<cr>
-    " no docstring window popup during completion
-    augroup ycm_no_doc
-      autocmd FileType python setlocal completeopt-=preview
-      autocmd FileType go setlocal completeopt-=preview
-      autocmd FileType rust setlocal completeopt-=preview
-    augroup END
 end
 
 call plug#end()
@@ -220,6 +188,7 @@ set autoindent
 set list " show whitespace
 " show tabs and trailing whitespaces
 set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
+
 " }}}
 " tabs {{{
 set shiftwidth=2  " sw
