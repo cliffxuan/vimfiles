@@ -47,7 +47,7 @@ function! s:testOneTestCase()
   let l:name = s:_getTestName(line('.'))
   if len(l:name)
     execute g:ShellCommandPrefix() 
-      \ . " runrust --test " . expand('%') . " -- --include-ignored " . l:name
+      \ . " runrust --test " . expand('%') . " -- --include-ignored --nocapture " . l:name
   else
     echo 'no testcase found'
   endif
