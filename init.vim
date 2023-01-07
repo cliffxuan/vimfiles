@@ -298,7 +298,6 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 " }}}
 " keymaps {{{
 " auto close
-inoremap ' ''<left>
 inoremap " ""<left>
 inoremap ( ()<left>
 inoremap [ []<left>
