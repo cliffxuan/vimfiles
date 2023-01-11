@@ -486,6 +486,22 @@ function! NumberToggle()
   endif
 endfunction
 
+" toggle number and list
+function! NumberAndListToggle()
+  if &number || (exists('&relativenumber') && &relativenumber) || &list
+    set nonumber
+    if exists('&relativenumber')
+      set norelativenumber
+    endif
+    set nolist
+  else
+    set number
+    if exists('&relativenumber')
+      set relativenumber
+    endif
+    set list
+  endif
+endfunction
 "grep
 function! s:GrepOperator(type)
   if a:type ==# 'v'
