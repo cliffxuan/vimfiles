@@ -11,14 +11,15 @@ let s:python_command = s:using_python3 ? "py3 " : "py "
 exec s:python_until_eof
 import re
 import vim
-LINE = '__import__("pdb").set_trace()  # !!!!!!!!!!'
+LINE0 = 'breakpoint()  # !!!!!!!!!!'
+LINE1 = '__import__("pdb").set_trace()  # !!!!!!!!!!'
 LINE2 = '__import__("ipdb").set_trace()  # !!!!!!!!!!'
 
 
 def set_breakpoint():
     n_line = int(vim.eval('line(".")'))
     whitespace = re.search('^(\s*)', vim.current.line).group(1)
-    vim.current.buffer.append(whitespace + LINE, n_line - 1)
+    vim.current.buffer.append(whitespace + LINE0, n_line - 1)
     vim.command( 'normal j1')
 
 
@@ -29,7 +30,7 @@ def remove_breakpoints():
     n_lines = []
     n_line = 1
     for line in vim.current.buffer:
-        if line.lstrip() in [LINE, LINE2]:
+        if line.lstrip() in [LINE0, LINE1, LINE2]:
             n_lines.append(n_line)
         n_line += 1
 
