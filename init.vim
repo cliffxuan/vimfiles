@@ -53,7 +53,7 @@ Plug 'dense-analysis/ale'
         \'haskell':['ormolu'], 'rust':['rustfmt'],
         \'sh':['shfmt']}
   let g:ale_hover_cursor = 0
-  let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+  let g:ale_echo_msg_format = '[%linter%] (%code%): %s [%severity%]'
   let g:ale_echo_msg_error_str = '🚫'
   let g:ale_echo_msg_warning_str = '⚡'
   let g:ale_sh_shfmt_options = "-i 2"
