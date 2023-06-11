@@ -22,7 +22,8 @@ Plug 'junegunn/fzf',  " installation is done by zinit { 'dir': '~/.fzf', 'do': '
 Plug 'junegunn/fzf.vim'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
 Plug 'justinmk/vim-dirvish'
-Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+" Plug 'leafgarland/typescript-vim', { 'for': 'typescript' }
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'majutsushi/tagbar'
 Plug 'Yggdroot/indentLine'
   let g:indentLine_setColors = 0
@@ -49,7 +50,7 @@ Plug 'dense-analysis/ale'
   let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
   let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': ['terraform'], 'javascript': ['prettier'],
-        \'css': ['prettier'], 'typescript': ['prettier'],
+        \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
         \'haskell':['ormolu'], 'rust':['rustfmt'],
         \'sh':['shfmt']}
   let g:ale_hover_cursor = 0
