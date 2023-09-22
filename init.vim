@@ -48,6 +48,7 @@ Plug 'jeetsukumaran/vim-pythonsense', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'dense-analysis/ale'
   let g:ale_linters = {'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
+  let g:ale_linters_ignore = {'typescript': ['deno'], 'typescriptreact': ['deno']}
   let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': ['terraform'], 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
