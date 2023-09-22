@@ -1,0 +1,18 @@
+snippet stt "streamlit tabs" b
+def one():
+    st.text("one")
+
+
+def two():
+    st.text("two")
+
+
+tabs = {
+    "one": one,
+    "two": two,
+}
+tbs = st.tabs(list(tabs.keys()))
+for i, tb in enumerate(tabs.values()):
+    with tbs[i]:
+        tb()
+endsnippet
