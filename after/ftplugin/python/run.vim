@@ -23,9 +23,10 @@ endfunction
 
 function! s:_getTestName(lineNum, separator)
   let num = a:lineNum
-  let testFunction = '\(^def \)\@<=test\S*(\@='
-  let testMethod = '\(\s\+def \)\@<=test\S*(\@='
-  let testClass = '\(^class \)\@<=Test\S*(\@='
+  let testFunction = '\(^\(async \|\)def \)\@<=test\S*(\@='
+  let testMethod = '\(\s\+\(async \|\)def \)\@<=test\S*(\@='
+  let testClassWithBase = '\(^class \)\@<=Test\S*(\@='
+  let testClassWithoutBase = '\(^class \)\@<=Test\S*:\@='
   let methodName = ""
   while num >= 1
     let funcName = matchstr(getline(num), testFunction)
@@ -35,7 +36,10 @@ function! s:_getTestName(lineNum, separator)
     if len(methodName) == 0
       let methodName = matchstr(getline(num), testMethod)
     endif
-    let className = matchstr(getline(num), testClass)
+    let className = matchstr(getline(num), testClassWithBase)
+    if len(className) == 0
+      let className = matchstr(getline(num), testClassWithoutBase)
+    endif
     if len(className) > 0
       if len(methodName) == 0
         return className
