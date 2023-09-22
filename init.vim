@@ -71,6 +71,7 @@ Plug 'rhysd/git-messenger.vim'
 Plug 'sheerun/vim-polyglot'
   let g:polyglot_disabled = ['python', 'markdown', 'autoindent']
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'github/copilot.vim'
 " themes
 Plug 'morhetz/gruvbox'
 Plug 'sickill/vim-monokai'
@@ -330,7 +331,7 @@ if has('nvim')
 else
   nnoremap <leader>b :Buffers<cr>
 end
-nnoremap <leader>c :Commands<cr>
+nnoremap <leader>c :call NumberAndListToggle()<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
@@ -611,6 +612,7 @@ endif
 
 if has("nvim")
   lua require("config")
+  lua require("copilot")
 endif
 
 " }}}
