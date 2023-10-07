@@ -470,6 +470,14 @@ if has('nvim')
 endif
 
 " }}}
+" global variables {{{
+
+" python provider uses pynvim specific virtualenv 
+if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
+  let g:python3_host_prog = '~/.virtualenvs/pynvim/bin/python3'
+endif
+
+" }}}
 " functions {{{
 function! CopyFileName()
   let filename = expand('%:p')
