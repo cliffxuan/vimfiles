@@ -182,6 +182,9 @@ require('telescope').load_extension('fzf')
 
 
 require'nvim-treesitter.configs'.setup {
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+  auto_install = true,
+  sync_install = false,
   highlight = {
     enable = true,
     -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
