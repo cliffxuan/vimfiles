@@ -462,7 +462,7 @@ imap <c-x><c-l> <plug>(fzf-complete-line)
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
 " terminal
-tnoremap <C-o> <C-\><C-n>
+tnoremap <C-j> <C-\><C-n>
 if has('nvim')
   augroup nvim_term_insert
     autocmd TermOpen term://* startinsert
