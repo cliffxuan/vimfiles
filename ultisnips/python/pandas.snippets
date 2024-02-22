@@ -1,0 +1,11 @@
+snippet dfsearch "search dataframe" b
+def search(df: pd.DataFrame, regex: str, case: bool = False) -> pd.DataFrame:
+    """Search all the columns of `df`, return rows with any matches."""
+    mask = np.column_stack(
+        [
+            df[col].astype(str).str.contains(regex, regex=True, case=case, na=False)
+            for col in df
+        ]
+    )
+    return df.loc[mask.any(axis=1)]
+endsnippet

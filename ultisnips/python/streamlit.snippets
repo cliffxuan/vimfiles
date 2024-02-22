@@ -116,3 +116,16 @@ st.write(
     unsafe_allow_html=True,
 )
 endsnippet
+
+
+snippet stconf "streamlit setup once" b
+def set_page_config_once():
+    try:
+        st.set_page_config(
+            page_title="Portfolio Workbench",
+            page_icon=":gear:",
+            layout="wide",
+        )
+    except Exception:
+        return
+endsnippet
