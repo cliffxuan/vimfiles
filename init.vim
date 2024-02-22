@@ -49,7 +49,7 @@ Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'dense-analysis/ale'
   let g:ale_linters = {'python': ['ruff',], 'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
   let g:ale_linters_ignore = {'typescript': ['deno'], 'typescriptreact': ['deno']}
-  let g:ale_fixers = {'python': ['black', 'autopep8'], 'go': ['gofmt', 'goimports'],
+  let g:ale_fixers = {'python': ['ruff', 'black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': ['terraform'], 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
         \'haskell':['ormolu'], 'rust':['rustfmt'],

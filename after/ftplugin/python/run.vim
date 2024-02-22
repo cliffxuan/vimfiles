@@ -2,7 +2,7 @@ nnoremap <buffer> <localleader>y :call <SID>pytestFile()<CR>
 nnoremap <buffer> <localleader>k :call <SID>pytestOneTestCase()<CR>
 nnoremap <buffer> <localleader>u :call <SID>unitTestFile()<CR>
 nnoremap <buffer> <localleader>s :call <SID>unitTestOneTestCase()<CR>
-nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --expand-star-imports --in-place %; isort %; black %<CR>
+nnoremap <buffer> <localleader>x :!autoflake --remove-all-unused-imports --expand-star-imports --in-place %; ruff check % --select=I --fix; ruff format %<CR>
 nnoremap <buffer> <localleader>d :call <SID>convertDict()<CR>
 
 function! s:pytestFile()
