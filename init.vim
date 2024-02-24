@@ -129,7 +129,7 @@ if has('nvim')
   Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
   Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
   Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.4' }
   Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 end
 
@@ -374,7 +374,7 @@ nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
 if has('nvim')
-  " vim.keymap.set('n', '<leader>i', vim.lsp.buf.hover, bufopts)
+  " check lua/config.lua
 else
   nmap <leader>i <Plug>(YCMHover)
 end
