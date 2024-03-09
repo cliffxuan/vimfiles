@@ -370,7 +370,7 @@ nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
-nnoremap <silent> <leader>ll :call ToggleLocationList()<CR>
+nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
