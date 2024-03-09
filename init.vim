@@ -85,6 +85,8 @@ Plug 'junegunn/seoul256.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'yuttie/hydrangea-vim'
 Plug 'NLKNguyen/papercolor-theme'
+Plug 'folke/tokyonight.nvim'
+
 Plug 'itchyny/lightline.vim'
   let g:lightline = {
         \ 'colorscheme': 'powerline',
@@ -249,11 +251,21 @@ endif
 
 set background=dark
 set termguicolors
+let g:eliteColors = uniq(split('
+      \ tokyonight
+      \ gruvbox
+      \ PaperColor
+      \ dracula
+      \ hydrangea
+      \ monokai
+      \ night-owl
+      \ nord
+      \'))
 " if custom themes exists, use it
 " otherwise koehler
 try
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-    colorscheme gruvbox
+    execute 'colorscheme ' . g:eliteColors[0]
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
@@ -318,15 +330,6 @@ nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>cc :call NumberAndListToggle()<cr>
 nnoremap <leader>cn :call NumberToggle()<cr>
 nnoremap <leader>co :TagbarToggle<cr>
-let g:eliteColors = uniq(split('
-      \ gruvbox
-      \ PaperColor
-      \ dracula
-      \ hydrangea
-      \ monokai
-      \ night-owl
-      \ nord
-      \'))
 nnoremap <leader>cj :call CycleColor(1, g:eliteColors)<cr>
 nnoremap <leader>ck :call CycleColor(-1, g:eliteColors)<cr>
 nnoremap <leader>cr :call SetRandomColor()<cr>
