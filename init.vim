@@ -369,7 +369,8 @@ nnoremap <leader><leader>d :bwipeout<cr>
 nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
-nnoremap <leader>l :Lines<cr>
+" Toggle the location list window
+nnoremap <silent> <leader>ll :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
 nnoremap <leader>n :call NumberToggle()<cr>
 nnoremap <leader>o :TagbarToggle<cr>
@@ -414,22 +415,6 @@ vnoremap <silent> j gj
 nnoremap <silent> k :<C-U>call Up(v:count)<cr>
 vnoremap <silent> k gk
 
-function! Down(vcount)
-  if a:vcount == 0
-    exe "normal! gj"
-  else
-    exe "normal! ". a:vcount ."j"
-  endif
-endfunction
-
-function! Up(vcount)
-  if a:vcount == 0
-    exe "normal! gk"
-  else
-    exe "normal! ". a:vcount ."k"
-  endif
-endfunction
-
 " Buffer Cycling
 nnoremap <Tab> :bnext<cr>
 nnoremap <S-Tab> :bprevious<cr>
@@ -462,6 +447,22 @@ endif
 
 " }}}
 " functions {{{
+function! Down(vcount)
+  if a:vcount == 0
+    exe "normal! gj"
+  else
+    exe "normal! ". a:vcount ."j"
+  endif
+endfunction
+
+function! Up(vcount)
+  if a:vcount == 0
+    exe "normal! gk"
+  else
+    exe "normal! ". a:vcount ."k"
+  endif
+endfunction
+
 function! CopyFileName()
   let filename = expand('%:p')
   echo filename
@@ -579,6 +580,16 @@ function! DeleteOtherBuffers()
   endif
 endfunction
 
+" Function to toggle the location list window
+function! ToggleLocationList()
+    if exists('g:location_list_window_open')
+        lclose
+        unlet g:location_list_window_open
+    else
+        lopen
+        let g:location_list_window_open = 1
+    endif
+endfunction
 " }}}
 " gui/console {{{
 if has('gui_running')
