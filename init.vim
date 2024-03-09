@@ -120,19 +120,17 @@ Plug 'SirVer/ultisnips'
   let g:UltiSnipsJumpForwardTrigger = '<C-j>'
   let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
-if has('nvim')
-  Plug 'neovim/nvim-lspconfig'
-  Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
-  Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
-  " Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
-  " Plug 'hrsh7th/cmp-cmdline'  " cmdline source for nvim-cmp
-  " Plug 'hrsh7th/cmp-path'  " path source for nvim-cmp
-  Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
-  Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
-  Plug 'nvim-lua/plenary.nvim'
-  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.4' }
-  Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
-end
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/nvim-cmp' " Autocompletion plugin
+Plug 'hrsh7th/cmp-nvim-lsp' " LSP source for nvim-cmp
+" Plug 'hrsh7th/cmp-buffer'  " buffer word source for nvim-cmp
+" Plug 'hrsh7th/cmp-cmdline'  " cmdline source for nvim-cmp
+" Plug 'hrsh7th/cmp-path'  " path source for nvim-cmp
+Plug 'simrat39/rust-tools.nvim', { 'for': 'rust' }  " rust analyzer inlay
+Plug 'quangnguyen30192/cmp-nvim-ultisnips' " lsp source for ultisnips
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.4' }
+Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
 
 call plug#end()
 "End vim-plug Scripts-------------------------
@@ -254,20 +252,16 @@ set termguicolors
 " if custom themes exists, use it
 " otherwise koehler
 try
-  if has('nvim')
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-    colorscheme PaperColor
-    " colorscheme gruvbox
+    colorscheme gruvbox
+    " colorscheme PaperColor
+    " colorscheme dracula
+    " colorscheme dracula
+    " colorscheme hydrangea
+    " colorscheme hydrangea
     " colorscheme monokai
-    " colorscheme nord
-    " colorscheme dracula
-    " colorscheme hydrangea
     " colorscheme night-owl
-  else
-    colorscheme monokai
-    " colorscheme dracula
-    " colorscheme hydrangea
-  endif
+    " colorscheme nord
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
@@ -302,6 +296,7 @@ command! -register CopyMatches call CopyMatches(<q-reg>)
 " }}}
 " keymaps {{{
 " auto close
+inoremap ' ''<left>
 inoremap " ""<left>
 inoremap ( ()<left>
 inoremap [ []<left>
@@ -327,11 +322,7 @@ cnoremap <c-e> <end>
 vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
-if has('nvim')
-  nnoremap <leader>b <cmd>Telescope buffers<cr>
-else
-  nnoremap <leader>b :Buffers<cr>
-end
+nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>c :call NumberAndListToggle()<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
@@ -340,16 +331,13 @@ nnoremap <leader>dk :exec "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>
 nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 nnoremap <leader>dp :echo getcwd()<cr>
 " edit and source $MYVIMRC
+nnoremap <buffer> <silent> <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
 noremap <leader>ep :UltiSnipsEdit<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
-if has('nvim')
-  nnoremap <leader>f <cmd>Telescope find_files<cr>
-else
-  nnoremap <leader>f :Files<cr>
-end
+nnoremap <leader>f <cmd>Telescope find_files<cr>
 " g for git related mappings
 nnoremap <leader>ga :Git add %<cr>
 nnoremap <leader>gd :SignifyHunkDiff<cr>
@@ -374,11 +362,7 @@ nmap <leader>gK 9999<leader>gk
 nnoremap <leader>hh :History<cr>
 nnoremap <leader>hs :History/<cr>
 nnoremap <leader>hc :History:<cr>
-if has('nvim')
-  " check lua/config.lua
-else
-  nmap <leader>i <Plug>(YCMHover)
-end
+" <leader>i lua/config.lua
 map <leader>j <Plug>(easymotion-j)
 map <leader>k <Plug>(easymotion-k)
 nnoremap <leader><leader>d :bwipeout<cr>
@@ -464,11 +448,9 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
 " terminal
 tnoremap <C-j> <C-\><C-n>
-if has('nvim')
-  augroup nvim_term_insert
-    autocmd TermOpen term://* startinsert
-  augroup END
-endif
+augroup nvim_term_insert
+  autocmd TermOpen term://* startinsert
+augroup END
 
 " }}}
 " global variables {{{
@@ -625,9 +607,7 @@ endif
 " }}}
 " nvim lua {{{
 
-if has("nvim")
-  lua require("config")
-  lua require("copilot")
-endif
+lua require("config")
+lua require("copilot")
 
 " }}}
