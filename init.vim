@@ -86,10 +86,11 @@ Plug 'altercation/vim-colors-solarized'
 Plug 'yuttie/hydrangea-vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'folke/tokyonight.nvim'
+Plug 'rebelot/kanagawa.nvim'
 
 Plug 'itchyny/lightline.vim'
   let g:lightline = {
-        \ 'colorscheme': 'powerline',
+        \ 'colorscheme': 'tokyonight',
         \ 'active': {
         \   'left': [ [ 'mode', 'paste' ],
         \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
@@ -253,6 +254,7 @@ set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
       \ tokyonight
+      \ kanagawa
       \ gruvbox
       \ PaperColor
       \ dracula
