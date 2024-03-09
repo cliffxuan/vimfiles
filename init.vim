@@ -254,9 +254,9 @@ set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
       \ tokyonight
-      \ kanagawa
       \ gruvbox
       \ PaperColor
+      \ kanagawa
       \ dracula
       \ hydrangea
       \ monokai
@@ -614,7 +614,7 @@ endfunction
 function! UpdateColor(nextColor)
   let l:currColor = g:colors_name
   exec 'colorscheme ' . a:nextColor
-  " why not work for lua colors?
+  redraw
   echom 'colorschema: ' . l:currColor . ' -> ' . a:nextColor
 endfunction
 
