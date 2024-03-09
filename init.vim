@@ -612,7 +612,8 @@ endfunction
 function! UpdateColor(nextColor)
   let l:currColor = g:colors_name
   exec 'colorscheme ' . a:nextColor
-  echom 'colorschema: ' . l:currColor . ' -> ' . a:nextColor  " why not work for lua colors?
+  " why not work for lua colors?
+  echom 'colorschema: ' . l:currColor . ' -> ' . a:nextColor
 endfunction
 
 function! CycleColor(step, options=[])
