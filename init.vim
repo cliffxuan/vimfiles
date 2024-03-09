@@ -323,7 +323,9 @@ vnoremap <leader>aa :<c-u>call <SID>GrepOperator(visualmode())<cr>
 nnoremap <leader>aa :Rg<tab>
 nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b <cmd>Telescope buffers<cr>
-nnoremap <leader>c :call NumberAndListToggle()<cr>
+nnoremap <leader>cc :call NumberAndListToggle()<cr>
+nnoremap <leader>cn :call NumberToggle()<cr>
+nnoremap <leader>co :TagbarToggle<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
@@ -346,8 +348,8 @@ nnoremap <leader>gp :Git push<cr>
 nnoremap <leader>gb :Git blame<cr>
 nnoremap <leader>gc :Git commit<cr>
 nnoremap <leader>gf :GFiles?<cr>
-nnoremap <leader>gh :Gbrowse<cr>
-vnoremap <leader>gh :Gbrowse<cr>
+nnoremap <leader>gh :GBrowse<cr>
+vnoremap <leader>gh :GBrowse<cr>
 nnoremap <leader>gl :Commits<cr>
 nnoremap <leader>gm :GitMessenger<cr>
 nnoremap <leader>go :BCommits<cr>
@@ -372,8 +374,8 @@ map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
 nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
-nnoremap <leader>n :call NumberToggle()<cr>
-nnoremap <leader>o :TagbarToggle<cr>
+" nnoremap <leader>n empty!
+" nnoremap <leader>o emtry!
 " toggle relativenumber
 nnoremap <leader>p "+p
 nnoremap <leader>q :bdelete<cr>
@@ -384,7 +386,6 @@ nnoremap <leader>t :FloatermToggle<cr>
 nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
 " Split Open
 noremap <leader>v :vsp<cr>
-
 " save
 nnoremap <leader>w :w<cr>
 " alx-fix
@@ -440,7 +441,7 @@ augroup END
 " }}}
 " global variables {{{
 
-" python provider uses pynvim specific virtualenv 
+" python provider uses pynvim specific virtualenv
 if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
   let g:python3_host_prog = '~/.virtualenvs/pynvim/bin/python3'
 endif
