@@ -254,14 +254,6 @@ set termguicolors
 try
     let $NVIM_TUI_ENABLE_TRUE_COLOR=1
     colorscheme gruvbox
-    " colorscheme PaperColor
-    " colorscheme dracula
-    " colorscheme dracula
-    " colorscheme hydrangea
-    " colorscheme hydrangea
-    " colorscheme monokai
-    " colorscheme night-owl
-    " colorscheme nord
 catch /^Vim\%((\a\+)\)\=:E185/
   colorscheme koehler
 endtry
@@ -326,6 +318,18 @@ nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>cc :call NumberAndListToggle()<cr>
 nnoremap <leader>cn :call NumberToggle()<cr>
 nnoremap <leader>co :TagbarToggle<cr>
+let g:eliteColors = uniq(split('
+      \ gruvbox
+      \ PaperColor
+      \ dracula
+      \ hydrangea
+      \ monokai
+      \ night-owl
+      \ nord
+      \'))
+nnoremap <leader>cj :call CycleColor(1, g:eliteColors)<cr>
+nnoremap <leader>ck :call CycleColor(-1, g:eliteColors)<cr>
+nnoremap <leader>cr :call SetRandomColor()<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
@@ -590,6 +594,38 @@ function! ToggleLocationList()
         lopen
         let g:location_list_window_open = 1
     endif
+endfunction
+
+function! GetColors(includeBuiltin=0)
+  let l:cs = []
+  for c in split(globpath(&rtp, 'colors/*.vim'), '\n')
+    if a:includeBuiltin == 1 || match(c, 'vimplugged') >= 0
+      let l:cs = add(l:cs, split(split(c, '/')[-1], '\.')[0])
+    endif
+  endfor
+  return l:cs
+endfunction
+
+function! UpdateColor(nextColor)
+  let l:currColor = g:colors_name
+  exec 'colorscheme ' . a:nextColor
+  echom 'colorschema: ' . l:currColor . ' -> ' . a:nextColor
+endfunction
+
+function! CycleColor(step, options=[])
+  if len(a:options) == 0
+    let l:colors = GetColors()
+  else
+    let l:colors = a:options
+  endif
+  let l:currColor = g:colors_name
+  let l:nextColor = l:colors[(index(l:colors, l:currColor) + a:step) % len(l:colors)]
+  call UpdateColor(l:colors[(index(l:colors, l:currColor) + a:step) % len(l:colors)])
+endfunction
+
+function! SetRandomColor()
+  let l:cs = GetColors(0)
+  call UpdateColor(l:cs[rand() % len(l:cs)])
 endfunction
 " }}}
 " gui/console {{{
