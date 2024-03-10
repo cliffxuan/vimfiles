@@ -335,6 +335,7 @@ nnoremap <leader>co :TagbarToggle<cr>
 nnoremap <leader>cj :call CycleColor(1, g:eliteColors)<cr>
 nnoremap <leader>ck :call CycleColor(-1, g:eliteColors)<cr>
 nnoremap <leader>cr :call SetRandomColor()<cr>
+nnoremap <leader>cp :colorscheme<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
@@ -342,7 +343,7 @@ nnoremap <leader>dk :exec "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>
 nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
 nnoremap <leader>dp :echo getcwd()<cr>
 " edit and source $MYVIMRC
-nnoremap <buffer> <silent> <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
+noremap <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
 noremap <leader>ep :UltiSnipsEdit<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
