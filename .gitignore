@@ -5,3 +5,4 @@ syntax: glob
 .nvimlog
 doc/tags
 plugged/*
+lazy-lock.json
