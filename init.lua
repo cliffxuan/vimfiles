@@ -1,79 +1,79 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable", -- latest stable release
+		lazypath,
+	})
 end
 vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 require("lazy").setup({
-	'ConradIrwin/vim-bracketed-paste',
-	'Lokaltog/vim-easymotion',
-	'ggandor/leap.nvim',
-	'editorconfig/editorconfig-vim',
-	'godlygeek/tabular',
-	'junegunn/fzf',
-	'junegunn/fzf.vim',
-	'justinmk/vim-dirvish',
-	'nvim-treesitter/nvim-treesitter',
-	'majutsushi/tagbar',
-	'Yggdroot/indentLine',
-	'voldikss/vim-floaterm',
-	'tpope/vim-abolish',
-	'tpope/vim-endwise',
-	'tpope/vim-fugitive',
-	'tpope/vim-surround',
-	'tpope/vim-repeat',
-	'tpope/vim-commentary',
-	'tpope/vim-unimpaired',
-	'kana/vim-textobj-user',
-	'dense-analysis/ale',
-	'terryma/vim-multiple-cursors',
-	'junegunn/goyo.vim',
-	'mhinz/vim-signify',
-	'rhysd/git-messenger.vim',
-	'sheerun/vim-polyglot',
-	'github/copilot.vim',
-	'folke/which-key.nvim',
-	{'folke/neodev.nvim', opts={}},
+	"ConradIrwin/vim-bracketed-paste",
+	"Lokaltog/vim-easymotion",
+	"ggandor/leap.nvim",
+	"editorconfig/editorconfig-vim",
+	"godlygeek/tabular",
+	"junegunn/fzf",
+	"junegunn/fzf.vim",
+	"justinmk/vim-dirvish",
+	"nvim-treesitter/nvim-treesitter",
+	"majutsushi/tagbar",
+	"Yggdroot/indentLine",
+	"voldikss/vim-floaterm",
+	"tpope/vim-abolish",
+	"tpope/vim-endwise",
+	"tpope/vim-fugitive",
+	"tpope/vim-surround",
+	"tpope/vim-repeat",
+	"tpope/vim-commentary",
+	"tpope/vim-unimpaired",
+	"kana/vim-textobj-user",
+	"dense-analysis/ale",
+	"terryma/vim-multiple-cursors",
+	"junegunn/goyo.vim",
+	"mhinz/vim-signify",
+	"rhysd/git-messenger.vim",
+	"sheerun/vim-polyglot",
+	"github/copilot.vim",
+	"folke/which-key.nvim",
+	{ "folke/neodev.nvim", opts = {} },
 	-- theme
-	'morhetz/gruvbox',
-	'sickill/vim-monokai',
-	'dracula/vim',
-	'jnurmine/Zenburn',
-	'haishanh/night-owl.vim',
-	'ayu-theme/ayu-vim',
-	'arcticicestudio/nord-vim',
-	'junegunn/seoul256.vim',
-	'altercation/vim-colors-solarized',
-	'yuttie/hydrangea-vim',
-	'NLKNguyen/papercolor-theme',
-	'folke/tokyonight.nvim',
-	'rebelot/kanagawa.nvim',
-	'itchyny/lightline.vim',
-	'SirVer/ultisnips',
-	'neovim/nvim-lspconfig',
-	'hrsh7th/nvim-cmp',
-	'hrsh7th/cmp-nvim-lsp',
-	'quangnguyen30192/cmp-nvim-ultisnips', -- lsp source for ultisnips
-	'nvim-lua/plenary.nvim',
+	"morhetz/gruvbox",
+	"sickill/vim-monokai",
+	"dracula/vim",
+	"jnurmine/Zenburn",
+	"haishanh/night-owl.vim",
+	"ayu-theme/ayu-vim",
+	"arcticicestudio/nord-vim",
+	"junegunn/seoul256.vim",
+	"altercation/vim-colors-solarized",
+	"yuttie/hydrangea-vim",
+	"NLKNguyen/papercolor-theme",
+	"folke/tokyonight.nvim",
+	"rebelot/kanagawa.nvim",
+	"itchyny/lightline.vim",
+	"SirVer/ultisnips",
+	"neovim/nvim-lspconfig",
+	"hrsh7th/nvim-cmp",
+	"hrsh7th/cmp-nvim-lsp",
+	"quangnguyen30192/cmp-nvim-ultisnips", -- lsp source for ultisnips
+	"nvim-lua/plenary.nvim",
 	-- language specific
-	{'begriffs/haskell-vim-now',  ft = 'haskell'},
-	{ 'hashivim/vim-terraform', ft = 'terraform' },
-	{ 'OmniSharp/omnisharp-vim', ft = 'cs' },
-	{ 'Glench/Vim-Jinja2-Syntax', ft = 'jinja' },
-	{'jeetsukumaran/vim-pythonsense',  ft = 'python' },
-	{'Vimjas/vim-python-pep8-indent', ft = 'python' },
-	{'simrat39/rust-tools.nvim', ft='rust' },  -- rust analyzer inlay
-	{'rust-lang/rust.vim', ft = 'rust'},
-	{'nvim-telescope/telescope.nvim', tag= '0.1.4' },
-	{'nvim-telescope/telescope-fzf-native.nvim', build = 'make'}
+	{ "begriffs/haskell-vim-now", ft = "haskell" },
+	{ "hashivim/vim-terraform", ft = "terraform" },
+	{ "OmniSharp/omnisharp-vim", ft = "cs" },
+	{ "Glench/Vim-Jinja2-Syntax", ft = "jinja" },
+	{ "jeetsukumaran/vim-pythonsense", ft = "python" },
+	{ "Vimjas/vim-python-pep8-indent", ft = "python" },
+	{ "simrat39/rust-tools.nvim", ft = "rust" }, -- rust analyzer inlay
+	{ "rust-lang/rust.vim", ft = "rust" },
+	{ "nvim-telescope/telescope.nvim", tag = "0.1.4" },
+	{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 })
 
 vim.cmd([[
@@ -377,8 +377,8 @@ endfunction
 " }}}
 ]])
 
-vim.keymap.set({'n', 'x', 'o'}, 'f', '<Plug>(leap-forward)')
-vim.keymap.set({'n', 'x', 'o'}, 'F', '<Plug>(leap-backward)')
+vim.keymap.set({ "n", "x", "o" }, "f", "<Plug>(leap-forward)")
+vim.keymap.set({ "n", "x", "o" }, "F", "<Plug>(leap-backward)")
 vim.cmd([[
 " keymaps {{{
 " auto close
