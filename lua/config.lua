@@ -51,7 +51,15 @@ require('lspconfig')['tsserver'].setup{
   on_attach = on_attach,
   flags = lsp_flags,
 }
-
+require('lspconfig')['lua_ls'].setup({
+  settings = {
+    Lua = {
+      completion = {
+        callSnippet = "Replace"
+      }
+    }
+  }
+})
 -- Configure LSP through rust-tools.nvim plugin.
 -- rust-tools will configure and enable certain LSP features for us.
 -- See https://github.com/simrat39/rust-tools.nvim#configuration

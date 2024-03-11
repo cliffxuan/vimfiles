@@ -41,7 +41,7 @@ require("lazy").setup({
 	'sheerun/vim-polyglot',
 	'github/copilot.vim',
 	'folke/which-key.nvim',
-	'folke/neodev.nvim',
+	{'folke/neodev.nvim', opts={}},
 	-- theme
 	'morhetz/gruvbox',
 	'sickill/vim-monokai',
@@ -81,9 +81,6 @@ vim.cmd([[
 filetype plugin indent on
 syntax on
 
-" set <leader> to and localleader
-let mapleader = " "
-let maplocalleader = ","
 
 set nobackup noswapfile
 set encoding=utf-8
@@ -535,7 +532,7 @@ vim.cmd([[
   let g:ale_fixers = {'python': ['ruff', 'black', 'autopep8'], 'go': ['gofmt', 'goimports'],
         \'terraform': ['terraform'], 'javascript': ['prettier'],
         \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
-        \'haskell':['ormolu'], 'rust':['rustfmt'],
+        \'haskell':['ormolu'], 'rust':['rustfmt'], 'lua': 'stylua',
         \'sh':['shfmt']}
   let g:ale_hover_cursor = 0
   let g:ale_echo_msg_format = '[%linter%] (%code%): %s [%severity%]'
