@@ -139,19 +139,6 @@ def now_with_tz(tz=dt.timezone.utc):
     return dt.datetime.now(tz=tz)
 endsnippet
 
-snippet setup "setup.py"
-from setuptools import setup, find_namespace_packages
-
-setup(
-    name='myapp',
-    packages=find_namespace_packages(),
-	py_modules=["utils"], # For a small module distribution
-	package_data={"": ["*.json", "*.md"]},
-    author='cliff xuan'
-)
-endsnippet
-
-
 snippet dp "date picker argument parser"
 import argparse
 import datatime as dt
