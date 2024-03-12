@@ -205,3 +205,4 @@ require'nvim-treesitter.configs'.setup {
 }
 
 require('mason').setup()
+require("chatgpt").setup()

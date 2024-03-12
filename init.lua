@@ -43,6 +43,16 @@ require("lazy").setup({
 	"folke/which-key.nvim",
 	{ "folke/neodev.nvim", opts = {} },
 	"williamboman/mason.nvim",
+	{
+		"jackMort/ChatGPT.nvim",
+		event = "VeryLazy",
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			"nvim-lua/plenary.nvim",
+			"folke/trouble.nvim",
+			"nvim-telescope/telescope.nvim",
+		},
+	},
 	-- theme
 	"morhetz/gruvbox",
 	"sickill/vim-monokai",
