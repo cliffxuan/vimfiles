@@ -42,6 +42,7 @@ require("lazy").setup({
 	"github/copilot.vim",
 	"folke/which-key.nvim",
 	{ "folke/neodev.nvim", opts = {} },
+	"williamboman/mason.nvim",
 	-- theme
 	"morhetz/gruvbox",
 	"sickill/vim-monokai",
