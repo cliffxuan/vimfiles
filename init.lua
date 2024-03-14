@@ -180,12 +180,7 @@ set wildignore+=*.orig                           " Merge resolution files}
 " }}}
 " display {{{
 "warn me if my line is over 88 columns
-if exists('+colorcolumn')
-  set colorcolumn=88
-else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>88v.\+', -1)
-endif
-
+set colorcolumn=88
 set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
@@ -199,14 +194,8 @@ let g:eliteColors = uniq(split('
       \ night-owl
       \ nord
       \'))
-" if custom themes exists, use it
-" otherwise koehler
-try
-    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-    execute 'colorscheme ' . g:eliteColors[0]
-catch /^Vim\%((\a\+)\)\=:E185/
-  colorscheme koehler
-endtry
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+execute 'colorscheme ' . g:eliteColors[0]
 " }}}
 ]])
 
@@ -467,8 +456,8 @@ map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
 nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
-" nnoremap <leader>n empty!
-" nnoremap <leader>o emtry!
+" nnoremap <leader>n emtry!
+nnoremap <leader>o :WhichKey<cr>
 " toggle relativenumber
 nnoremap <leader>p "+p
 nnoremap <leader>q :bdelete<cr>
