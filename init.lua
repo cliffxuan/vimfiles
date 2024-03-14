@@ -67,7 +67,10 @@ require("lazy").setup({
 	"NLKNguyen/papercolor-theme",
 	"folke/tokyonight.nvim",
 	"rebelot/kanagawa.nvim",
-	"itchyny/lightline.vim",
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+	},
 	"SirVer/ultisnips",
 	"neovim/nvim-lspconfig",
 	"hrsh7th/nvim-cmp",
@@ -553,33 +556,6 @@ vim.cmd([[
   let g:ale_python_mypy_options="--ignore-missing-imports"
   let g:terraform_align=1
   let g:polyglot_disabled = ['python', 'markdown', 'autoindent']
-  let g:lightline = {
-        \ 'colorscheme': 'tokyonight',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
-        \   'right': [ [ 'lineinfo' ],
-        \              [ 'percent' ],
-        \              [ 'fileformat', 'fileencoding', 'filetype', 'ale' ] ]
-        \ },
-        \ 'component_function': {
-        \   'gitbranch': 'FugitiveHead',
-        \   'ale': 'AleStatus',
-        \ },
-        \ 'mode_map': {
-          \ 'n' : 'N',
-          \ 'i' : 'I',
-          \ 'R' : 'R',
-          \ 'v' : 'V',
-          \ 'V' : 'VL',
-          \ "\<C-v>": 'VB',
-          \ 'c' : 'C',
-          \ 's' : 'S',
-          \ 'S' : 'SL',
-          \ "\<C-s>": 'SB',
-          \ 't': 'T',
-          \ },
-        \ }
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   let g:UltiSnipsExpandTrigger = '<C-j>'
   let g:UltiSnipsJumpForwardTrigger = '<C-j>'
