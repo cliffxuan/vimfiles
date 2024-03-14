@@ -40,7 +40,15 @@ require("lazy").setup({
 	"rhysd/git-messenger.vim",
 	"sheerun/vim-polyglot",
 	"github/copilot.vim",
-	"folke/which-key.nvim",
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		init = function()
+			vim.o.timeout = true
+			vim.o.timeoutlen = 3000
+		end,
+		opts = {},
+	},
 	{ "folke/neodev.nvim", opts = {} },
 	"williamboman/mason.nvim",
 	{
@@ -456,7 +464,11 @@ map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
 nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
-" nnoremap <leader>n emtry!
+" <leader>n lua/config.lua
+"nnoremap <leader>na :ChatGPTActAs<cr>
+"nnoremap <leader>ne :ChatGPTEditWithInstructions<cr>
+"nnoremap <leader>nn :ChatGPT<cr>
+"nnoremap <leader>nr :ChatGPTRun <tab>
 nnoremap <leader>o :WhichKey<cr>
 " toggle relativenumber
 nnoremap <leader>p "+p
