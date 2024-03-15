@@ -361,7 +361,7 @@ endfunction
 function! GetColors(includeBuiltin=0)
   let l:cs = []
   for c in split(globpath(&rtp, 'colors/*.vim'), '\n')
-    if a:includeBuiltin == 1 || match(c, 'vimplugged') >= 0
+    if a:includeBuiltin == 1 || match(c, 'lazy') >= 0
       let l:cs = add(l:cs, split(split(c, '/')[-1], '\.')[0])
     endif
   endfor
