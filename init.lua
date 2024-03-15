@@ -1,6 +1,6 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
-vim.cmd([[
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ','
+vim.cmd [[
 " basic settings
 filetype plugin indent on
 syntax on
@@ -36,113 +36,23 @@ set list " show whitespace
 " show tabs and trailing whitespaces
 set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
-]])
+]]
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable", -- latest stable release
-		lazypath,
-	})
+  vim.fn.system {
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
+    lazypath,
+  }
 end
 vim.opt.rtp:prepend(lazypath)
-require("lazy").setup({
-	"ConradIrwin/vim-bracketed-paste",
-	"Lokaltog/vim-easymotion",
-	"ggandor/leap.nvim",
-	"editorconfig/editorconfig-vim",
-	"godlygeek/tabular",
-	"junegunn/fzf",
-	"junegunn/fzf.vim",
-	"justinmk/vim-dirvish",
-	"nvim-treesitter/nvim-treesitter",
-	"majutsushi/tagbar",
-	"Yggdroot/indentLine",
-	"voldikss/vim-floaterm",
-	"tpope/vim-abolish",
-	"tpope/vim-endwise",
-	"tpope/vim-fugitive",
-	"tpope/vim-surround",
-	"tpope/vim-repeat",
-	"tpope/vim-commentary",
-	"tpope/vim-unimpaired",
-	"kana/vim-textobj-user",
-	"dense-analysis/ale",
-	"terryma/vim-multiple-cursors",
-	"junegunn/goyo.vim",
-	"mhinz/vim-signify",
-	"rhysd/git-messenger.vim",
-	"sheerun/vim-polyglot",
-	"github/copilot.vim",
-	{
-		"folke/which-key.nvim",
-		event = "VeryLazy",
-		init = function()
-			vim.o.timeout = true
-			vim.o.timeoutlen = 3000
-		end,
-		opts = {},
-	},
-	{ "folke/neodev.nvim", opts = {} },
-	"williamboman/mason.nvim",
-	{
-		"jackMort/ChatGPT.nvim",
-		event = "VeryLazy",
-		dependencies = {
-			"MunifTanjim/nui.nvim",
-			"nvim-lua/plenary.nvim",
-			"folke/trouble.nvim",
-			"nvim-telescope/telescope.nvim",
-		},
-	},
-	-- theme
-	"morhetz/gruvbox",
-	"sickill/vim-monokai",
-	"dracula/vim",
-	"jnurmine/Zenburn",
-	"haishanh/night-owl.vim",
-	"ayu-theme/ayu-vim",
-	"arcticicestudio/nord-vim",
-	"junegunn/seoul256.vim",
-	"altercation/vim-colors-solarized",
-	"yuttie/hydrangea-vim",
-	"NLKNguyen/papercolor-theme",
-	"folke/tokyonight.nvim",
-	"rebelot/kanagawa.nvim",
-	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
-	{
-		"nvim-lualine/lualine.nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
-	},
-	"SirVer/ultisnips",
-	"neovim/nvim-lspconfig",
-	"hrsh7th/nvim-cmp",
-	"hrsh7th/cmp-nvim-lsp",
-	"quangnguyen30192/cmp-nvim-ultisnips", -- lsp source for ultisnips
-	"nvim-lua/plenary.nvim",
-	{
-		"ThePrimeagen/harpoon",
-		branch = "harpoon2",
-		dependencies = { "nvim-lua/plenary.nvim" },
-	},
-	-- language specific
-	{ "begriffs/haskell-vim-now", ft = "haskell" },
-	{ "hashivim/vim-terraform", ft = "terraform" },
-	{ "OmniSharp/omnisharp-vim", ft = "cs" },
-	{ "Glench/Vim-Jinja2-Syntax", ft = "jinja" },
-	{ "jeetsukumaran/vim-pythonsense", ft = "python" },
-	{ "Vimjas/vim-python-pep8-indent", ft = "python" },
-	{ "simrat39/rust-tools.nvim", ft = "rust" }, -- rust analyzer inlay
-	{ "rust-lang/rust.vim", ft = "rust" },
-	{ "nvim-telescope/telescope.nvim", tag = "0.1.4" },
-	{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-})
+require('lazy').setup 'lazyvim/plugins'
 
-vim.cmd([[
+vim.cmd [[
 " tabs {{{
 set shiftwidth=2  " sw
 set tabstop=4     " ts
@@ -161,6 +71,7 @@ augroup tabs
   autocmd FileType sh         setlocal sw=2 ts=4 sts=2 et
   autocmd FileType typescript setlocal sw=2 ts=4 sts=2 et
   autocmd FileType vim        setlocal sw=2 ts=4 sts=2 et
+  autocmd FileType lua        setlocal sw=2 ts=4 sts=2 et
   autocmd FileType yaml       setlocal sw=2 ts=4 sts=2 et
   autocmd FileType python     setlocal sw=4 ts=8 sts=4 et
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
@@ -210,9 +121,9 @@ let g:eliteColors = uniq(split('
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 execute 'colorscheme ' . g:eliteColors[0]
 " }}}
-]])
+]]
 
-vim.cmd([[
+vim.cmd [[
 " functions {{{
 function! Down(vcount)
   if a:vcount == 0
@@ -391,11 +302,11 @@ function! SetRandomColor()
   call UpdateColor(l:cs[rand() % len(l:cs)])
 endfunction
 " }}}
-]])
+]]
 
-vim.keymap.set({ "n", "x", "o" }, "f", "<Plug>(leap-forward)")
-vim.keymap.set({ "n", "x", "o" }, "F", "<Plug>(leap-backward)")
-vim.cmd([[
+vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
+vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
+vim.cmd [[
 " keymaps {{{
 " auto close
 inoremap ' ''<left>
@@ -539,9 +450,9 @@ augroup nvim_term_insert
 augroup END
 
 " }}}
-]])
+]]
 
-vim.cmd([[
+vim.cmd [[
 " global variables {{{
   let $FZF_DEFAULT_COMMAND = 'rg --files'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
@@ -574,7 +485,8 @@ if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
 endif
 
 " }}}
-]])
+]]
 
-require("config")
-require("copilot")
+require 'config'
+require 'copilot'
+-- vim: ts=2 sts=2 sw=2 et
