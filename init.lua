@@ -458,10 +458,10 @@ vim.cmd [[
   let g:ale_linters = {'python': ['ruff',], 'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
   let g:ale_linters_ignore = {'typescript': ['deno'], 'typescriptreact': ['deno']}
   let g:ale_fixers = {'python': ['ruff', 'black', 'autopep8'], 'go': ['gofmt', 'goimports'],
-        \'terraform': ['terraform'], 'javascript': ['prettier'],
-        \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
-        \'haskell':['ormolu'], 'rust':['rustfmt'], 'lua': 'stylua',
-        \'sh':['shfmt']}
+    \'terraform': ['terraform'], 'javascript': ['prettier'],
+    \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
+    \'haskell':['ormolu'], 'rust':['rustfmt'], 'lua': ['stylua'],
+    \'sh':['shfmt']}
   let g:ale_hover_cursor = 0
   let g:ale_echo_msg_format = '[%linter%] (%code%): %s [%severity%]'
   let g:ale_echo_msg_error_str = '🚫'
