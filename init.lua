@@ -382,10 +382,6 @@ map <leader><leader>k <Plug>(easymotion-b)
 nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
 nnoremap <leader>m :Marks<cr>
 " <leader>n lua/config.lua
-"nnoremap <leader>na :ChatGPTActAs<cr>
-"nnoremap <leader>ne :ChatGPTEditWithInstructions<cr>
-"nnoremap <leader>nn :ChatGPT<cr>
-"nnoremap <leader>nr :ChatGPTRun <tab>
 nnoremap <leader>o :WhichKey<cr>
 " toggle relativenumber
 nnoremap <leader>p "+p

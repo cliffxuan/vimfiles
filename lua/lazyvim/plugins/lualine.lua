@@ -23,7 +23,12 @@ return {
           },
         },
         sections = {
-          lualine_a = { 'mode' }, -- TODO how to show just N/V/NB etc?
+          lualine_a = { {
+            'mode',
+            fmt = function(str)
+              return str:sub(1, 1)
+            end,
+          } },
           lualine_b = {
             'branch',
             'diff',
