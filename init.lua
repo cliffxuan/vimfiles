@@ -379,7 +379,7 @@ nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
-nnoremap <silent> <leader>l :call ToggleLocationList()<CR>
+nnoremap <silent> <leader>l :TroubleToggle<CR>
 nnoremap <leader>m :Marks<cr>
 " <leader>n lua/config.lua
 nnoremap <leader>o :WhichKey<cr>
