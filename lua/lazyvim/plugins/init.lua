@@ -7,7 +7,6 @@ return {
   'junegunn/fzf',
   'junegunn/fzf.vim',
   'justinmk/vim-dirvish',
-  'nvim-treesitter/nvim-treesitter',
   'majutsushi/tagbar',
   'Yggdroot/indentLine',
   'voldikss/vim-floaterm',
@@ -31,7 +30,7 @@ return {
     event = 'VeryLazy',
     init = function()
       vim.o.timeout = true
-      vim.o.timeoutlen = 3000
+      vim.o.timeoutlen = 2000
     end,
     opts = {},
   },
