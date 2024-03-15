@@ -206,7 +206,7 @@ require("chatgpt").setup()
 require("lualine").setup({
 	options = {
 		icons_enabled = true,
-		theme = "tokyonight",
+		theme = "kanagawa",
 		component_separators = { left = "", right = "" },
 		section_separators = { left = "", right = "" },
 		disabled_filetypes = {
@@ -223,7 +223,7 @@ require("lualine").setup({
 		},
 	},
 	sections = {
-		lualine_a = { "mode" },
+		lualine_a = { "mode" },  -- TODO how to show just N/V/NB etc?
 		lualine_b = {
 			"branch",
 			"diff",

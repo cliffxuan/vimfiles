@@ -1,3 +1,43 @@
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
+vim.cmd([[
+" basic settings
+filetype plugin indent on
+syntax on
+
+set nobackup noswapfile
+set encoding=utf-8
+set fileformat=unix
+set number
+set relativenumber
+set hidden
+set noshowmode
+set numberwidth=4
+set noignorecase "case sensitive
+set backspace=2 "make backspace work like most other applications
+set hlsearch incsearch
+set cursorline
+set showcmd "Show (partial) command in the last line of the screen.
+set dictionary=/usr/share/dict/words
+set autoread
+set autowrite
+" set clipboard^=unnamed,unnamedplus
+set shell=zsh
+
+"set title
+set title titlestring=[vim] "vim
+set titlestring+=\ "seperator
+set titlestring+=%F "Full path to the file in the buffer.
+set titlestring+=\ "seperator
+set titlestring+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
+
+set autoindent
+set list " show whitespace
+" show tabs and trailing whitespaces
+set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
+
+]])
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -10,8 +50,6 @@ if not vim.loop.fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
 require("lazy").setup({
 	"ConradIrwin/vim-bracketed-paste",
 	"Lokaltog/vim-easymotion",
@@ -75,6 +113,7 @@ require("lazy").setup({
 	"NLKNguyen/papercolor-theme",
 	"folke/tokyonight.nvim",
 	"rebelot/kanagawa.nvim",
+	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 	{
 		"nvim-lualine/lualine.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -85,6 +124,11 @@ require("lazy").setup({
 	"hrsh7th/cmp-nvim-lsp",
 	"quangnguyen30192/cmp-nvim-ultisnips", -- lsp source for ultisnips
 	"nvim-lua/plenary.nvim",
+	{
+		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		dependencies = { "nvim-lua/plenary.nvim" },
+	},
 	-- language specific
 	{ "begriffs/haskell-vim-now", ft = "haskell" },
 	{ "hashivim/vim-terraform", ft = "terraform" },
@@ -97,46 +141,6 @@ require("lazy").setup({
 	{ "nvim-telescope/telescope.nvim", tag = "0.1.4" },
 	{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 })
-
-vim.cmd([[
-" basic settings {{{
-filetype plugin indent on
-syntax on
-
-
-set nobackup noswapfile
-set encoding=utf-8
-set fileformat=unix
-set number
-set relativenumber
-set hidden
-set numberwidth=4
-set noignorecase "case sensitive
-set backspace=2 "make backspace work like most other applications
-set hlsearch incsearch
-set cursorline
-set showcmd "Show (partial) command in the last line of the screen.
-set dictionary=/usr/share/dict/words
-set autoread
-set autowrite
-" set clipboard^=unnamed,unnamedplus
-set shell=zsh
-
-"set title
-set title titlestring=[vim] "vim
-set titlestring+=\ "seperator
-set titlestring+=%F "Full path to the file in the buffer.
-set titlestring+=\ "seperator
-set titlestring+=%m "Modified flag, text is "[+]"; "[-]" if 'modifiable' is off
-set titleold="" " Do not show 'Thanks for flying vim' on exit
-
-set autoindent
-set list " show whitespace
-" show tabs and trailing whitespaces
-set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
-
-" }}}
-]])
 
 vim.cmd([[
 " tabs {{{
@@ -192,16 +196,17 @@ set colorcolumn=88
 set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
-      \ tokyonight
-      \ gruvbox
-      \ PaperColor
-      \ kanagawa
-      \ dracula
-      \ hydrangea
-      \ monokai
-      \ night-owl
-      \ nord
-      \'))
+	 \ kanagawa
+	 \ tokyonight
+	 \ catppuccin
+	 \ gruvbox
+	 \ PaperColor
+	 \ dracula
+	 \ hydrangea
+	 \ monokai
+	 \ night-owl
+	 \ nord
+ \'))
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 execute 'colorscheme ' . g:eliteColors[0]
 " }}}
@@ -401,6 +406,7 @@ inoremap { {}<left>
 augroup disableAutoCloseSingleQuote
   autocmd!
   autocmd FileType TelescopePrompt inoremap <buffer> ' '
+  autocmd FileType chatgpt-input inoremap <buffer> ' '
 augroup END
 
 " Kill window
