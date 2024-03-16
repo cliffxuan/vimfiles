@@ -1,16 +1,24 @@
 vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
+-- Search word under the cursor in the project
 vim.keymap.set('n', '<leader>aa', function()
   local current_word = vim.api.nvim_call_function('expand', { '<cword>' })
   vim.cmd('Rg ' .. current_word)
-end, { desc = 'Search hilighted text' })
+end, { desc = 'Search word under the cursor' })
+-- Search hilighted text
 vim.keymap.set('n', '<leader>ac', function()
   local selected_text = vim.fn.getreg '/'
   selected_text = string.gsub(selected_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
   selected_text = string.gsub(selected_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
   vim.cmd('Rg ' .. selected_text)
+end, { desc = 'Search hilighted text' })
+-- Search word under the cursor in current file
+vim.keymap.set('n', '<leader>af', function()
+  local current_word = vim.fn.expand('<cword>')
+  vim.cmd('Lines ' .. current_word)
 end, { desc = 'Search word under the cursor' })
+-- Search with Rg
 vim.keymap.set('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg' })
 vim.keymap.set('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers' })
 vim.keymap.set('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list' })
