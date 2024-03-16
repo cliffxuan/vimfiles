@@ -1,8 +1,19 @@
-
 vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
-vim.keymap.set({ 'n' }, '<leader>aa', ':Rg ', { desc = 'Search with Rg' })
+vim.keymap.set('n', '<leader>aa', function()
+  local current_word = vim.api.nvim_call_function('expand', { '<cword>' })
+  vim.cmd('Rg ' .. current_word)
+end, { desc = 'Search hilighted text' })
+
+vim.keymap.set('n', '<leader>ac', function()
+  local selected_text = vim.fn.getreg '/'
+  selected_text = string.gsub(selected_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
+  selected_text = string.gsub(selected_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
+  vim.cmd('Rg ' .. selected_text)
+end, { desc = 'Search word under the cursor' })
+
+vim.keymap.set('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg' })
 
 vim.cmd [[
 " keymaps {{{
@@ -21,8 +32,6 @@ augroup END
 " Kill window
 nnoremap K :hide<cr>
 " leader
-" nnoremap <leader>aa :Rg<tab>
-nnoremap <leader>as :exec 'Rg ' . substitute(@/, '\\[<>]', '\\b', 'g')<cr>
 nnoremap <leader>b <cmd>Telescope buffers<cr>
 nnoremap <leader>cc :call NumberAndListToggle()<cr>
 nnoremap <leader>cn :call NumberToggle()<cr>
