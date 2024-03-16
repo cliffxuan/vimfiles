@@ -1,6 +1,10 @@
 function! s:RunCurrentBuffer()
-  let l:file = expand('%')
+  let l:file = expand('%:p')
   if &filetype ==# 'vim'
+    execute "source " . l:file
+    return
+  endif
+  if &filetype ==# 'lua' && match(l:file, 'vimfiles') >= 0
     execute "source " . l:file
     return
   endif
@@ -11,6 +15,7 @@ function! s:RunCurrentBuffer()
               \'typescript': '/usr/bin/env ts-node',
               \'haskell': '/usr/bin/env runhaskell',
               \'rust': '/usr/bin/env runrust',
+              \'lua': '/usr/bin/env lua',
               \}
   if !has_key(l:mapping, &filetype)
     echoerr "no command registered for filetype " . &filetype
