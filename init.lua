@@ -107,16 +107,16 @@ set colorcolumn=88
 set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
-	 \ kanagawa
-	 \ tokyonight
-	 \ catppuccin
-	 \ gruvbox
-	 \ PaperColor
-	 \ dracula
-	 \ hydrangea
-	 \ monokai
-	 \ night-owl
-	 \ nord
+   \ kanagawa
+   \ tokyonight
+   \ catppuccin
+   \ gruvbox
+   \ PaperColor
+   \ dracula
+   \ hydrangea
+   \ monokai
+   \ night-owl
+   \ nord
  \'))
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 execute 'colorscheme ' . g:eliteColors[0]
@@ -485,4 +485,3 @@ endif
 
 require 'config'
 require 'copilot'
--- vim: ts=2 sts=2 sw=2 et
