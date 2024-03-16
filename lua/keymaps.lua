@@ -5,15 +5,21 @@ vim.keymap.set('n', '<leader>aa', function()
   local current_word = vim.api.nvim_call_function('expand', { '<cword>' })
   vim.cmd('Rg ' .. current_word)
 end, { desc = 'Search hilighted text' })
-
 vim.keymap.set('n', '<leader>ac', function()
   local selected_text = vim.fn.getreg '/'
   selected_text = string.gsub(selected_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
   selected_text = string.gsub(selected_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
   vim.cmd('Rg ' .. selected_text)
 end, { desc = 'Search word under the cursor' })
-
 vim.keymap.set('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg' })
+vim.keymap.set('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers' })
+vim.keymap.set('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list' })
+vim.keymap.set('n', '<leader>cn', ':call NumberToggle()<cr>', { desc = 'Toggle number' })
+vim.keymap.set('n', '<leader>co', ':TagbarToggle<cr>', { desc = 'Toggle tag bar' })
+vim.keymap.set('n', '<leader>cj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme' })
+vim.keymap.set('n', '<leader>ck', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme' })
+vim.keymap.set('n', '<leader>cr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme' })
+vim.keymap.set('n', '<leader>cp', ':colorscheme<cr>', { desc = 'show colorscheme' })
 
 vim.cmd [[
 " keymaps {{{
@@ -32,14 +38,6 @@ augroup END
 " Kill window
 nnoremap K :hide<cr>
 " leader
-nnoremap <leader>b <cmd>Telescope buffers<cr>
-nnoremap <leader>cc :call NumberAndListToggle()<cr>
-nnoremap <leader>cn :call NumberToggle()<cr>
-nnoremap <leader>co :TagbarToggle<cr>
-nnoremap <leader>cj :call CycleColor(1, g:eliteColors)<cr>
-nnoremap <leader>ck :call CycleColor(-1, g:eliteColors)<cr>
-nnoremap <leader>cr :call SetRandomColor()<cr>
-nnoremap <leader>cp :colorscheme<cr>
 " cd into directories
 nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
 nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
