@@ -1,26 +1,30 @@
+local function search_word_under_cursor()
+  vim.cmd('Rg ' .. vim.fn.expand '<cword>')
+end
+
+local function search_highlighted_text()
+  local hl_text = vim.fn.getreg '/'
+  hl_text = string.gsub(hl_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
+  hl_text = string.gsub(hl_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
+  vim.cmd('Rg ' .. hl_text)
+end
+
+local function search_word_under_cursor_in_current_file()
+  local current_word = vim.fn.expand '<cword>'
+  vim.cmd('Lines ' .. current_word)
+end
+
 vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
 vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
--- Search word under the cursor in the project
-vim.keymap.set('n', '<leader>aa', function()
-  local current_word = vim.api.nvim_call_function('expand', { '<cword>' })
-  vim.cmd('Rg ' .. current_word)
-end, { desc = 'Search word under the cursor' })
--- Search hilighted text
-vim.keymap.set('n', '<leader>ac', function()
-  local selected_text = vim.fn.getreg '/'
-  selected_text = string.gsub(selected_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
-  selected_text = string.gsub(selected_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
-  vim.cmd('Rg ' .. selected_text)
-end, { desc = 'Search hilighted text' })
--- Search word under the cursor in current file
-vim.keymap.set('n', '<leader>af', function()
-  local current_word = vim.fn.expand('<cword>')
-  vim.cmd('Lines ' .. current_word)
-end, { desc = 'Search word under the cursor' })
--- Search with Rg
+vim.keymap.set('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor' })
+vim.keymap.set('n', '<leader>ac', search_highlighted_text, { desc = 'Search hilighted text' })
+vim.keymap.set('n', '<leader>af', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file' })
+vim.keymap.set('n', '<leader>ag', ':RG<cr>', { desc = 'Live search' })
 vim.keymap.set('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg' })
+
 vim.keymap.set('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers' })
+
 vim.keymap.set('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list' })
 vim.keymap.set('n', '<leader>cn', ':call NumberToggle()<cr>', { desc = 'Toggle number' })
 vim.keymap.set('n', '<leader>co', ':TagbarToggle<cr>', { desc = 'Toggle tag bar' })
@@ -28,6 +32,12 @@ vim.keymap.set('n', '<leader>cj', ':call CycleColor(1, g:eliteColors)<cr>', { de
 vim.keymap.set('n', '<leader>ck', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme' })
 vim.keymap.set('n', '<leader>cr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme' })
 vim.keymap.set('n', '<leader>cp', ':colorscheme<cr>', { desc = 'show colorscheme' })
+
+vim.keymap.set('n', '<leader>dd', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root' })
+vim.keymap.set('n', '<leader>dj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file' })
+vim.keymap.set('n', '<leader>dk', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory' })
+vim.keymap.set('n', '<leader>df', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry' })
+vim.keymap.set('n', '<leader>dp', ':echo getcwd()<cr>', { desc = 'echo current directory' })
 
 vim.cmd [[
 " keymaps {{{
@@ -46,12 +56,6 @@ augroup END
 " Kill window
 nnoremap K :hide<cr>
 " leader
-" cd into directories
-nnoremap <leader>dd :exec "cd " . GuessProjectRoot() <bar> :pwd<cr>
-nnoremap <leader>dj :exec "cd %:h"  <bar> :pwd<cr>
-nnoremap <leader>dk :exec "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>
-nnoremap <leader>df :call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>
-nnoremap <leader>dp :echo getcwd()<cr>
 " edit and source $MYVIMRC
 noremap <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
 noremap <leader>ep :UltiSnipsEdit<cr>
