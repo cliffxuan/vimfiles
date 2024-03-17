@@ -14,30 +14,32 @@ local function search_word_under_cursor_in_current_file()
   vim.cmd('Lines ' .. current_word)
 end
 
-vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
-vim.keymap.set({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
+local keymap = vim.keymap.set
+
+keymap({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
+keymap({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
-vim.keymap.set('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor' })
-vim.keymap.set('n', '<leader>ac', search_highlighted_text, { desc = 'Search hilighted text' })
-vim.keymap.set('n', '<leader>af', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file' })
-vim.keymap.set('n', '<leader>ag', ':RG<cr>', { desc = 'Live search' })
-vim.keymap.set('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg' })
+keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
+keymap('n', '<leader>ac', search_highlighted_text, { desc = 'Search hilighted text', noremap = true })
+keymap('n', '<leader>af', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
+keymap('n', '<leader>ag', ':RG<cr>', { desc = 'Live search', noremap = true })
+keymap('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg', noremap = true })
 
-vim.keymap.set('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers' })
+keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
 
-vim.keymap.set('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list' })
-vim.keymap.set('n', '<leader>cn', ':call NumberToggle()<cr>', { desc = 'Toggle number' })
-vim.keymap.set('n', '<leader>co', ':TagbarToggle<cr>', { desc = 'Toggle tag bar' })
-vim.keymap.set('n', '<leader>cj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme' })
-vim.keymap.set('n', '<leader>ck', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme' })
-vim.keymap.set('n', '<leader>cr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme' })
-vim.keymap.set('n', '<leader>cp', ':colorscheme<cr>', { desc = 'show colorscheme' })
+keymap('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list', noremap = true })
+keymap('n', '<leader>cn', ':call NumberToggle()<cr>', { desc = 'Toggle number', noremap = true })
+keymap('n', '<leader>co', ':TagbarToggle<cr>', { desc = 'Toggle tag bar', noremap = true })
+keymap('n', '<leader>cj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme', noremap = true })
+keymap('n', '<leader>ck', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
+keymap('n', '<leader>cr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
+keymap('n', '<leader>cp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
 
-vim.keymap.set('n', '<leader>dd', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root' })
-vim.keymap.set('n', '<leader>dj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file' })
-vim.keymap.set('n', '<leader>dk', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory' })
-vim.keymap.set('n', '<leader>df', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry' })
-vim.keymap.set('n', '<leader>dp', ':echo getcwd()<cr>', { desc = 'echo current directory' })
+keymap('n', '<leader>dd', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root', noremap = true })
+keymap('n', '<leader>dj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file', noremap = true })
+keymap('n', '<leader>dk', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory', noremap = true })
+keymap('n', '<leader>df', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
+keymap('n', '<leader>dp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
 vim.cmd [[
 " keymaps {{{
