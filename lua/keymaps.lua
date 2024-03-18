@@ -25,21 +25,31 @@ keymap('n', '<leader>af', search_word_under_cursor_in_current_file, { desc = 'Se
 keymap('n', '<leader>ag', ':RG<cr>', { desc = 'Live search', noremap = true })
 keymap('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg', noremap = true })
 
+require('which-key').register({
+  a = '+Text Search',
+  c = '+Change directory',
+  d = '+Display Settings',
+  e = '+Edit',
+  g = '+Git',
+  h = '+History'
+}, { prefix = '<leader>' })
+
 keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
 
-keymap('n', '<leader>cc', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list', noremap = true })
-keymap('n', '<leader>cn', ':call NumberToggle()<cr>', { desc = 'Toggle number', noremap = true })
-keymap('n', '<leader>co', ':TagbarToggle<cr>', { desc = 'Toggle tag bar', noremap = true })
-keymap('n', '<leader>cj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme', noremap = true })
-keymap('n', '<leader>ck', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
-keymap('n', '<leader>cr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
-keymap('n', '<leader>cp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
+keymap('n', '<leader>cc', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root', noremap = true })
+keymap('n', '<leader>cj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file', noremap = true })
+keymap('n', '<leader>ck', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory', noremap = true })
+keymap('n', '<leader>cf', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
+keymap('n', '<leader>cp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
-keymap('n', '<leader>dd', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root', noremap = true })
-keymap('n', '<leader>dj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file', noremap = true })
-keymap('n', '<leader>dk', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory', noremap = true })
-keymap('n', '<leader>df', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
-keymap('n', '<leader>dp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
+keymap('n', '<leader>dd', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list', noremap = true })
+keymap('n', '<leader>dn', ':call NumberToggle()<cr>', { desc = 'Toggle number', noremap = true })
+keymap('n', '<leader>do', ':TagbarToggle<cr>', { desc = 'Toggle tag bar', noremap = true })
+keymap('n', '<leader>dj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme', noremap = true })
+keymap('n', '<leader>dk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
+keymap('n', '<leader>dr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
+keymap('n', '<leader>dp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
+
 
 vim.cmd [[
 " keymaps {{{
@@ -102,7 +112,6 @@ nnoremap <silent> <leader>l :TroubleToggle<CR>
 nnoremap <leader>m :Marks<cr>
 " <leader>n lua/config.lua
 nnoremap <leader>o :WhichKey<cr>
-" toggle relativenumber
 nnoremap <leader>p "+p
 nnoremap <leader>q :bdelete<cr>
 nmap <leader>r <Plug>RunCurrentBuffer
