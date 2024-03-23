@@ -1,0 +1,32 @@
+snippet nicegui-kickoff "nicegui kickoff" b
+from nicegui import ui
+
+
+@ui.page("/")
+def main():
+    ui.add_head_html(
+        """
+        <style>
+        main {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+        .nicegui-content {
+            max-width: 46rem;
+            width: 100%;
+            padding: 6rem 1rem;
+            box-sizing: border-box;
+        }
+        </style>
+        """
+    )
+    ui.dark_mode(True)
+    ui.markdown("## Hello World!")
+    ui.run()
+
+
+if __name__ in ["__main__", "__mp_main__"]:
+    main()
+endsnippet
