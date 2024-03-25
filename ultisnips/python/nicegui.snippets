@@ -30,3 +30,41 @@ def main():
 if __name__ in ["__main__", "__mp_main__"]:
     main()
 endsnippet
+
+
+snippet nicegui-dataframe "nicegui dataframe" b
+ui.table(
+    columns=[
+        {"name": col, "label": col, "field": col, "sortable": True} for col in df
+    ],
+    rows=df.to_dict("records"),  # type: ignore
+)
+endsnippet
+
+
+snippet nicegui-data-editor "nicegui data editor" b
+import pandas as pd
+from pandas.api.types import is_bool_dtype, is_numeric_dtype
+
+def update(*, df: pd.DataFrame, r: int, c: int, value):
+    df.iat[r, c] = value
+    ui.notify(f"Set ({r}, {c}) to {value}")
+
+
+with ui.grid(rows=len(df.index) + 1).classes("grid-flow-col"):
+    for c, col in enumerate(df.columns):
+        ui.label(col).classes("font-bold")
+        for r, row in enumerate(df.loc[:, col]):
+            if is_bool_dtype(df[col].dtype):
+                cls = ui.checkbox
+            elif is_numeric_dtype(df[col].dtype):
+                cls = ui.number
+            else:
+                cls = ui.input
+            cls(
+                value=row,
+                on_change=lambda event, r=r, c=c: update(
+                    df=df, r=r, c=c, value=event.value
+                ),
+            )
+endsnippet
