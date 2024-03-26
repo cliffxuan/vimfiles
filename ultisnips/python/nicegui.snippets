@@ -1,9 +1,12 @@
 snippet nicegui-kickoff "nicegui kickoff" b
 from nicegui import ui
+import plotly.io as pio
+
+pio.templates.default = "plotly_dark"
 
 
-@ui.page("/")
-def main():
+def page_config():
+    ui.dark_mode(True)
     ui.add_head_html(
         """
         <style>
@@ -22,13 +25,17 @@ def main():
         </style>
         """
     )
-    ui.dark_mode(True)
+
+
+@ui.page("/")
+def main():
+    page_config()
     ui.markdown("## Hello World!")
-    ui.run()
 
 
 if __name__ in ["__main__", "__mp_main__"]:
     main()
+    ui.run()
 endsnippet
 
 
