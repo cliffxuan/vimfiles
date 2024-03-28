@@ -1,6 +1,6 @@
 snippet nicegui-kickoff "nicegui kickoff" b
-from nicegui import ui
 import plotly.io as pio
+from nicegui import app, ui
 
 pio.templates.default = "plotly_dark"
 
@@ -17,7 +17,7 @@ def page_config():
             margin: 0;
         }
         .nicegui-content {
-            max-width: 46rem;
+            max-width: 64rem;
             width: 100%;
             padding: 6rem 1rem;
             box-sizing: border-box;
@@ -31,11 +31,14 @@ def page_config():
 def main():
     page_config()
     ui.markdown("## Hello World!")
+    app.storage.user["count"] = app.storage.user.get("count", 0) + 1
+    with ui.row():
+        ui.label("your own page visits:")
+        ui.label().bind_text(app.storage.user, "count")
 
 
 if __name__ in ["__main__", "__mp_main__"]:
-    main()
-    ui.run()
+    ui.run(storage_secret="private-key-to-secure-the-browser-session-cookie-xyz")
 endsnippet
 
 
