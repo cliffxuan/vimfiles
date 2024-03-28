@@ -8,7 +8,9 @@ return {
     'nvim-telescope/telescope.nvim',
   },
   config = function()
-    require('chatgpt').setup()
+    require('chatgpt').setup({
+      api_key_cmd = 'openaikey'
+    })
     require('which-key').register({
       n = {
         name = 'ChatGPT',
