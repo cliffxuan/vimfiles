@@ -20,10 +20,10 @@ keymap({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
 keymap({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
-keymap('n', '<leader>af', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
-keymap('n', '<leader>ag', ':RG<cr>', { desc = 'Live search', noremap = true })
-keymap('n', '<leader>aj', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search hilighted text', noremap = true })
+keymap('n', '<leader>af', ':RG<cr>', { desc = 'Live search', noremap = true })
+keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
+keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 
 require('which-key').register({
   a = '+Text Search',
