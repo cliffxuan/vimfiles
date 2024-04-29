@@ -8,19 +8,9 @@ pio.templates.default = "plotly_dark"
 def page_config():
     ui.dark_mode(True)
     ui.add_head_html(
-        """
         <style>
         main {
-            display: flex;
-            justify-content: center;
-            padding: 0;
-            margin: 0;
-        }
-        .nicegui-content {
-            max-width: 64rem;
-            width: 100%;
-            padding: 6rem 1rem;
-            box-sizing: border-box;
+            padding: 4rem 6rem;
         }
         </style>
         """
