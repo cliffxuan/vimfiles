@@ -1,0 +1,30 @@
+snippet stopwatch "stopwatch"
+class StopWatch:
+    def __init__(self):
+        self.last_time = None
+        self.splits = {}
+
+    def start(self):
+        self.last_time = time.time()
+        return self
+
+    def split(self, message):
+        if self.last_time is None:
+            raise ValueError("paused")
+        ts = time.time()
+        self.splits[message] = (ts, ts - self.last_time)
+        self.last_time = ts
+
+    def pause(self):
+        self.last_time = None
+
+    def unpause(self):
+        self.last_time = time.time()
+
+    def to_dataframe(self):
+        import pandas as pd
+        return pd.DataFrame(
+            [(key, value[1]) for (key, value) in self.splits.items()],
+            columns=["task", "time"],
+        )
+endsnippet
