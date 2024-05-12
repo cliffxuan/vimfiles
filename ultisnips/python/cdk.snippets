@@ -1,0 +1,98 @@
+snippet cdkrustlambda "cdk rust lambda" b
+import subprocess
+from pathlib import Path
+
+import aws_cdk as cdk
+
+PWD = Path(__file__).absolute().parent
+
+
+DOCKERFILE_TMPL_CARGO = """\
+FROM debian:stable-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY target/lambda/{app_name}/bootstrap /usr/local/bin/bootstrap
+CMD ["bootstrap"]
+"""
+
+DOCKERFILE_TMPL_DOCKER = """\
+FROM rust:1.75 as builder
+WORKDIR /usr/src/app
+COPY . .
+RUN cargo build --release
+
+FROM debian:stable-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+COPY --from=builder /usr/src/app/target/release/{app_name} /usr/local/bin/{app_name}
+
+CMD ["{app_name}"]
+"""
+
+
+def cargo_lambda_build(app_dir: Path, zip: bool = True, arm64: bool = True):
+    """
+    build using cargo lambda
+    """
+    subprocess.call(
+        "cargo lambda build --release"
+        + (" --output-format zip" if zip else "")
+        + (" --arm64" if arm64 else ""),
+        shell=True,
+        cwd=PWD / app_dir,
+    )
+
+
+def build_rust_fn(
+    stack: cdk.Stack,
+    app_dir: Path,
+    name: str,
+    image: bool,
+    arm64: bool,
+    memory_size: int = 256,
+    timeout: int = 5,
+    compile_in_docker: bool = False,
+):
+    if arm64:
+        architecture = cdk.aws_lambda.Architecture.ARM_64
+        platform = cdk.aws_ecr_assets.Platform.LINUX_ARM64
+    else:
+        architecture = cdk.aws_lambda.Architecture.X86_64
+        platform = cdk.aws_ecr_assets.Platform.LINUX_AMD64
+
+    if image:
+        dockerfile = app_dir / "Dockerfile"
+        if compile_in_docker:
+            with dockerfile.open("w") as f:
+                f.write(DOCKERFILE_TMPL_DOCKER.format(app_name=app_dir.name))
+        else:
+            cargo_lambda_build(app_dir, zip=False, arm64=arm64)
+            with dockerfile.open("w") as f:
+                f.write(DOCKERFILE_TMPL_CARGO.format(app_name=app_dir.name))
+        kw = dict(
+            code=cdk.aws_lambda.EcrImageCode.from_asset_image(
+                directory=str(PWD / app_dir),
+                platform=platform,
+            ),
+            handler=cdk.aws_lambda.Handler.FROM_IMAGE,
+            runtime=cdk.aws_lambda.Runtime.FROM_IMAGE,
+        )
+    else:
+        cargo_lambda_build(app_dir, arm64=arm64)
+        kw = dict(
+            code=cdk.aws_lambda.Code.from_asset(
+                str(app_dir / "target" / "lambda" / app_dir.name / "bootstrap.zip")
+            ),
+            handler="doesnt.matter",
+            runtime=cdk.aws_lambda.Runtime.PROVIDED_AL2023,
+        )
+    fn = cdk.aws_lambda.Function(
+        stack,
+        name,
+        function_name=name,
+        memory_size=memory_size,
+        timeout=cdk.Duration.seconds(timeout),
+        environment={"RUST_BACKTRACE": "1"},
+        architecture=architecture,
+        **kw,  # type: ignore
+    )
+    return fn
+endsnippet
