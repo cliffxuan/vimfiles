@@ -24,6 +24,8 @@ keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search hilighted te
 keymap('n', '<leader>af', ':RG<cr>', { desc = 'Live search', noremap = true })
 keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
+keymap('n', '<leader>aj', function() require("trouble").toggle("lsp_references") end)
+
 
 require('which-key').register({
   a = '+Text Search',
