@@ -70,9 +70,11 @@ nnoremap K :hide<cr>
 " leader
 " edit and source $MYVIMRC
 noremap <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
-noremap <leader>ep :UltiSnipsEdit<cr>
+noremap <leader>ek :call OpenKeymaps()<cr>
+noremap <leader>ep :call OpenPlugins()<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
+noremap <leader>eu :UltiSnipsEdit<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>
 nnoremap <leader>f <cmd>Telescope find_files<cr>
@@ -108,7 +110,7 @@ nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
 map <leader><leader>j <Plug>(easymotion-w)
 map <leader><leader>k <Plug>(easymotion-b)
 " Toggle the location list window
-nnoremap <silent> <leader>l :TroubleToggle<CR>
+nnoremap <silent> <leader>l :TroubleToggle document_diagnostics<CR>
 nnoremap <leader>m :Marks<cr>
 " <leader>n lua/config.lua
 nnoremap <leader>o :WhichKey<cr>
