@@ -76,6 +76,7 @@ noremap <leader>ek :call OpenKeymaps()<cr>
 noremap <leader>ep :call OpenPlugins()<cr>
 noremap <leader>er :call OpenVimRC()<cr>
 noremap <leader>es :source $MYVIMRC<cr>
+noremap <leader>et :tabnew<cr>
 noremap <leader>eu :UltiSnipsEdit<cr>
 noremap <leader>ev :Vexplore<cr>
 noremap <leader>en :vnew<cr>

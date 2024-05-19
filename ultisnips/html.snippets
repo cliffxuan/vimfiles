@@ -1,50 +1,87 @@
 snippet bp "html5 boilerplate" b
-<!DOCTYPE html>
-<html class="no-js">
+<!doctype html>
+<html class="no-js" lang="" color-mode="user">
+
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
-
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <title></title>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> --> 
+    <link rel="stylesheet" href="https://unpkg.com/missing.css">
+    <meta name="description" content="">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <meta property="og:image:alt" content="">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#fafafa">
   </head>
+
   <body>
-    <!--[if lt IE 8]>
-        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
-
-    <!-- Add your site or application content here -->
-    <p>Hello world! This is HTML5 Boilerplate.</p>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <main>
+      <section>
+        <div>
+          <p>Hello World!</p>
+        </div>
+      </section>
+    </main>
   </body>
+
 </html>
 endsnippet
 
 
 snippet react "reactjs boilerplate" b
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html class="no-js" lang="" color-mode="user">
+
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> --> 
+    <link rel="stylesheet" href="https://unpkg.com/missing.css">
+    <meta name="description" content="">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <meta property="og:image:alt" content="">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#fafafa">
   </head>
+
   <body>
-  <div id="root"></div>
-  <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
-  <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
-  <script src=" https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  <script type="text/babel">
-    ReactDOM.render(
-      (<h1>hello world!</h1>),
-      document.getElementById('root')
-    );
-  </script>
+    <main>
+      <section>
+        <div>
+          <div id="root"></div>
+        </div>
+      </section>
+    </main>
   </body>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script type="text/babel">
+  'use strict';
+  const App = () => {
+    const [count, setCount] = React.useState(0);
+    return (
+      <div>
+        <h1>Count {count}</h1>
+        <div>
+          <button onClick={() => setCount(count + 1)}>+</button>
+          <button onClick={() => setCount(count - 1)}>-</button>
+        </div>
+      </div>
+    );
+  }
+  const domContainer = document.querySelector('#root');
+  const root = ReactDOM.createRoot(domContainer);
+  root.render(React.createElement(App));
+  </script>
 </html>
 endsnippet
