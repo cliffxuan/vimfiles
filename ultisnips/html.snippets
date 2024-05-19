@@ -6,7 +6,7 @@ snippet bp "html5 boilerplate" b
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> --> 
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> -->
     <link rel="stylesheet" href="https://unpkg.com/missing.css">
     <meta name="description" content="">
     <meta property="og:title" content="">
@@ -40,8 +40,8 @@ snippet react "reactjs boilerplate" b
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> --> 
-    <link rel="stylesheet" href="https://unpkg.com/missing.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/missing.css"> -->
     <meta name="description" content="">
     <meta property="og:title" content="">
     <meta property="og:type" content="">
@@ -68,6 +68,10 @@ snippet react "reactjs boilerplate" b
   <script type="text/babel">
   'use strict';
   const App = () => {
+    React.useEffect(() => {
+      fetch("https://httpbin.org/uuid").then(response => response.json()).then(data => setId(data['uuid']))
+    }, []);
+    const [id, setId] = React.useState(null);
     const [count, setCount] = React.useState(0);
     return (
       <div>
@@ -76,6 +80,7 @@ snippet react "reactjs boilerplate" b
           <button onClick={() => setCount(count + 1)}>+</button>
           <button onClick={() => setCount(count - 1)}>-</button>
         </div>
+        <p>id: {id}</p>
       </div>
     );
   }
