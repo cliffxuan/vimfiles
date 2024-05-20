@@ -14,8 +14,6 @@ snippet bp "html5 boilerplate" b
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <meta property="og:image:alt" content="">
-    <link rel="manifest" href="site.webmanifest">
-    <meta name="theme-color" content="#fafafa">
   </head>
 
   <body>
@@ -48,8 +46,6 @@ snippet react "reactjs boilerplate" b
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <meta property="og:image:alt" content="">
-    <link rel="manifest" href="site.webmanifest">
-    <meta name="theme-color" content="#fafafa">
   </head>
 
   <body>
@@ -69,7 +65,7 @@ snippet react "reactjs boilerplate" b
   'use strict';
   const App = () => {
     React.useEffect(() => {
-      fetch("https://httpbin.org/uuid").then(response => response.json()).then(data => setId(data['uuid']))
+      fetch("https://httpbingo.org/uuid").then(response => response.json()).then(data => setId(data['uuid']))
     }, []);
     const [id, setId] = React.useState(null);
     const [count, setCount] = React.useState(0);
