@@ -1,0 +1,14 @@
+snippet panel-kickoff "panel kickoff" b
+import panel as pn
+
+main = pn.WidgetBox(
+    pn.Column("# Hello World!"),
+)
+pn.template.FastListTemplate(
+    title="Panel App",
+    main=main,
+    main_max_width="min(80%, 1200px)",
+    header_background="#242526",
+    theme="dark",
+).servable()
+endsnippet
