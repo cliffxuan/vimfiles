@@ -24,17 +24,18 @@ keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search hilighted te
 keymap('n', '<leader>af', ':RG<cr>', { desc = 'Live search', noremap = true })
 keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
-keymap('n', '<leader>aj', function() require("trouble").toggle("lsp_references") end)
+keymap('n', '<leader>aj', function()
+  require('trouble').toggle 'lsp_references'
+end)
 
-
-require('which-key').register({
-  a = '+Text Search',
-  c = '+Change directory',
-  d = '+Display Settings',
-  e = '+Edit',
-  g = '+Git',
-  h = '+History'
-}, { prefix = '<leader>' })
+require('which-key').add {
+  { '<leader>a', desc = '+Text Search' },
+  { '<leader>c', desc = '+Change directory' },
+  { '<leader>d', desc = '+Display Settings' },
+  { '<leader>e', desc = '+Edit' },
+  { '<leader>g', desc = '+Git' },
+  { '<leader>h', desc = '+History' },
+}
 
 keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
 
@@ -51,7 +52,6 @@ keymap('n', '<leader>dj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'ne
 keymap('n', '<leader>dk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
 keymap('n', '<leader>dr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
 keymap('n', '<leader>dp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
-
 
 vim.cmd [[
 " keymaps {{{
