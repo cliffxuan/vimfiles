@@ -4,7 +4,7 @@ return {
   'ggandor/leap.nvim',
   'editorconfig/editorconfig-vim',
   'godlygeek/tabular',
-  'junegunn/fzf',
+  { 'junegunn/fzf', build = './install --bin' },
   'junegunn/fzf.vim',
   'justinmk/vim-dirvish',
   'majutsushi/tagbar',

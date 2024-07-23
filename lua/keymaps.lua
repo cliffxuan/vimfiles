@@ -1,12 +1,12 @@
 local function search_word_under_cursor()
-  vim.cmd('Rg ' .. vim.fn.expand '<cword>')
+  require('telescope.builtin').grep_string { vim.fn.expand '<cword>' }
 end
 
 local function search_highlighted_text()
   local hl_text = vim.fn.getreg '/'
   hl_text = string.gsub(hl_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
   hl_text = string.gsub(hl_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
-  vim.cmd('Rg ' .. hl_text)
+  require('telescope.builtin').grep_string { hl_text }
 end
 
 local function search_word_under_cursor_in_current_file()
@@ -21,7 +21,7 @@ keymap({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search hilighted text', noremap = true })
-keymap('n', '<leader>af', ':RG<cr>', { desc = 'Live search', noremap = true })
+keymap('n', '<leader>af', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
