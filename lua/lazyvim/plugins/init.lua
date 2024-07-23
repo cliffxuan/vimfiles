@@ -54,9 +54,6 @@ return {
 
   'SirVer/ultisnips',
   'neovim/nvim-lspconfig',
-  'hrsh7th/nvim-cmp',
-  'hrsh7th/cmp-nvim-lsp',
-  'quangnguyen30192/cmp-nvim-ultisnips', -- lsp source for ultisnips
   'nvim-lua/plenary.nvim',
   -- language specific
   { 'begriffs/haskell-vim-now', ft = 'haskell' },

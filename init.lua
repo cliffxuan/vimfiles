@@ -1,6 +1,6 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
-vim.cmd([[
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ','
+vim.cmd [[
 " basic settings
 filetype plugin indent on
 syntax on
@@ -36,23 +36,23 @@ set list " show whitespace
 " show tabs and trailing whitespaces
 set listchars=tab:\|_,eol:¬,extends:❯,precedes:❮
 
-]])
+]]
 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable", -- latest stable release
-		lazypath,
-	})
+  vim.fn.system {
+    'git',
+    'clone',
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable', -- latest stable release
+    lazypath,
+  }
 end
 vim.opt.rtp:prepend(lazypath)
-require("lazy").setup("lazyvim/plugins")
+require('lazy').setup 'lazyvim/plugins'
 
-vim.cmd([[
+vim.cmd [[
 " tabs {{{
 set shiftwidth=2  " sw
 set tabstop=4     " ts
@@ -121,9 +121,9 @@ let g:eliteColors = uniq(split('
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 execute 'colorscheme ' . g:eliteColors[0]
 " }}}
-]])
+]]
 
-vim.cmd([[
+vim.cmd [[
 " functions {{{
 function! Down(vcount)
   if a:vcount == 0
@@ -302,9 +302,9 @@ function! SetRandomColor()
   call UpdateColor(l:cs[rand() % len(l:cs)])
 endfunction
 " }}}
-]])
+]]
 
-vim.cmd([[
+vim.cmd [[
 " global variables {{{
   let $FZF_DEFAULT_COMMAND = 'rg --files'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
@@ -338,8 +338,8 @@ if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
 endif
 
 " }}}
-]])
+]]
 
-require("config")
-require("copilot")
-require("keymaps")
+require 'config'
+require 'copilot'
+require 'keymaps'
