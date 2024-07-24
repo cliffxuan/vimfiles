@@ -343,3 +343,4 @@ endif
 require 'config'
 require 'copilot'
 require 'keymaps'
+require 'clipboard'
