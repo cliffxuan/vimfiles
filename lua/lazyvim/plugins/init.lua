@@ -66,4 +66,11 @@ return {
   { 'rust-lang/rust.vim', ft = 'rust' },
   { 'nvim-telescope/telescope.nvim', tag = '0.1.4' },
   { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+  {
+    'MeanderingProgrammer/markdown.nvim',
+    ft = 'markdown',
+    main = 'render-markdown',
+    opts = {},
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' },
+  },
 }
