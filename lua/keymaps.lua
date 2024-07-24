@@ -26,15 +26,15 @@ keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Se
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
-end)
+end, { desc = 'Search references', noremap = true })
 
 require('which-key').add {
-  { '<leader>a', desc = '+Text Search' },
-  { '<leader>c', desc = '+Change directory' },
-  { '<leader>d', desc = '+Display Settings' },
-  { '<leader>e', desc = '+Edit' },
-  { '<leader>g', desc = '+Git' },
-  { '<leader>h', desc = '+History' },
+  { '<leader>a', group = 'Text Search' },
+  { '<leader>c', group = 'Change directory' },
+  { '<leader>d', group = 'Display Settings' },
+  { '<leader>e', group = 'Edit' },
+  { '<leader>g', group = 'Git' },
+  { '<leader>h', group = 'History' },
 }
 
 keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
