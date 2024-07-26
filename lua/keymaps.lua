@@ -134,7 +134,9 @@ keymap('n', '<S-Tab>', ':bprevious<CR>', {})
 keymap('n', '<C-k>', '<Plug>(ale_previous_wrap)', { silent = true })
 keymap('n', '<C-j>', '<Plug>(ale_next_wrap)', { silent = true })
 
-keymap('i', '<c-x><c-k>', '<plug>(fzf-complete-word)', {})
+keymap('i', '<c-x><c-k>', function()
+  return vim.fn['fzf#vim#complete#word'] { window = { width = 0.2, height = 0.9, xoffset = 1 } }
+end, { expr = true })
 keymap('i', '<c-x><c-f>', '<plug>(fzf-complete-path)', {})
 keymap('i', '<c-x><c-l>', '<plug>(fzf-complete-line)', {})
 keymap('n', '<C-k>', '<Plug>(ale_previous_wrap)', { silent = true })
@@ -142,7 +144,6 @@ keymap('n', '<C-j>', '<Plug>(ale_next_wrap)', { silent = true })
 keymap('t', '<c-j>', '<c-\\><c-n>', { noremap = true })
 
 vim.cmd [[
-
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
       \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
