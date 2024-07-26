@@ -28,6 +28,21 @@ keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Search references', noremap = true })
 
+-- auto close
+keymap('i', "'", "''<left>", { noremap = true })
+keymap('i', '"', '""<left>', { noremap = true })
+keymap('i', '(', '()<left>', { noremap = true })
+keymap('i', '[', '[]<left>', { noremap = true })
+keymap('i', '{', '{}<left>', { noremap = true })
+vim.api.nvim_create_augroup('disable_auto_close_single_quote', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'disable_auto_close_single_quote',
+  pattern = { 'TelescopePrompt', 'chatgpt-input' },
+  command = "inoremap <buffer> ' '",
+})
+-- Hide window
+keymap('n', 'K', ':hide<CR>', { noremap = true })
+
 require('which-key').add {
   { '<leader>a', group = 'Text Search' },
   { '<leader>c', group = 'Change directory' },
@@ -52,90 +67,81 @@ keymap('n', '<leader>dj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'ne
 keymap('n', '<leader>dk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
 keymap('n', '<leader>dr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
 keymap('n', '<leader>dp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
+keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })
+keymap('n', '<leader>ek', ':call OpenKeymaps()<cr>', { noremap = true })
+keymap('n', '<leader>ep', ':call OpenPlugins()<cr>', { noremap = true })
+keymap('n', '<leader>er', ':call OpenVimRC()<cr>', { noremap = true })
+keymap('n', '<leader>es', ':source $MYVIMRC<cr>', { noremap = true })
+keymap('n', '<leader>et', ':tabnew<cr>', { noremap = true })
+keymap('n', '<leader>eu', ':UltiSnipsEdit<cr>', { noremap = true })
+keymap('n', '<leader>ev', ':Vexplore<cr>', { noremap = true })
+keymap('n', '<leader>en', ':vnew<cr>', { noremap = true })
+
+keymap('n', '<leader>f', ':Telescope find_files<cr>', { noremap = true })
+
+keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
+keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
+keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
+keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
+keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
+keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
+keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
+keymap('n', '<leader>gh', ':GBrowse<cr>', { noremap = true })
+keymap('v', '<leader>gh', ':GBrowse<cr>', { noremap = true })
+keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
+keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
+keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
+keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
+keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
+keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
+keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true })
+
+keymap('n', '<leader>gj', '<cmd>lua require("plenary.reload").reload_module("plenary.reload")<cr>', { noremap = true, silent = true })
+keymap('n', '<leader>gk', '<cmd>lua require("plenary.reload").reload_module("plenary.reload")<cr>', { noremap = true, silent = true })
+keymap('n', '<leader>gJ', '9999<leader>gj', { noremap = true })
+keymap('n', '<leader>gK', '9999<leader>gk', { noremap = true })
+keymap('n', '<leader>hh', ':History<cr>', { noremap = true })
+keymap('n', '<leader>hs', ':History/<cr>', { noremap = true })
+keymap('n', '<leader>hc', ':History:<cr>', { noremap = true })
+keymap('n', '<leader>j', '<Plug>(easymotion-j)', { noremap = true })
+keymap('n', '<leader>k', '<Plug>(easymotion-k)', { noremap = true })
+keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
+keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })
+keymap('n', '<leader><leader>j', '<Plug>(easymotion-w)', { noremap = true })
+keymap('n', '<leader><leader>k', '<Plug>(easymotion-b)', { noremap = true })
+keymap('n', '<leader>l', ':TroubleToggle document_diagnostics<CR>', { noremap = true, silent = true })
+keymap('n', '<leader>m', ':Marks<CR>', { noremap = true })
+keymap('n', '<leader>o', ':WhichKey<CR>', { noremap = true })
+keymap('n', '<leader>p', '"+p', { noremap = true })
+keymap('n', '<leader>q', ':bdelete<CR>', { noremap = true })
+keymap('n', '<leader>r', '<Plug>RunCurrentBuffer', { noremap = true })
+keymap('n', '<leader>s', ':Snippets<CR>', { noremap = true })
+keymap('n', '<leader>t', ':FloatermToggle<CR>', { noremap = true })
+keymap('n', '<leader>u', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
+keymap('n', '<leader>v', ':vsp<CR>', { noremap = true })
+keymap('n', '<leader>w', ':w<CR>', { noremap = true })
+keymap('n', '<leader>x', ':ALEFix<CR>', { noremap = true })
+keymap('n', '<leader>y', [[:call CopyFileName()<CR>]], { noremap = true })
+keymap('v', '<leader>y', '"+y', { noremap = true })
+keymap('n', '<leader>z', 'za', { noremap = true })
+keymap('v', '<leader>z', 'za', { noremap = true })
+keymap('n', 'j', ':<C-U>call Down(v:count)<CR>', { silent = true })
+keymap('v', 'j', 'gj', { silent = true })
+keymap('n', 'k', ':<C-U>call Up(v:count)<CR>', { silent = true })
+keymap('v', 'k', 'gk', { silent = true })
+keymap('n', '<Tab>', ':bnext<CR>', {})
+keymap('n', '<S-Tab>', ':bprevious<CR>', {})
+keymap('n', '<C-k>', '<Plug>(ale_previous_wrap)', { silent = true })
+keymap('n', '<C-j>', '<Plug>(ale_next_wrap)', { silent = true })
+
+keymap('i', '<c-x><c-k>', '<plug>(fzf-complete-word)', {})
+keymap('i', '<c-x><c-f>', '<plug>(fzf-complete-path)', {})
+keymap('i', '<c-x><c-l>', '<plug>(fzf-complete-line)', {})
+keymap('n', '<C-k>', '<Plug>(ale_previous_wrap)', { silent = true })
+keymap('n', '<C-j>', '<Plug>(ale_next_wrap)', { silent = true })
+keymap('t', '<c-j>', '<c-\\><c-n>', { noremap = true })
 
 vim.cmd [[
-" keymaps {{{
-" auto close
-inoremap ' ''<left>
-inoremap " ""<left>
-inoremap ( ()<left>
-inoremap [ []<left>
-inoremap { {}<left>
-augroup disableAutoCloseSingleQuote
-  autocmd!
-  autocmd FileType TelescopePrompt inoremap <buffer> ' '
-  autocmd FileType chatgpt-input inoremap <buffer> ' '
-augroup END
-
-" Kill window
-nnoremap K :hide<cr>
-" leader
-" edit and source $MYVIMRC
-noremap <leader>ee <cmd>lua vim.diagnostic.setloclist()<CR>
-noremap <leader>ek :call OpenKeymaps()<cr>
-noremap <leader>ep :call OpenPlugins()<cr>
-noremap <leader>er :call OpenVimRC()<cr>
-noremap <leader>es :source $MYVIMRC<cr>
-noremap <leader>et :tabnew<cr>
-noremap <leader>eu :UltiSnipsEdit<cr>
-noremap <leader>ev :Vexplore<cr>
-noremap <leader>en :vnew<cr>
-nnoremap <leader>f <cmd>Telescope find_files<cr>
-" g for git related mappings
-nnoremap <leader>ga :Git add %<cr>
-nnoremap <leader>gd :SignifyHunkDiff<cr>
-nnoremap <leader>gg :Git<cr>
-nnoremap <leader>gp :Git push<cr>
-nnoremap <leader>gb :Git blame<cr>
-nnoremap <leader>gc :Git commit<cr>
-nnoremap <leader>gf :GFiles?<cr>
-nnoremap <leader>gh :GBrowse<cr>
-vnoremap <leader>gh :GBrowse<cr>
-nnoremap <leader>gl :Commits<cr>
-nnoremap <leader>gm :GitMessenger<cr>
-nnoremap <leader>go :BCommits<cr>
-nnoremap <leader>gr :Gread<cr>
-nnoremap <leader>gw :Gwrite<cr>
-nnoremap <leader>gu :SignifyHunkUndo<cr>
-nnoremap <leader>gv :Gvdiff<cr>
-nmap <leader>gj <plug>(signify-next-hunk)
-nmap <leader>gk <plug>(signify-prev-hunk)
-nmap <leader>gJ 9999<leader>gj
-nmap <leader>gK 9999<leader>gk
-nnoremap <leader>hh :History<cr>
-nnoremap <leader>hs :History/<cr>
-nnoremap <leader>hc :History:<cr>
-" <leader>i lua/config.lua
-map <leader>j <Plug>(easymotion-j)
-map <leader>k <Plug>(easymotion-k)
-nnoremap <leader><leader>d :bwipeout<cr>
-nnoremap <leader><leader>D :call DeleteOtherBuffers()<cr>
-map <leader><leader>j <Plug>(easymotion-w)
-map <leader><leader>k <Plug>(easymotion-b)
-" Toggle the location list window
-nnoremap <silent> <leader>l :TroubleToggle document_diagnostics<CR>
-nnoremap <leader>m :Marks<cr>
-" <leader>n lua/config.lua
-nnoremap <leader>o :WhichKey<cr>
-nnoremap <leader>p "+p
-nnoremap <leader>q :bdelete<cr>
-nmap <leader>r <Plug>RunCurrentBuffer
-nnoremap <leader>s :Snippets<cr>
-nnoremap <leader>t :FloatermToggle<cr>
-" Clean trailing whitespace
-nnoremap <leader>u mz:%s/\s\+$//<cr>:let @/=''<cr>`z
-" Split Open
-noremap <leader>v :vsp<cr>
-" save
-nnoremap <leader>w :w<cr>
-" alx-fix
-nnoremap <leader>x :ALEFix<cr>
-
-" copy file name
-nnoremap <leader>y :call CopyFileName()<cr>
-vnoremap <leader>y "+y
-noremap <leader>z za
-vnoremap <leader>z za
 
 " Search for selected text, forwards or backwards.
 vnoremap <silent> * :<C-U>
@@ -148,35 +154,4 @@ vnoremap <silent> # :<C-U>
       \gvy?<C-R><C-R>=substitute(
       \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
       \gV:call setreg('"', old_reg, old_regtype)<cr>
-
-" wrapped lines goes down/up to next row, rather than next line in file.
-nnoremap <silent> j :<C-U>call Down(v:count)<cr>
-vnoremap <silent> j gj
-
-nnoremap <silent> k :<C-U>call Up(v:count)<cr>
-vnoremap <silent> k gk
-
-" Buffer Cycling
-nnoremap <Tab> :bnext<cr>
-nnoremap <S-Tab> :bprevious<cr>
-
-" ale
-nmap <silent> <C-k> <Plug>(ale_previous_wrap)
-nmap <silent> <C-j> <Plug>(ale_next_wrap)
-
-" fzf
-imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-imap <c-x><c-l> <plug>(fzf-complete-line)
-" Advanced customization using autoload functions
-inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
-
-" terminal
-tnoremap <C-j> <C-\><C-n>
-augroup nvim_term_insert
-  autocmd TermOpen term://* startinsert
-augroup END
-
-" }}}
 ]]
