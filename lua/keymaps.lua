@@ -1,17 +1,24 @@
+local utils = require 'utils'
 local function search_word_under_cursor()
   require('telescope.builtin').grep_string { vim.fn.expand '<cword>' }
 end
 
 local function search_highlighted_text()
-  local hl_text = vim.fn.getreg '/'
-  hl_text = string.gsub(hl_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
-  hl_text = string.gsub(hl_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
-  require('telescope.builtin').grep_string { hl_text }
+  require('telescope.builtin').grep_string { utils.get_highlighted_text() }
 end
 
 local function search_word_under_cursor_in_current_file()
   local current_word = vim.fn.expand '<cword>'
   vim.cmd('Lines ' .. current_word)
+end
+
+local function search_visual_selection()
+  -- Get the visually selected text and escape it
+  local text = utils.get_visual_selection()
+  text = vim.fn.escape(text, '?\\.*$^~[')
+  -- Replace whitespace sequences with a pattern matching any whitespace
+  text = text:gsub('%s+', '\\_s\\+')
+  require('telescope.builtin').grep_string { utils.get_visual_selection() }
 end
 
 local keymap = vim.keymap.set
@@ -27,6 +34,7 @@ keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Search references', noremap = true })
+keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
 -- auto close
 keymap('i', "'", "''<left>", { noremap = true })
@@ -142,17 +150,3 @@ keymap('i', '<c-x><c-l>', '<plug>(fzf-complete-line)', {})
 keymap('n', '<C-k>', '<Plug>(ale_previous_wrap)', { silent = true })
 keymap('n', '<C-j>', '<Plug>(ale_next_wrap)', { silent = true })
 keymap('t', '<c-j>', '<c-\\><c-n>', { noremap = true })
-
-vim.cmd [[
-" Search for selected text, forwards or backwards.
-vnoremap <silent> * :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
-      \gvy/<C-R><C-R>=substitute(
-      \escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
-      \gV:call setreg('"', old_reg, old_regtype)<cr>
-vnoremap <silent> # :<C-U>
-      \let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<cr>
-      \gvy?<C-R><C-R>=substitute(
-      \escape(@", '?\.*$^~['), '\_s\+', '\\_s\\+', 'g')<cr><cr>
-      \gV:call setreg('"', old_reg, old_regtype)<cr>
-]]
