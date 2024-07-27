@@ -7,7 +7,7 @@ M.get_highlighted_text = function()
   return hl_text
 end
 
-function M.get_visual_selection()
+M.get_visual_selection = function()
   -- this will exit visual mode
   -- use 'gv' to reselect the text
   local _, csrow, cscol, cerow, cecol
@@ -49,6 +49,16 @@ function M.get_visual_selection()
     start = { line = csrow, char = cscol },
     ['end'] = { line = cerow, char = cecol },
   }
+end
+
+-- This function checks if the current environment is Windows Subsystem for Linux (WSL)
+M.is_wsl = function()
+  local wsl_check = os.getenv 'WSL_DISTRO_NAME'
+  if wsl_check ~= nil then
+    return true
+  else
+    return false
+  end
 end
 
 return M

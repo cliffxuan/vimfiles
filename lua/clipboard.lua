@@ -1,14 +1,6 @@
--- This function checks if the current environment is Windows Subsystem for Linux (WSL)
-local is_wsl = function()
-  local wsl_check = os.getenv 'WSL_DISTRO_NAME'
-  if wsl_check ~= nil then
-    return true
-  else
-    return false
-  end
-end
+local utils = require 'utils'
 
-if is_wsl() then
+if utils.is_wsl() then
   vim.g.clipboard = {
     name = 'win32yank-wsl',
     copy = {
