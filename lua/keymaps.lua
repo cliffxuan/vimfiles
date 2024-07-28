@@ -103,11 +103,9 @@ keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
 keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
 keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true })
-
 keymap('n', '<leader>gj', '<plug>(signify-next-hunk)', { noremap = true, silent = true })
 keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, silent = true })
-keymap('n', '<leader>gJ', '9999<leader>gj', { noremap = true })
-keymap('n', '<leader>gK', '9999<leader>gk', { noremap = true })
+
 keymap('n', '<leader>hh', ':History<cr>', { noremap = true })
 keymap('n', '<leader>hs', ':History/<cr>', { noremap = true })
 keymap('n', '<leader>hc', ':History:<cr>', { noremap = true })
