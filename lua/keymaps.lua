@@ -1,10 +1,10 @@
 local utils = require 'utils'
 local function search_word_under_cursor()
-  require('telescope.builtin').grep_string { vim.fn.expand '<cword>' }
+  require('telescope.builtin').grep_string { search = vim.fn.expand '<cword>' }
 end
 
 local function search_highlighted_text()
-  require('telescope.builtin').grep_string { utils.get_highlighted_text() }
+  require('telescope.builtin').grep_string { search = utils.get_highlighted_text(), use_regex = true }
 end
 
 local function search_word_under_cursor_in_current_file()
@@ -18,7 +18,7 @@ local function search_visual_selection()
   text = vim.fn.escape(text, '?\\.*$^~[')
   -- Replace whitespace sequences with a pattern matching any whitespace
   text = text:gsub('%s+', '\\_s\\+')
-  require('telescope.builtin').grep_string { utils.get_visual_selection() }
+  require('telescope.builtin').grep_string { search = utils.get_visual_selection(), use_regex = true }
 end
 
 local keymap = vim.keymap.set
@@ -27,7 +27,7 @@ keymap({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
 keymap({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
-keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search hilighted text', noremap = true })
+keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
 keymap('n', '<leader>af', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })

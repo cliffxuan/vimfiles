@@ -4,6 +4,7 @@ M.get_highlighted_text = function()
   local hl_text = vim.fn.getreg '/'
   hl_text = string.gsub(hl_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
   hl_text = string.gsub(hl_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
+  hl_text = string.gsub(hl_text, '\\V', '') -- prefix indicating visualed selected
   return hl_text
 end
 
