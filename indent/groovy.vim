@@ -157,7 +157,7 @@ function GetGroovyIndent()
     endif
   endif
 
-  " if last line end with (
+  " if last line end with [
   let lnum = SkipGroovyBlanksAndComments(v:lnum - 1)
   if getline(lnum) =~ '\[\s*$'
     let theIndent = indent(lnum) + &sw
