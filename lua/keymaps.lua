@@ -22,8 +22,9 @@ local function search_visual_selection()
 end
 
 local keymap = vim.keymap.set
+keymap('n', '-', MiniFiles.open)
 keymap('n', 's', '<Plug>(easymotion-overwin-f2)')
-keymap({'o', 'x'}, 's', '<Plug>(easymotion-f2)')
+keymap({ 'o', 'x' }, 's', '<Plug>(easymotion-f2)')
 
 -- leader
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
