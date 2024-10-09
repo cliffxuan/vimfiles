@@ -22,9 +22,9 @@ local function search_visual_selection()
 end
 
 local keymap = vim.keymap.set
+keymap('n', 's', '<Plug>(easymotion-overwin-f2)')
+keymap({'o', 'x'}, 's', '<Plug>(easymotion-f2)')
 
-keymap({ 'n', 'x', 'o' }, 'f', '<Plug>(leap-forward)')
-keymap({ 'n', 'x', 'o' }, 'F', '<Plug>(leap-backward)')
 -- leader
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
@@ -36,18 +36,6 @@ keymap('n', '<leader>aj', function()
 end, { desc = 'Search references', noremap = true })
 keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
--- auto close
-keymap('i', "'", "''<left>", { noremap = true })
-keymap('i', '"', '""<left>', { noremap = true })
-keymap('i', '(', '()<left>', { noremap = true })
-keymap('i', '[', '[]<left>', { noremap = true })
-keymap('i', '{', '{}<left>', { noremap = true })
-vim.api.nvim_create_augroup('disable_auto_close_single_quote', { clear = true })
-vim.api.nvim_create_autocmd('FileType', {
-  group = 'disable_auto_close_single_quote',
-  pattern = { 'TelescopePrompt', 'chatgpt-input' },
-  command = "inoremap <buffer> ' '",
-})
 -- Hide window
 keymap('n', 'K', ':hide<CR>', { noremap = true })
 
