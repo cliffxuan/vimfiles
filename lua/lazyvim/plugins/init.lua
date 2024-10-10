@@ -19,7 +19,12 @@ return {
   'terryma/vim-multiple-cursors',
   'mhinz/vim-signify',
   'rhysd/git-messenger.vim',
-  'sheerun/vim-polyglot',
+  {
+    'sheerun/vim-polyglot',
+    init = function()
+      vim.g.polyglot_disabled = { 'python', 'markdown', 'autoindent' }
+    end,
+  },
   {
     'folke/which-key.nvim',
     event = 'VeryLazy',

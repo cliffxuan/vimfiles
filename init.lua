@@ -326,7 +326,6 @@ vim.cmd [[
   let g:ale_sh_shfmt_options = "-i 2"
   let g:ale_python_mypy_options="--ignore-missing-imports"
   let g:terraform_align=1
-  let g:polyglot_disabled = ['python', 'markdown', 'autoindent']
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   let g:UltiSnipsExpandTrigger = '<C-j>'
   let g:UltiSnipsJumpForwardTrigger = '<C-j>'
