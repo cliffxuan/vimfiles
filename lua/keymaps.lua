@@ -22,8 +22,8 @@ local function search_visual_selection()
 end
 
 local keymap = vim.keymap.set
-keymap('n', '-', function ()
-  MiniFiles.open(vim.fn.expand('%:p:h'))
+keymap('n', '-', function()
+  MiniFiles.open(vim.fn.expand '%:p:h')
 end)
 keymap('n', 's', '<Plug>(easymotion-overwin-f2)')
 keymap({ 'o', 'x' }, 's', '<Plug>(easymotion-f2)')
