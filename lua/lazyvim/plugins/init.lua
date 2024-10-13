@@ -15,7 +15,6 @@ return {
   'tpope/vim-commentary',
   'tpope/vim-unimpaired',
   'kana/vim-textobj-user',
-  'dense-analysis/ale',
   'terryma/vim-multiple-cursors',
   'mhinz/vim-signify',
   'rhysd/git-messenger.vim',

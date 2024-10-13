@@ -212,24 +212,6 @@ function! GuessProjectRoot()
   return l:dir
 endfunction
 
-function! AleStatus() abort
-    let l:counts = ale#statusline#Count(bufnr(''))
-    let l:all_errors = l:counts.error + l:counts.style_error
-    let l:all_non_errors = l:counts.total - l:all_errors
-    if l:counts.total == 0
-      return "✅"
-    else
-      let l:status = ""
-      if l:all_non_errors > 0
-        let l:status = l:status . printf("%d ⚡", all_non_errors)
-      endif
-      if l:all_errors > 0
-        let l:status = l:status . printf("%d 🚫", all_errors)
-      endif
-      return l:status
-    endif
-endfunction
-
 function! CopyMatches(reg)
   let hits = []
   %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
@@ -311,20 +293,6 @@ vim.cmd [[
   let g:indentLine_setColors = 0
   let g:floaterm_autoclose = 2  " Always close floaterm window
   let g:floaterm_gitcommit = "tabe"
-  let g:ale_linters = {'python': ['ruff',], 'haskell': ['hlint', 'hdevtools', 'hfmt'], 'rust': ['analyzer']}
-  let g:ale_linters_ignore = {'typescript': ['deno'], 'typescriptreact': ['deno']}
-  let g:ale_rust_rustfmt_options = '--edition 2018'  " this is not a perm solution
-  let g:ale_fixers = {'python': ['ruff', 'black', 'autopep8'], 'go': ['gofmt', 'goimports'],
-    \'terraform': ['terraform'], 'javascript': ['prettier'],
-    \'css': ['prettier'], 'typescript': ['prettier'], 'typescriptreact': ['prettier'],
-    \'haskell':['ormolu'], 'rust':['rustfmt'], 'lua': ['stylua'],
-    \'sh':['shfmt']}
-  let g:ale_hover_cursor = 0
-  let g:ale_echo_msg_format = '[%linter%] (%code%): %s [%severity%]'
-  let g:ale_echo_msg_error_str = '🚫'
-  let g:ale_echo_msg_warning_str = '⚡'
-  let g:ale_sh_shfmt_options = "-i 2"
-  let g:ale_python_mypy_options="--ignore-missing-imports"
   let g:terraform_align=1
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   let g:UltiSnipsExpandTrigger = '<C-j>'
