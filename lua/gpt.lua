@@ -6,6 +6,8 @@ Gpt = function(...)
   vim.cmd 'botright new'
   local buf = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
   Job:new({
     command = 'sgpt',
     args = args,

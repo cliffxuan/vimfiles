@@ -66,6 +66,8 @@ keymap('n', '<leader>dj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'ne
 keymap('n', '<leader>dk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
 keymap('n', '<leader>dr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
 keymap('n', '<leader>dp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
+keymap('n', '<leader>du', ':Telescope commands<cr>', { desc = 'Telescope command', noremap = true })
+
 keymap('n', '<leader>eb', ':botright new<cr>', { noremap = true })
 keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })
 keymap('n', '<leader>ek', ':call OpenKeymaps()<cr>', { noremap = true })
@@ -102,12 +104,15 @@ keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, silent 
 keymap('n', '<leader>hh', require('telescope.builtin').oldfiles, { noremap = true })
 keymap('n', '<leader>hs', require('telescope.builtin').search_history, { noremap = true })
 keymap('n', '<leader>hc', require('telescope.builtin').command_history, { noremap = true })
+
 keymap('n', '<leader>j', '<Plug>(easymotion-j)', { noremap = true })
 keymap('n', '<leader>k', '<Plug>(easymotion-k)', { noremap = true })
+
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
 keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })
 keymap('n', '<leader><leader>j', '<Plug>(easymotion-w)', { noremap = true })
 keymap('n', '<leader><leader>k', '<Plug>(easymotion-b)', { noremap = true })
+
 keymap('n', '<leader>l', ':TroubleToggle document_diagnostics<CR>', { noremap = true, silent = true })
 keymap('n', '<leader>m', ':Marks<CR>', { noremap = true })
 keymap('n', '<leader>o', ':WhichKey<CR>', { noremap = true })
@@ -116,15 +121,16 @@ keymap('n', '<leader>q', ':bdelete<CR>', { noremap = true })
 keymap('n', '<leader>r', '<Plug>RunCurrentBuffer', { noremap = true })
 keymap('n', '<leader>s', ':Snippets<CR>', { noremap = true })
 keymap('n', '<leader>t', ':FloatermToggle<CR>', { noremap = true })
+
 keymap('n', '<leader>uu', ':GptCode ', { noremap = true })
 keymap('n', '<leader>ui', ':Gpt ', { noremap = true })
+
 keymap('n', '<leader>v', ':vsp<CR>', { noremap = true })
 keymap('n', '<leader>w', ':w<CR>', { noremap = true })
 keymap('n', '<leader>x', ':ALEFix<CR>', { noremap = true })
 keymap('n', '<leader>y', [[:call CopyFileName()<CR>]], { noremap = true })
 keymap('v', '<leader>y', '"+y', { noremap = true })
-keymap('n', '<leader>z', 'za', { noremap = true })
-keymap('v', '<leader>z', 'za', { noremap = true })
+keymap({ 'n', 'v' }, '<leader>z', 'za', { noremap = true })
 keymap('n', 'j', ':<C-U>call Down(v:count)<CR>', { silent = true })
 keymap('v', 'j', 'gj', { silent = true })
 keymap('n', 'k', ':<C-U>call Up(v:count)<CR>', { silent = true })
