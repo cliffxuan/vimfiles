@@ -8,6 +8,13 @@ Gpt = function(...)
   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+
+  local openai_api_key_path = vim.fn.expand('~/.config/openai_api_key')
+  if vim.fn.filereadable(openai_api_key_path) == 1 then
+    local openai_api_key = vim.fn.systemlist('cat ' .. openai_api_key_path)[1]
+    vim.env.OPENAI_API_KEY = openai_api_key
+  end
+
   Job:new({
     command = 'sgpt',
     args = args,
