@@ -23,6 +23,11 @@ Gpt = function(...)
         end
       end)
     end,
+    on_exit = function(j, return_val)
+      if return_val ~= 0 then
+        print('Error executing command', table.concat(j:stderr_result(), '\n'))
+      end
+    end,
   }):sync()
 end
 
