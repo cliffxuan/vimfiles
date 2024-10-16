@@ -47,7 +47,7 @@ return {
   'altercation/vim-colors-solarized',
   'yuttie/hydrangea-vim',
   'NLKNguyen/papercolor-theme',
-  'folke/tokyonight.nvim',
+  { 'folke/tokyonight.nvim', lazy = false, priority = 1000, opts = {} },
   'rebelot/kanagawa.nvim',
   'catppuccin/nvim',
 
