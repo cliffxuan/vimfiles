@@ -3,24 +3,25 @@ Gpt = function(...)
   table.insert(args, '--no-md')
 
   local Job = require 'plenary.job'
-  vim.cmd 'botright new'
-  local buf = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
-  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
-
-  local openai_api_key_path = vim.fn.expand('~/.config/openai_api_key')
+  local openai_api_key_path = vim.fn.expand '~/.config/openai_api_key'
   if vim.fn.filereadable(openai_api_key_path) == 1 then
     local openai_api_key = vim.fn.systemlist('cat ' .. openai_api_key_path)[1]
     vim.env.OPENAI_API_KEY = openai_api_key
   end
-
+  local buf = nil
   Job:new({
     command = 'sgpt',
     args = args,
     interactive = false,
     on_stdout = function(_, line)
       vim.schedule(function()
+        if not buf then
+          vim.cmd 'botright new'
+          buf = vim.api.nvim_get_current_buf()
+          vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+          vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+          vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+        end
         local current_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
         if #current_lines == 1 and current_lines[1] == '' then
           vim.api.nvim_buf_set_lines(buf, 0, -1, false, { line })
@@ -35,7 +36,7 @@ Gpt = function(...)
         print('Error executing command', table.concat(j:stderr_result(), '\n'))
       end
     end,
-  }):sync()
+  }):start()
 end
 
 vim.api.nvim_create_user_command('Gpt', function(prompt)
