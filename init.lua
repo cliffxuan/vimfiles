@@ -107,9 +107,9 @@ set colorcolumn=88
 set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
-   \ tokyonight
+   \ tokyonight-night
    \ kanagawa
-   \ catppuccin
+   \ catppuccin-mocha
    \ gruvbox
    \ PaperColor
    \ dracula
@@ -265,7 +265,7 @@ function! UpdateColor(nextColor)
   let l:currColor = g:colors_name
   exec 'colorscheme ' . a:nextColor
   redraw
-  echom 'colorschema: ' . l:currColor . ' -> ' . a:nextColor
+  echom 'colorscheme: ' . l:currColor . ' -> ' . a:nextColor
 endfunction
 
 function! CycleColor(step, options=[])
@@ -275,8 +275,13 @@ function! CycleColor(step, options=[])
     let l:colors = a:options
   endif
   let l:currColor = g:colors_name
+  let l:index = index(l:colors, l:currColor)
+  if l:index == -1
+    echom 'current colorscheme not in colors: ' . l:currColor
+    return
+  endif
   let l:nextColor = l:colors[(index(l:colors, l:currColor) + a:step) % len(l:colors)]
-  call UpdateColor(l:colors[(index(l:colors, l:currColor) + a:step) % len(l:colors)])
+  call UpdateColor(l:nextColor)
 endfunction
 
 function! SetRandomColor()
