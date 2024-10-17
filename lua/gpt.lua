@@ -1,3 +1,4 @@
+local utils = require 'utils'
 local function createBuffer()
   vim.cmd 'botright new'
   local buf = vim.api.nvim_get_current_buf()
@@ -7,7 +8,7 @@ local function createBuffer()
   return buf
 end
 
-Gpt = function(...)
+Gpt = function(input, ...)
   local args = { ... }
   table.insert(args, '--no-md')
 
@@ -21,7 +22,8 @@ Gpt = function(...)
   Job:new({
     command = 'sgpt',
     args = args,
-    interactive = false,
+    writer = input,
+    interactive = input ~= nil,
     on_stdout = function(_, line)
       vim.schedule(function()
         if not buf then
@@ -45,9 +47,17 @@ Gpt = function(...)
 end
 
 vim.api.nvim_create_user_command('Gpt', function(prompt)
-  Gpt(prompt.args)
+  Gpt(nil, prompt.args)
+end, { nargs = 1 })
+
+vim.api.nvim_create_user_command('GptVisual', function(prompt)
+  Gpt(utils.get_visual_selection(), prompt.args)
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptCode', function(prompt)
-  Gpt(prompt.args, '--code')
+  Gpt(nil, prompt.args, '--code')
+end, { nargs = 1 })
+
+vim.api.nvim_create_user_command('GptCodeVisual', function(prompt)
+  Gpt(utils.get_visual_selection(), prompt.args, '--code')
 end, { nargs = 1 })

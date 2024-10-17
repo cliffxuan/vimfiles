@@ -18,7 +18,7 @@ local function search_visual_selection()
   text = vim.fn.escape(text, '?\\.*$^~[')
   -- Replace whitespace sequences with a pattern matching any whitespace
   text = text:gsub('%s+', '\\_s\\+')
-  require('telescope.builtin').grep_string { search = utils.get_visual_selection(), use_regex = true }
+  require('telescope.builtin').grep_string { search = text, use_regex = true }
 end
 
 local keymap = vim.keymap.set
@@ -123,7 +123,9 @@ keymap('n', '<leader>s', ':Snippets<CR>', { noremap = true })
 keymap('n', '<leader>t', ':FloatermToggle<CR>', { noremap = true })
 
 keymap('n', '<leader>uu', ':GptCode ', { noremap = true })
+keymap('v', '<leader>uu', ':<C-U>GptCodeVisual ', { noremap = true })
 keymap('n', '<leader>ui', ':Gpt ', { noremap = true })
+keymap('v', '<leader>ui', ':<C-U>GptVisual ', { noremap = true })
 
 keymap('n', '<leader>v', ':vsp<CR>', { noremap = true })
 keymap('n', '<leader>w', ':w<CR>', { noremap = true })

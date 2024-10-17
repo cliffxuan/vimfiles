@@ -46,10 +46,7 @@ M.get_visual_selection = function()
   end
   lines[n] = string.sub(lines[n], 1, cecol)
   lines[1] = string.sub(lines[1], cscol)
-  return table.concat(lines, '\n'), {
-    start = { line = csrow, char = cscol },
-    ['end'] = { line = cerow, char = cecol },
-  }
+  return table.concat(lines, '\n')
 end
 
 -- This function checks if the current environment is Windows Subsystem for Linux (WSL)
