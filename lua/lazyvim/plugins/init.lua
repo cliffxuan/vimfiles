@@ -47,7 +47,25 @@ return {
   'altercation/vim-colors-solarized',
   'yuttie/hydrangea-vim',
   'NLKNguyen/papercolor-theme',
-  { 'folke/tokyonight.nvim', lazy = false, priority = 1000, opts = {} },
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+    priority = 1000,
+    opts = {},
+    config = function()
+      ---@diagnostic disable-next-line: missing-fields
+      require('tokyonight').setup {
+        style = 'night',
+        styles = {
+          functions = {},
+        },
+        on_colors = function(colors)
+          ---@diagnostic disable-next-line: inject-field
+          colors.terminal_black = '#727169'
+        end
+      }
+    end,
+  },
   'rebelot/kanagawa.nvim',
   'catppuccin/nvim',
 

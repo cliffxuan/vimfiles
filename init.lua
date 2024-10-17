@@ -107,8 +107,8 @@ set colorcolumn=88
 set background=dark
 set termguicolors
 let g:eliteColors = uniq(split('
-   \ kanagawa
    \ tokyonight
+   \ kanagawa
    \ catppuccin
    \ gruvbox
    \ PaperColor
