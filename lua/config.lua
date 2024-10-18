@@ -57,6 +57,9 @@ require('lspconfig')['lua_ls'].setup {
       completion = {
         callSnippet = 'Replace',
       },
+      runtime = {
+        version = "LuaJIT"
+      },
     },
   },
 }
