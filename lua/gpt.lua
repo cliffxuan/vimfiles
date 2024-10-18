@@ -53,7 +53,7 @@ GptGitCommitMsg = function()
   }
   local gen_commit_msg = Job:new {
     command = 'sgpt',
-    args = { 'one line git commit message' },
+    args = { 'write a git commit message' },
     writer = git_diff,
     on_exit = function(j, code)
       vim.schedule(function()
