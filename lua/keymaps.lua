@@ -28,28 +28,29 @@ end)
 keymap('n', 's', '<Plug>(easymotion-overwin-f2)')
 keymap({ 'o', 'x' }, 's', '<Plug>(easymotion-f2)')
 
+-- Hide window
+keymap('n', 'K', ':hide<CR>', { noremap = true })
+
 -- leader
+require('which-key').add {
+  { '<leader>a', group = 'Text Search' },
+  { '<leader>c', group = 'Change directory' },
+  { '<leader>d', group = 'Gpt' },
+  { '<leader>u', group = 'Display Settings' },
+  { '<leader>e', group = 'Edit' },
+  { '<leader>g', group = 'Git' },
+  { '<leader>h', group = 'History' },
+}
+
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
+keymap('n', '<leader>a ', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap('n', '<leader>af', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Search references', noremap = true })
 keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
-
--- Hide window
-keymap('n', 'K', ':hide<CR>', { noremap = true })
-
-require('which-key').add {
-  { '<leader>a', group = 'Text Search' },
-  { '<leader>c', group = 'Change directory' },
-  { '<leader>d', group = 'Display Settings' },
-  { '<leader>e', group = 'Edit' },
-  { '<leader>g', group = 'Git' },
-  { '<leader>h', group = 'History' },
-}
 
 keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
 
@@ -59,14 +60,10 @@ keymap('n', '<leader>ck', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pw
 keymap('n', '<leader>cf', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
 keymap('n', '<leader>cp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
-keymap('n', '<leader>dd', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list', noremap = true })
-keymap('n', '<leader>dn', ':call NumberToggle()<cr>', { desc = 'Toggle number', noremap = true })
-keymap('n', '<leader>do', ':TagbarToggle<cr>', { desc = 'Toggle tag bar', noremap = true })
-keymap('n', '<leader>dj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme', noremap = true })
-keymap('n', '<leader>dk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
-keymap('n', '<leader>dr', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
-keymap('n', '<leader>dp', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
-keymap('n', '<leader>du', ':Telescope commands<cr>', { desc = 'Telescope command', noremap = true })
+keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
+keymap('v', '<leader>dd', ':<C-U>GptVisual ', { noremap = true })
+keymap('n', '<leader>d ', ':GptCode ', { noremap = true })
+keymap('v', '<leader>d ', ':<C-U>GptCodeVisual ', { noremap = true })
 
 keymap('n', '<leader>eb', ':botright new<cr>', { noremap = true })
 keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })
@@ -82,11 +79,10 @@ keymap('n', '<leader>ex', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
 
 keymap('n', '<leader>f', ':Telescope find_files<cr>', { noremap = true })
 
+keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
 keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
 keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
-keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
-keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
 keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
 keymap('n', '<leader>gh', ':GBrowse<cr>', { noremap = true })
@@ -94,6 +90,7 @@ keymap('v', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
 keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
 keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
+keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
 keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
 keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
@@ -122,10 +119,15 @@ keymap('n', '<leader>r', '<Plug>RunCurrentBuffer', { noremap = true })
 keymap('n', '<leader>s', ':Snippets<CR>', { noremap = true })
 keymap('n', '<leader>t', ':FloatermToggle<CR>', { noremap = true })
 
-keymap('n', '<leader>uu', ':GptCode ', { noremap = true })
-keymap('v', '<leader>uu', ':<C-U>GptCodeVisual ', { noremap = true })
-keymap('n', '<leader>ui', ':Gpt ', { noremap = true })
-keymap('v', '<leader>ui', ':<C-U>GptVisual ', { noremap = true })
+keymap('n', '<leader>u ', ':call NumberAndListToggle()<cr>', { desc = 'Toggle number and list', noremap = true })
+keymap('n', '<leader>un', ':call NumberToggle()<cr>', { desc = 'Toggle number', noremap = true })
+keymap('n', '<leader>uo', ':TagbarToggle<cr>', { desc = 'Toggle tag bar', noremap = true })
+keymap('n', '<leader>uj', ':call CycleColor(1, g:eliteColors)<cr>', { desc = 'next colorscheme', noremap = true })
+keymap('n', '<leader>uk', ':call CycleColor(-1, g:eliteColors)<cr>', { desc = 'prev colorscheme', noremap = true })
+keymap('n', '<leader>ur', ':call SetRandomColor()<cr>', { desc = 'random colorscheme', noremap = true })
+keymap('n', '<leader>up', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
+keymap('n', '<leader>uu', ':Telescope commands<cr>', { desc = 'Telescope command', noremap = true })
+
 
 keymap('n', '<leader>v', ':vsp<CR>', { noremap = true })
 keymap('n', '<leader>w', ':w<CR>', { noremap = true })
