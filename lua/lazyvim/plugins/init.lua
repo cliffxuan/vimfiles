@@ -19,6 +19,11 @@ return {
   'mhinz/vim-signify',
   'rhysd/git-messenger.vim',
   {
+    'folke/trouble.nvim',
+    opts = {},
+    cmd = 'Trouble',
+  },
+  {
     'sheerun/vim-polyglot',
     init = function()
       vim.g.polyglot_disabled = { 'python', 'markdown', 'autoindent' }
@@ -62,7 +67,7 @@ return {
         on_colors = function(colors)
           ---@diagnostic disable-next-line: inject-field
           colors.terminal_black = '#727169'
-        end
+        end,
       }
     end,
   },

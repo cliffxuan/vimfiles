@@ -111,7 +111,7 @@ keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = t
 keymap('n', '<leader><leader>j', '<Plug>(easymotion-w)', { noremap = true })
 keymap('n', '<leader><leader>k', '<Plug>(easymotion-b)', { noremap = true })
 
-keymap('n', '<leader>l', ':TroubleToggle document_diagnostics<CR>', { noremap = true, silent = true })
+keymap('n', '<leader>l', ':Trouble diagnostics toggle filter.buf=0 focus=true<CR>', { noremap = true, silent = true })
 keymap('n', '<leader>m', ':Marks<CR>', { noremap = true })
 keymap('n', '<leader>o', ':WhichKey<CR>', { noremap = true })
 keymap('n', '<leader>p', '"+p', { noremap = true })
