@@ -59,4 +59,12 @@ M.is_wsl = function()
   end
 end
 
+M.set_open_api_key = function()
+  local openai_api_key_path = vim.fn.expand '~/.config/openai_api_key'
+  if vim.fn.filereadable(openai_api_key_path) == 1 then
+    local openai_api_key = vim.fn.systemlist('cat ' .. openai_api_key_path)[1]
+    vim.env.OPENAI_API_KEY = openai_api_key
+  end
+end
+
 return M
