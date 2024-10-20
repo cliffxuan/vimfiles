@@ -1,14 +1,13 @@
 local utils = require 'utils'
 local Job = require 'plenary.job'
 
-local history_file_path = '/tmp/nvim-gpt.txt'
+local history_file_path = '/tmp/nvim-gpt.md'
 local window_config = {
   relative = 'editor',
-  width = 80,
+  width = 88,
   height = 20,
   row = vim.o.lines,
   col = vim.o.columns,
-  style = 'minimal',
 }
 
 local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
@@ -26,7 +25,7 @@ local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_option(buf, 'swapfile', false)
-  vim.api.nvim_buf_set_option(buf, 'filetype', 'gpt-history')
+  vim.api.nvim_buf_set_option(buf, 'filetype', 'markdown')
 
   -- Auto-save function
   vim.api.nvim_create_autocmd('BufLeave', {
@@ -76,7 +75,7 @@ local default_on_exit = function(job, code, buffer)
     result = job:stderr_result()
     print 'error!'
   end
-  table.insert(result, 1, os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(job.args, ' ', 2))
+  table.insert(result, 1, '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(job.args, ' ', 2))
   vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
   local win = get_window_for_file_path(vim.api.nvim_buf_get_name(buffer))
   if not win then
