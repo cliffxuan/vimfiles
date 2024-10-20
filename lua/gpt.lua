@@ -6,7 +6,7 @@ local window_config = {
   relative = 'editor',
   width = 88,
   height = 20,
-  row = vim.o.lines,
+  row = vim.o.lines - 22,
   col = vim.o.columns,
 }
 
@@ -76,6 +76,7 @@ local default_on_exit = function(job, code, buffer)
     print 'error!'
   end
   table.insert(result, 1, '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(job.args, ' ', 2))
+  table.insert(result, '')
   vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
   local win = get_window_for_file_path(vim.api.nvim_buf_get_name(buffer))
   if not win then
