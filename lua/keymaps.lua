@@ -66,6 +66,7 @@ keymap('n', '<leader>d ', ':GptCode ', { noremap = true })
 keymap('v', '<leader>d ', ':<C-U>GptCodeVisual ', { noremap = true })
 keymap('n', '<leader>dm', ':GptGitDiffSummary<cr>', { noremap = true })
 keymap('n', '<leader>dM', ':GptGitCommitMsg<cr>', { noremap = true })
+keymap('n', '<leader>dt', ':GptWindowToggle<cr>', { noremap = true })
 
 keymap('n', '<leader>eb', ':botright new<cr>', { noremap = true })
 keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })

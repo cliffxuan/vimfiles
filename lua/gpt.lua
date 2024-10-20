@@ -1,26 +1,32 @@
 local utils = require 'utils'
 local Job = require 'plenary.job'
 
-local load_buffer_for_path = function(file_path)
-  local new_buf = vim.api.nvim_create_buf(false, true) -- false: not listed, true scratch
+local history_file_path = '/tmp/nvim-gpt.txt'
+local window_config = {
+  relative = 'editor',
+  width = 80,
+  height = 20,
+  row = vim.o.lines,
+  col = vim.o.columns,
+  style = 'minimal',
+}
+
+local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
+  local buf = vim.api.nvim_create_buf(false, true) -- false: not listed, true scratch
   local file = io.open(file_path, 'r')
   if file then
     local content = file:read '*all'
     if content and content ~= '' then
-      vim.api.nvim_buf_set_lines(new_buf, 0, -1, false, vim.split(content, '\n'))
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(content, '\n'))
     end
     file:close()
   end
-  return new_buf
-end
-
-local function get_buffer()
-  local file_path = '/tmp/nvim-gpt.txt'
-  local buf = load_buffer_for_path(file_path)
+  vim.api.nvim_buf_set_name(buf, file_path)
   -- Set buffer options
   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+  vim.api.nvim_buf_set_option(buf, 'filetype', 'gpt-history')
 
   -- Auto-save function
   vim.api.nvim_create_autocmd('BufLeave', {
@@ -42,6 +48,28 @@ local function get_buffer()
   return buf
 end
 
+local get_window_for_file_path = function(file_path)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.api.nvim_buf_get_name(buf) == vim.fn.resolve(file_path) then
+      return win
+    end
+  end
+end
+
+local get_buffer_for_file_path = function(file_path)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_get_name(buf) == vim.fn.resolve(file_path) then
+      return buf
+    end
+  end
+end
+
+local function get_buffer(file_path)
+  local buf = get_buffer_for_file_path(file_path) or load_buffer_for_path(file_path)
+  return buf
+end
+
 local default_on_exit = function(job, code, buffer)
   local result = job:result()
   if code ~= 0 then
@@ -49,19 +77,15 @@ local default_on_exit = function(job, code, buffer)
     print 'error!'
   end
   vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
-  vim.api.nvim_open_win(buffer, true, {
-    relative = 'editor',
-    width = 80,
-    height = 20,
-    row = vim.o.lines,
-    col = vim.o.columns,
-    style = 'minimal',
-  })
+  local win = get_window_for_file_path(vim.api.nvim_buf_get_name(buffer))
+  if not win then
+    vim.api.nvim_open_win(buffer, true, window_config)
+  end
 end
 
 local run_shell_command = function(shell_command, input, buffer, on_exit)
   if buffer == nil then
-    buffer = get_buffer()
+    buffer = get_buffer(history_file_path)
   end
   if on_exit == nil then
     on_exit = default_on_exit
@@ -79,23 +103,36 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
   }):start()
 end
 
-vim.api.nvim_create_user_command('GptWindowShow', function()
-  vim.api.nvim_open_win(get_buffer(), true, {
-    relative = 'editor',
-    width = 80,
-    height = 20,
-    row = vim.o.lines,
-    col = vim.o.columns,
-    style = 'minimal',
-  })
+vim.api.nvim_create_user_command('GptWindowOpen', function()
+  local win = get_window_for_file_path(history_file_path)
+  if win then
+    print 'gpt window already open'
+  else
+    vim.api.nvim_open_win(get_buffer(history_file_path), true, window_config)
+  end
+end, { nargs = 0 })
+
+vim.api.nvim_create_user_command('GptWindowClose', function()
+  local win = get_window_for_file_path(history_file_path)
+  if win then
+    vim.api.nvim_win_hide(win)
+  else
+    print 'gpt window not found'
+  end
+end, { nargs = 0 })
+
+vim.api.nvim_create_user_command('GptWindowToggle', function()
+  local win = get_window_for_file_path(history_file_path)
+  if win then
+    vim.api.nvim_win_hide(win)
+  else
+    vim.api.nvim_open_win(get_buffer(history_file_path), true, window_config)
+  end
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('Gpt', function(prompt)
   utils.set_open_api_key()
-  local on_exit = function(job, code, buffer)
-    default_on_exit(job, code, buffer)
-  end
-  run_shell_command('sgpt ' .. '"' .. prompt.args .. '"', nil, get_buffer(), on_exit)
+  run_shell_command('sgpt ' .. '"' .. prompt.args .. '"')
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptVisual', function(prompt)
