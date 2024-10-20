@@ -67,4 +67,7 @@ M.set_open_api_key = function()
   end
 end
 
+M.rstrip = function(s)
+  return s:match '^(.*%S)' or ''
+end
 return M
