@@ -296,8 +296,6 @@ vim.cmd [[
   let $FZF_DEFAULT_COMMAND = 'rg --files'
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
   let g:indentLine_setColors = 0
-  let g:floaterm_autoclose = 2  " Always close floaterm window
-  let g:floaterm_gitcommit = "tabe"
   let g:terraform_align=1
   let g:UltiSnipsSnippetDirectories=['ultisnips']
   let g:UltiSnipsExpandTrigger = '<C-j>'
