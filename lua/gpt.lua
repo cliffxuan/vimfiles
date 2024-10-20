@@ -76,10 +76,14 @@ local default_on_exit = function(job, code, buffer)
     result = job:stderr_result()
     print 'error!'
   end
+  table.insert(result, 1, os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(job.args, ' ', 2))
   vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
   local win = get_window_for_file_path(vim.api.nvim_buf_get_name(buffer))
   if not win then
     vim.api.nvim_open_win(buffer, true, window_config)
+  else
+    vim.api.nvim_win_set_cursor(win, { 1, 1 })
+    vim.api.nvim_set_current_win(win)
   end
 end
 
@@ -106,7 +110,7 @@ end
 vim.api.nvim_create_user_command('GptWindowOpen', function()
   local win = get_window_for_file_path(history_file_path)
   if win then
-    print 'gpt window already open'
+    vim.api.nvim_set_current_win(win)
   else
     vim.api.nvim_open_win(get_buffer(history_file_path), true, window_config)
   end
