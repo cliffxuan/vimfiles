@@ -10,30 +10,21 @@ local create_buffer = function()
   return buf
 end
 
-local run_shell_command = function(shell_command, input, create_buffer_fn)
-  create_buffer_fn = create_buffer_fn or create_buffer
-  local buf = nil
+local run_shell_command = function(shell_command, input, buffer)
+  if buffer == nil then
+    buffer = create_buffer()
+  end
   Job:new({
     command = 'sh',
     writer = input,
     interactive = input ~= nil,
     args = { '-c', shell_command },
-    on_stdout = function(_, line)
-      vim.schedule(function()
-        if not buf then
-          if line:gsub('^%s*(.-)%s*$', '%1') ~= '' then
-            buf = create_buffer_fn()
-            vim.api.nvim_buf_set_lines(buf, 0, -1, false, { line })
-          end
-        else
-          vim.api.nvim_buf_set_lines(buf, -1, -1, false, { line })
-        end
-      end)
-    end,
     on_exit = function(j, code)
       vim.schedule(function()
-        if code ~= 0 then
-          vim.api.nvim_buf_set_lines(buf or create_buffer_fn(), 0, -1, false, j:stderr_result())
+        if code == 0 then
+          vim.api.nvim_buf_set_lines(buffer, 0, 0, false, j:result())
+        else
+          vim.api.nvim_buf_set_lines(buffer, 0, 0, false, j:stderr_result())
           print 'error!'
         end
       end)
@@ -63,7 +54,7 @@ end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptGitCommitMsg', function()
   utils.set_open_api_key()
-  run_shell_command 'git diff --cached | sgpt "write a short git commit message" --no-md'
+  run_shell_command('git diff --cached | sgpt "write a short git commit message" --no-md', nil, 0)
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('GptGitDiffSummary', function()
