@@ -1,12 +1,21 @@
-local utils = require 'utils'
 local Job = require 'plenary.job'
+local Path = require 'plenary.path'
 
-local history_file_path = '/tmp/nvim-gpt.md'
+local utils = require 'utils'
+
+local cache_dir = os.getenv 'HOME' .. '/.local/share/nvim/gpt/'
+local history_file_path = cache_dir .. os.date '%Y-%m-%d' .. '.md'
+
+local path = Path:new(cache_dir)
+if not path:exists() then
+  path:mkdir { parents = true }
+end
+
 local window_config = {
   relative = 'editor',
   width = 88,
   height = 20,
-  row = vim.o.lines - 22,
+  row = vim.o.lines - 24,
   col = vim.o.columns,
   border = 'rounded',
 }
@@ -33,6 +42,10 @@ local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
     buffer = buf,
     callback = function()
       local content = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      -- Remove trailing empty lines
+      while #content > 0 and content[#content] == '' do
+        table.remove(content)
+      end
       local file_w = io.open(file_path, 'w')
       if file_w then
         for _, line in ipairs(content) do
