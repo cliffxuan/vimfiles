@@ -60,9 +60,9 @@ keymap('n', '<leader>ck', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pw
 keymap('n', '<leader>cf', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
 keymap('n', '<leader>cp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
-keymap('n', '<leader>dd', ':GptWindowToggle<cr>', { noremap = true })
-keymap('n', '<leader>d ', ':Gpt ', { noremap = true })
-keymap('v', '<leader>d ', ':<C-U>GptVisual ', { noremap = true })
+keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
+keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
+keymap('v', '<leader>dd', ':<C-U>GptVisual ', { noremap = true })
 keymap('n', '<leader>dk', ':GptCode ', { noremap = true })
 keymap('v', '<leader>dk', ':<C-U>GptCodeVisual ', { noremap = true })
 keymap('n', '<leader>dm', ':GptGitCommitMsg<cr>', { noremap = true })

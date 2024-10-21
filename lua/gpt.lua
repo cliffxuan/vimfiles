@@ -8,6 +8,7 @@ local window_config = {
   height = 20,
   row = vim.o.lines - 22,
   col = vim.o.columns,
+  border = 'rounded',
 }
 
 local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
@@ -65,8 +66,7 @@ local get_buffer_for_file_path = function(file_path)
 end
 
 local function get_buffer(file_path)
-  local buf = get_buffer_for_file_path(file_path) or load_buffer_for_path(file_path)
-  return buf
+  return get_buffer_for_file_path(file_path) or load_buffer_for_path(file_path)
 end
 
 local default_on_exit = function(job, code, buffer)
@@ -84,6 +84,7 @@ local default_on_exit = function(job, code, buffer)
   local win = get_window_for_file_path(vim.api.nvim_buf_get_name(buffer))
   if not win then
     vim.api.nvim_open_win(buffer, true, window_config)
+    vim.api.nvim_win_set_option(0, 'wrap', true)
   else
     vim.api.nvim_win_set_cursor(win, { 1, 1 })
     vim.api.nvim_set_current_win(win)
@@ -101,7 +102,7 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
     command = 'sh',
     writer = input,
     interactive = input ~= nil,
-    args = { '-c', shell_command },
+    args = { '-c', table.concat(shell_command, ' ') },
     on_exit = function(job, code)
       vim.schedule(function()
         on_exit(job, code, buffer)
@@ -116,6 +117,7 @@ vim.api.nvim_create_user_command('GptWindowOpen', function()
     vim.api.nvim_set_current_win(win)
   else
     vim.api.nvim_open_win(get_buffer(history_file_path), true, window_config)
+    vim.api.nvim_win_set_option(0, 'wrap', true)
   end
 end, { nargs = 0 })
 
@@ -134,27 +136,28 @@ vim.api.nvim_create_user_command('GptWindowToggle', function()
     vim.api.nvim_win_hide(win)
   else
     vim.api.nvim_open_win(get_buffer(history_file_path), true, window_config)
+    vim.api.nvim_win_set_option(0, 'wrap', true)
   end
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('Gpt', function(prompt)
   utils.set_open_api_key()
-  run_shell_command('sgpt ' .. '"' .. prompt.args .. '"')
+  run_shell_command { 'sgpt', '"' .. prompt.args .. '"', ' --no-md' }
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptVisual', function(prompt)
   utils.set_open_api_key()
-  run_shell_command('sgpt ' .. '"' .. prompt.args .. '"', utils.get_visual_selection())
+  run_shell_command({ 'sgpt ', '"', prompt.args .. '"', ' --no-md' }, utils.get_visual_selection())
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptCode', function(prompt)
   utils.set_open_api_key()
-  run_shell_command(table.concat({ 'sgpt', '"' .. prompt.args .. '"', '--code' }, ' '))
+  run_shell_command { 'sgpt', '"' .. prompt.args .. '"', '--code', '--no-md' }
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptCodeVisual', function(prompt)
   utils.set_open_api_key()
-  run_shell_command(table.concat({ 'sgpt', '"' .. prompt.args .. '"', '--code' }, ' '), utils.get_visual_selection())
+  run_shell_command({ 'sgpt', '"' .. prompt.args .. '"', '--code', '--no-md' }, utils.get_visual_selection())
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('GptGitCommitMsg', function()
@@ -178,10 +181,10 @@ vim.api.nvim_create_user_command('GptGitCommitMsg', function()
     end
     vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
   end
-  run_shell_command('git diff --cached | sgpt "write a short git commit message" --no-md', nil, 0, on_exit)
+  run_shell_command({ 'git diff --cached | sgpt "write a short git commit message"' }, nil, 0, on_exit)
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('GptGitDiffSummary', function()
   utils.set_open_api_key()
-  run_shell_command 'git diff | sgpt "write a short git commit message" --no-md'
+  run_shell_command { 'git diff | sgpt "write a short git commit message"' }
 end, { nargs = 0 })
