@@ -70,4 +70,8 @@ end
 M.rstrip = function(s)
   return s:match '^(.*%S)' or ''
 end
+
+M.strip = function(s)
+  return s:match '^%s*(.-)%s*$'
+end
 return M

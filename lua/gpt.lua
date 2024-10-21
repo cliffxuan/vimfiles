@@ -173,18 +173,18 @@ vim.api.nvim_create_user_command('GptGitCommitMsg', function()
       result = job:stderr_result()
       print 'error!'
     end
-    if result[1] == '```' then
-      table.remove(result, 1)
+    local output = {}
+    for _, line in ipairs(result) do
+      if utils.strip(line) ~= '```' then
+        table.insert(output, utils.rstrip(line))
+      end
     end
-    if result[#result] == '```' then
-      table.remove(result, #result)
-    end
-    vim.api.nvim_buf_set_lines(buffer, 0, 0, false, result)
+    vim.api.nvim_buf_set_lines(buffer, 0, 0, false, output)
   end
-  run_shell_command({ 'git diff --cached | sgpt "write a short git commit message"' }, nil, 0, on_exit)
+  run_shell_command({ 'git diff --cached | sgpt "write a short git commit message"', '--no-md' }, nil, 0, on_exit)
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('GptGitDiffSummary', function()
   utils.set_open_api_key()
-  run_shell_command { 'git diff | sgpt "write a short git commit message"' }
+  run_shell_command { 'git diff | sgpt "write a short git commit message"', '--no-md' }
 end, { nargs = 0 })
