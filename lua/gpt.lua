@@ -1,4 +1,5 @@
 local Job = require 'plenary.job'
+local Notify = require 'mini.notify'
 local Path = require 'plenary.path'
 
 local utils = require 'utils'
@@ -88,7 +89,7 @@ local default_on_exit = function(job, code, buffer)
     result = job:stderr_result()
     print 'error!'
   end
-  local processed_result = { '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(job.args, ' ') }
+  local processed_result = { '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(vim.list_slice(job.args, 2), ' ') }
   for _, line in ipairs(result) do
     table.insert(processed_result, utils.rstrip(line))
   end
@@ -111,6 +112,7 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
   if on_exit == nil then
     on_exit = default_on_exit
   end
+  local nid = Notify.add(table.concat(shell_command, ' '))
   Job:new({
     command = 'sh',
     writer = input,
@@ -118,6 +120,7 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
     args = { '-c', table.concat(shell_command, ' ') },
     on_exit = function(job, code)
       vim.schedule(function()
+        Notify.remove(nid)
         on_exit(job, code, buffer)
       end)
     end,

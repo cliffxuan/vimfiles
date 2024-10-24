@@ -132,7 +132,6 @@ keymap('n', '<leader>ur', ':call SetRandomColor()<cr>', { desc = 'random colorsc
 keymap('n', '<leader>up', ':colorscheme<cr>', { desc = 'show colorscheme', noremap = true })
 keymap('n', '<leader>uu', ':Telescope commands<cr>', { desc = 'Telescope command', noremap = true })
 
-
 keymap('n', '<leader>v', ':vsp<CR>', { noremap = true })
 keymap('n', '<leader>w', ':w<CR>', { noremap = true })
 keymap('n', '<leader>x', ':ALEFix<CR>', { noremap = true })
