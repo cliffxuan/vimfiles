@@ -112,7 +112,28 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
   if on_exit == nil then
     on_exit = default_on_exit
   end
-  local nid = Notify.add(table.concat(shell_command, ' '))
+
+  local spinner_frames = { '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷' }
+  local frame = 1
+  local get_msg = function()
+    return string.format('%s %s', spinner_frames[frame], table.concat(shell_command, ' '))
+  end
+  local nid = Notify.add(get_msg())
+  local timer = vim.loop.new_timer()
+  local running = true
+  timer:start(
+    0,
+    200,
+    vim.schedule_wrap(function()
+      if running then
+        frame = (frame + 1) % #spinner_frames + 1
+        Notify.update(nid, { msg = get_msg() })
+      else
+        timer:stop()
+        Notify.remove(nid)
+      end
+    end)
+  )
   Job:new({
     command = 'sh',
     writer = input,
@@ -120,7 +141,7 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
     args = { '-c', table.concat(shell_command, ' ') },
     on_exit = function(job, code)
       vim.schedule(function()
-        Notify.remove(nid)
+        running = false
         on_exit(job, code, buffer)
       end)
     end,
