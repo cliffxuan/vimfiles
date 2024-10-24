@@ -89,7 +89,8 @@ local default_on_exit = function(job, code, buffer)
     result = job:stderr_result()
     print 'error!'
   end
-  local processed_result = { '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(vim.list_slice(job.args, 2), ' ') }
+  local processed_result =
+    { '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(vim.list_slice(job.args, 2), ' ') }
   for _, line in ipairs(result) do
     table.insert(processed_result, utils.rstrip(line))
   end
