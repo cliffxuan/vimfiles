@@ -149,6 +149,42 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
   }):start()
 end
 
+local gpt_prompt = function(on_submit)
+  local Input = require 'nui.input'
+  local event = require('nui.utils.autocmd').event
+
+  local input = Input({
+    position = '50%',
+    relative = 'editor',
+    size = {
+      width = 100,
+    },
+    border = {
+      style = 'rounded',
+      text = {
+        top = '[gpt]',
+        top_align = 'center',
+      },
+    },
+    win_options = {
+      winhighlight = 'Normal:Normal,FloatBorder:FloatBorder',
+    },
+  }, {
+    prompt = '> ',
+    on_submit = function(value)
+      if utils.strip(value) ~= '' then
+        on_submit(value)
+      end
+    end,
+  })
+
+  input:mount()
+
+  input:on(event.BufLeave, function()
+    input:unmount()
+  end)
+end
+
 vim.api.nvim_create_user_command('GptWindowOpen', function()
   local win = get_window_for_file_path(history_file_path)
   if win then
@@ -225,4 +261,18 @@ end, { nargs = 0 })
 vim.api.nvim_create_user_command('GptGitDiffSummary', function()
   utils.set_open_api_key()
   run_shell_command { 'git diff | sgpt "write a short git commit message"', '--no-md' }
+end, { nargs = 0 })
+
+vim.api.nvim_create_user_command('GptInput', function()
+  gpt_prompt(function(value)
+    utils.set_open_api_key()
+    run_shell_command { 'sgpt', '"' .. value .. '"', ' --no-md' }
+  end)
+end, { nargs = 0 })
+
+vim.api.nvim_create_user_command('GptInputVisual', function()
+  gpt_prompt(function(value)
+    utils.set_open_api_key()
+    run_shell_command({ 'sgpt ', '"' .. value .. '"', ' --no-md' }, utils.get_visual_selection())
+  end)
 end, { nargs = 0 })
