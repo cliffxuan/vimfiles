@@ -45,7 +45,12 @@ require('which-key').add {
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
 keymap('n', '<leader>a ', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap('n', '<leader>al', search_word_under_cursor_in_current_file, { desc = 'Search word under the cursor in current file', noremap = true })
+keymap(
+  'n',
+  '<leader>al',
+  search_word_under_cursor_in_current_file,
+  { desc = 'Search word under the cursor in current file', noremap = true }
+)
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
@@ -54,10 +59,30 @@ keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search vis
 
 keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
 
-keymap('n', '<leader>cc', ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>', { desc = 'cd into the project root', noremap = true })
-keymap('n', '<leader>cj', ':exec "cd " .. expand("%:h") <bar> :pwd<cr>', { desc = 'cd into the directory of the current file', noremap = true })
-keymap('n', '<leader>ck', ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>', { desc = 'cd into parent directory', noremap = true })
-keymap('n', '<leader>cf', ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>", { desc = 'choose working direcotry', noremap = true })
+keymap(
+  'n',
+  '<leader>cc',
+  ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>',
+  { desc = 'cd into the project root', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>cj',
+  ':exec "cd " .. expand("%:h") <bar> :pwd<cr>',
+  { desc = 'cd into the directory of the current file', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>ck',
+  ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
+  { desc = 'cd into parent directory', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>cf',
+  ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>",
+  { desc = 'choose working direcotry', noremap = true }
+)
 keymap('n', '<leader>cp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
 keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
@@ -157,3 +182,5 @@ keymap('i', '<c-x><c-l>', '<plug>(fzf-complete-line)', {})
 keymap('t', '<c-j>', '<c-\\><c-n>', { noremap = true })
 keymap('n', '<c-/>', ':FloatermToggle<cr>', { noremap = true })
 keymap('t', '<c-/>', '<c-\\><c-n>:hide<cr>', { noremap = true })
+keymap('n', '<c-_>', ':FloatermToggle<cr>', { noremap = true }) -- same as <c-/> in tmux
+keymap('t', '<c-_>', '<c-\\><c-n>:hide<cr>', { noremap = true }) -- same as <c-/> in tmux
