@@ -23,8 +23,13 @@ end
 
 local keymap = vim.keymap.set
 keymap('n', '-', function()
-  MiniFiles.open(vim.fn.expand '%:p:h')
-end)
+  local MiniFiles = require 'mini.files'
+  if vim.bo.filetype == 'minifiles' then
+    MiniFiles.go_out()
+  else
+    MiniFiles.open(vim.fn.expand '%:p:h', false)
+  end
+end, { noremap = true, silent = true })
 keymap('n', 's', '<Plug>(easymotion-overwin-f2)')
 keymap({ 'o', 'x' }, 's', '<Plug>(easymotion-f2)')
 
