@@ -138,8 +138,17 @@ keymap('n', '<leader>hh', require('telescope.builtin').oldfiles, { noremap = tru
 keymap('n', '<leader>hs', require('telescope.builtin').search_history, { noremap = true })
 keymap('n', '<leader>hc', require('telescope.builtin').command_history, { noremap = true })
 
-keymap('n', '<leader>j', '<Plug>(easymotion-j)', { noremap = true })
-keymap('n', '<leader>k', '<Plug>(easymotion-k)', { noremap = true })
+keymap('n', '<leader>jj', function()
+  require('telescope.builtin').find_files {
+    cwd = vim.fn.expand '%:p:h',
+  }
+end, { noremap = true })
+keymap('n', '<leader>j ', function()
+  require('telescope.builtin').find_files {
+    cwd = vim.fn.getcwd(),
+  }
+end, { noremap = true })
+keymap('n', '<leader>k', '<Plug>(easymotion-bd-jk)', { noremap = true })
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
 keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })

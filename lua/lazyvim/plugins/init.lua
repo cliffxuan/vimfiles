@@ -86,7 +86,12 @@ return {
   { 'Vimjas/vim-python-pep8-indent', ft = 'python' },
   { 'simrat39/rust-tools.nvim', ft = 'rust' }, -- rust analyzer inlay
   { 'rust-lang/rust.vim', ft = 'rust' },
-  { 'nvim-telescope/telescope.nvim', tag = '0.1.4' },
+  {
+    'nvim-telescope/telescope.nvim',
+    config = function()
+      vim.cmd 'autocmd User TelescopePreviewerLoaded setlocal number'
+    end,
+  },
   { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
   {
     'MeanderingProgrammer/render-markdown.nvim',

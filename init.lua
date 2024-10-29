@@ -306,11 +306,10 @@ vim.cmd [[
   let g:UltiSnipsJumpForwardTrigger = '<C-j>'
   let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
-" python provider uses pynvim specific virtualenv
-if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
-  let g:python3_host_prog = '~/.virtualenvs/pynvim/bin/python3'
-endif
-
+  " python provider uses pynvim specific virtualenv
+  if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
+    let g:python3_host_prog = '~/.virtualenvs/pynvim/bin/python3'
+  endif
 " }}}
 ]]
 
