@@ -142,12 +142,12 @@ keymap('n', '<leader>jj', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.expand '%:p:h',
   }
-end, { noremap = true })
+end, { noremap = true, desc = 'open the directory of current file' })
 keymap('n', '<leader>j ', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.getcwd(),
   }
-end, { noremap = true })
+end, { noremap = true, desc = 'open the current directory' })
 keymap('n', '<leader>k', '<Plug>(easymotion-bd-jk)', { noremap = true })
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
