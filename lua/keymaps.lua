@@ -84,7 +84,7 @@ keymap(
 )
 keymap(
   'n',
-  '<leader>cf',
+  '<leader>cd',
   ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>",
   { desc = 'choose working direcotry', noremap = true }
 )
@@ -115,22 +115,26 @@ keymap('n', '<leader>ex', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
 
 keymap('n', '<leader>f', ':Telescope find_files<cr>', { noremap = true })
 
-keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
-keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
-keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
+keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
+keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
 keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
+keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
 keymap('n', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('v', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
+keymap('v', '<leader>gl', function ()
+  require('telescope.builtin').git_bcommits_range()
+end, { noremap = true })
 keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
 keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
 keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
 keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
-keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
+keymap('n', '<leader>gs', ':Telescope git_status<cr>', { noremap = true })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
 keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true })
+keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
 keymap('n', '<leader>gj', '<plug>(signify-next-hunk)', { noremap = true, silent = true })
 keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, silent = true })
 
@@ -141,19 +145,21 @@ keymap('n', '<leader>hc', require('telescope.builtin').command_history, { norema
 keymap('n', '<leader>jj', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.expand '%:p:h',
+    initial_mode = 'normal',
   }
 end, { noremap = true, desc = 'open the directory of current file' })
 keymap('n', '<leader>j ', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.getcwd(),
+    initial_mode = 'normal',
   }
 end, { noremap = true, desc = 'open the current directory' })
 keymap('n', '<leader>k', '<Plug>(easymotion-bd-jk)', { noremap = true })
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
 keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })
-keymap('n', '<leader><leader>j', '<Plug>(easymotion-w)', { noremap = true })
-keymap('n', '<leader><leader>k', '<Plug>(easymotion-b)', { noremap = true })
+keymap('n', '<leader><leader>j', '<Plug>(easymotion-j)', { noremap = true })
+keymap('n', '<leader><leader>k', '<Plug>(easymotion-k)', { noremap = true })
 
 keymap('n', '<leader>l', ':Trouble diagnostics toggle filter.buf=0 focus=true<CR>', { noremap = true, silent = true })
 keymap('n', '<leader>m', ':Marks<CR>', { noremap = true })
