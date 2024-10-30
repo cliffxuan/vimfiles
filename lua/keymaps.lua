@@ -21,6 +21,43 @@ local function search_visual_selection()
   require('telescope.builtin').grep_string { search = text, use_regex = true }
 end
 
+local function find_in_subdirectory()
+  local telescope = require 'telescope.builtin'
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local pickers = require 'telescope.pickers'
+
+  local find_command = { 'fd', '--type', 'd', '.', vim.fn.getcwd() }
+
+  pickers
+    .new({}, {
+      prompt_title = 'Select Directory',
+      finder = finders.new_oneshot_job(find_command, {}),
+      sorter = conf.generic_sorter {},
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          local selection = action_state.get_selected_entry()
+          if selection == nil then
+            return
+          end
+
+          actions.close(prompt_bufnr)
+
+          local dir_path = selection.value
+          telescope.find_files {
+            prompt_title = 'Find Files in ' .. dir_path,
+            cwd = dir_path,
+            initial_mode = 'normal',
+          }
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
 local keymap = vim.keymap.set
 keymap('n', '-', function()
   local MiniFiles = require 'mini.files'
@@ -39,11 +76,11 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 -- leader
 require('which-key').add {
   { '<leader>a', group = 'Text Search' },
-  { '<leader>c', group = 'Change directory' },
   { '<leader>d', group = 'Gpt' },
   { '<leader>u', group = 'Display Settings' },
   { '<leader>e', group = 'Edit' },
   { '<leader>g', group = 'Git' },
+  { '<leader>k', group = 'Change directory' },
   { '<leader>h', group = 'History' },
 }
 
@@ -66,25 +103,25 @@ keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', no
 
 keymap(
   'n',
-  '<leader>cc',
+  '<leader>kj',
   ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>',
   { desc = 'cd into the project root', noremap = true }
 )
 keymap(
   'n',
-  '<leader>cj',
+  '<leader>kk',
   ':exec "cd " .. expand("%:h") <bar> :pwd<cr>',
   { desc = 'cd into the directory of the current file', noremap = true }
 )
 keymap(
   'n',
-  '<leader>ck',
+  '<leader>kl',
   ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
   { desc = 'cd into parent directory', noremap = true }
 )
 keymap(
   'n',
-  '<leader>cd',
+  '<leader>k ',
   ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>",
   { desc = 'choose working direcotry', noremap = true }
 )
@@ -124,7 +161,7 @@ keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
 keymap('n', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('v', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
-keymap('v', '<leader>gl', function ()
+keymap('v', '<leader>gl', function()
   require('telescope.builtin').git_bcommits_range()
 end, { noremap = true })
 keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
@@ -146,15 +183,16 @@ keymap('n', '<leader>jj', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.expand '%:p:h',
     initial_mode = 'normal',
+    preview_title = vim.fn.expand '%:p:h',
   }
 end, { noremap = true, desc = 'open the directory of current file' })
-keymap('n', '<leader>j ', function()
-  require('telescope.builtin').find_files {
-    cwd = vim.fn.getcwd(),
-    initial_mode = 'normal',
-  }
-end, { noremap = true, desc = 'open the current directory' })
-keymap('n', '<leader>k', '<Plug>(easymotion-bd-jk)', { noremap = true })
+
+keymap(
+  'n',
+  '<leader>j ',
+  find_in_subdirectory,
+  { noremap = true, silent = true, desc = 'open file in chosen sub directory' }
+)
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
 keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })
