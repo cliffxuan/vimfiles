@@ -88,18 +88,25 @@ return {
   { 'rust-lang/rust.vim', ft = 'rust' },
   {
     'nvim-telescope/telescope.nvim',
+    dependencies = { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
     config = function()
+      require('telescope').setup {
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = 'smart_case',
+          },
+        },
+      }
+      require('telescope').load_extension 'fzf'      
       vim.cmd 'autocmd User TelescopePreviewerLoaded setlocal number'
     end,
   },
-  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
-    ---@module 'render-markdown'
-    ---@type render.md.UserConfig
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, 
     opts = {},
   },
 }
