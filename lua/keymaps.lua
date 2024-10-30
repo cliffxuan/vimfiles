@@ -125,7 +125,7 @@ keymap(
   ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>",
   { desc = 'choose working direcotry', noremap = true }
 )
-keymap('n', '<leader>cp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
+keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
 keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
 -- keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
