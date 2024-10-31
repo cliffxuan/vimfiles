@@ -99,7 +99,11 @@ keymap('n', '<leader>aj', function()
 end, { desc = 'Search references', noremap = true })
 keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
-keymap('n', '<leader>b', ':Telescope buffers<cr>', { desc = 'Search buffers', noremap = true })
+keymap('n', '<leader>b', function()
+  require('telescope.builtin').buffers {
+    initial_mode = 'normal',
+  }
+end, { desc = 'Search buffers', noremap = true })
 
 keymap(
   'n',
@@ -158,8 +162,6 @@ keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
 keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
 keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
 keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
-keymap('n', '<leader>gh', ':GBrowse<cr>', { noremap = true })
-keymap('v', '<leader>gh', ':GBrowse<cr>', { noremap = true })
 keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
 keymap('v', '<leader>gl', function()
   require('telescope.builtin').git_bcommits_range()
@@ -168,7 +170,11 @@ keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
 keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
 keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
 keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
-keymap('n', '<leader>gs', ':Telescope git_status<cr>', { noremap = true })
+keymap('n', '<leader>gs', function()
+  require('telescope.builtin').git_status {
+    initial_mode = 'normal',
+  }
+end, { noremap = true })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
 keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true })
 keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
