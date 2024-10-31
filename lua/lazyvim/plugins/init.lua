@@ -100,14 +100,14 @@ return {
           },
         },
       }
-      require('telescope').load_extension 'fzf'      
+      require('telescope').load_extension 'fzf'
       vim.cmd 'autocmd User TelescopePreviewerLoaded setlocal number'
     end,
   },
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, 
-    ft = 'terraform'
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' },
+    ft = 'terraform',
     opts = {},
   },
 }
