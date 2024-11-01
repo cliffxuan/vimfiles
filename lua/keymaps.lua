@@ -1,10 +1,14 @@
 local utils = require 'utils'
 local function search_word_under_cursor()
-  require('telescope.builtin').grep_string { search = vim.fn.expand '<cword>' }
+  require('telescope.builtin').grep_string { search = vim.fn.expand '<cword>', initial_mode = 'normal' }
 end
 
 local function search_highlighted_text()
-  require('telescope.builtin').grep_string { search = utils.get_highlighted_text(), use_regex = true }
+  require('telescope.builtin').grep_string {
+    search = utils.get_highlighted_text(),
+    use_regex = true,
+    initial_mode = 'normal',
+  }
 end
 
 local function search_word_under_cursor_in_current_file()
@@ -18,7 +22,7 @@ local function search_visual_selection()
   text = vim.fn.escape(text, '?\\.*$^~[')
   -- Replace whitespace sequences with a pattern matching any whitespace
   text = text:gsub('%s+', '\\_s\\+')
-  require('telescope.builtin').grep_string { search = text, use_regex = true }
+  require('telescope.builtin').grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
 local function find_in_subdirectory()
