@@ -25,14 +25,13 @@ local function search_visual_selection()
   require('telescope.builtin').grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
-local function choose_working_directory()
+local function pick_directory(callback)
   local actions = require 'telescope.actions'
   local action_state = require 'telescope.actions.state'
   local finders = require 'telescope.finders'
   local conf = require('telescope.config').values
   local pickers = require 'telescope.pickers'
   local previewers = require 'telescope.previewers'
-  local Notify = require 'mini.notify'
 
   local find_command = { 'fd', '--type', 'd', '.', vim.fn.getcwd() }
   local tree_previewer = previewers.new_termopen_previewer {
@@ -56,13 +55,7 @@ local function choose_working_directory()
           end
 
           actions.close(prompt_bufnr)
-
-          local dir_path = selection.value
-          vim.fn.chdir(dir_path)
-          local nid = Notify.add('working dir ' .. dir_path)
-          vim.defer_fn(function()
-            Notify.remove(nid)
-          end, 2000)
+          callback(selection.value)
         end)
         return true
       end,
@@ -70,49 +63,25 @@ local function choose_working_directory()
     :find()
 end
 
+local function choose_working_directory()
+  pick_directory(function(dir_path)
+    local Notify = require 'mini.notify'
+    vim.fn.chdir(dir_path)
+    local nid = Notify.add('pwd: ' .. dir_path)
+    vim.defer_fn(function()
+      Notify.remove(nid)
+    end, 2000)
+  end)
+end
+
 local function find_in_subdirectory()
-  local telescope = require 'telescope.builtin'
-  local actions = require 'telescope.actions'
-  local action_state = require 'telescope.actions.state'
-  local finders = require 'telescope.finders'
-  local conf = require('telescope.config').values
-  local pickers = require 'telescope.pickers'
-  local previewers = require 'telescope.previewers'
-
-  local find_command = { 'fd', '--type', 'd', '.', vim.fn.getcwd() }
-  local tree_previewer = previewers.new_termopen_previewer {
-    get_command = function(entry)
-      return { 'tree', '-L', '2', entry.value }
-    end,
-  }
-
-  pickers
-    .new({}, {
-      prompt_title = 'Select Directory',
-      finder = finders.new_oneshot_job(find_command, {}),
-      sorter = conf.generic_sorter {},
+  pick_directory(function(dir_path)
+    require('telescope.builtin').find_files {
+      prompt_title = 'Find Files in ' .. dir_path,
+      cwd = dir_path,
       initial_mode = 'normal',
-      previewer = tree_previewer,
-      attach_mappings = function(prompt_bufnr)
-        actions.select_default:replace(function()
-          local selection = action_state.get_selected_entry()
-          if selection == nil then
-            return
-          end
-
-          actions.close(prompt_bufnr)
-
-          local dir_path = selection.value
-          telescope.find_files {
-            prompt_title = 'Find Files in ' .. dir_path,
-            cwd = dir_path,
-            initial_mode = 'normal',
-          }
-        end)
-        return true
-      end,
-    })
-    :find()
+    }
+  end)
 end
 
 local keymap = vim.keymap.set
@@ -180,12 +149,7 @@ keymap(
   ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
   { desc = 'cd into parent directory', noremap = true }
 )
-keymap(
-  'n',
-  '<leader>k ',
-  ":call fzf#run(fzf#wrap({'sink': 'cd', 'source': 'fd . -t d '}))<cr>",
-  { desc = 'choose working direcotry', noremap = true }
-)
+keymap('n', '<leader>k ', choose_working_directory, { desc = 'choose working direcotry', noremap = true })
 keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 
 keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
