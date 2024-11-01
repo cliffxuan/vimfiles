@@ -87,24 +87,6 @@ return {
   { 'simrat39/rust-tools.nvim', ft = 'rust' }, -- rust analyzer inlay
   { 'rust-lang/rust.vim', ft = 'rust' },
   {
-    'nvim-telescope/telescope.nvim',
-    dependencies = { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-    config = function()
-      require('telescope').setup {
-        extensions = {
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = 'smart_case',
-          },
-        },
-      }
-      require('telescope').load_extension 'fzf'
-      vim.cmd 'autocmd User TelescopePreviewerLoaded setlocal number'
-    end,
-  },
-  {
     'MeanderingProgrammer/render-markdown.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' },
     ft = 'terraform',
