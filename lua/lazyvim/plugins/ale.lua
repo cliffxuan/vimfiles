@@ -24,5 +24,7 @@ return {
     g.ale_echo_msg_warning_str = '⚡'
     g.ale_sh_shfmt_options = '-i 2'
     g.ale_python_mypy_options = '--ignore-missing-imports'
+    g.ale_lua_stylua_options = '--column-width=120 --line-endings=Unix --indent-type=Spaces --indent-width=2'
+      .. ' --quote-style=AutoPreferSingle --call-parentheses=None'
   end,
 }

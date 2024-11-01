@@ -25,6 +25,51 @@ local function search_visual_selection()
   require('telescope.builtin').grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
+local function choose_working_directory()
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local pickers = require 'telescope.pickers'
+  local previewers = require 'telescope.previewers'
+  local Notify = require 'mini.notify'
+
+  local find_command = { 'fd', '--type', 'd', '.', vim.fn.getcwd() }
+  local tree_previewer = previewers.new_termopen_previewer {
+    get_command = function(entry)
+      return { 'tree', '-L', '2', entry.value }
+    end,
+  }
+
+  pickers
+    .new({}, {
+      prompt_title = 'Select Directory',
+      finder = finders.new_oneshot_job(find_command, {}),
+      sorter = conf.generic_sorter {},
+      initial_mode = 'normal',
+      previewer = tree_previewer,
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          local selection = action_state.get_selected_entry()
+          if selection == nil then
+            return
+          end
+
+          actions.close(prompt_bufnr)
+
+          local dir_path = selection.value
+          vim.fn.chdir(dir_path)
+          local nid = Notify.add('working dir ' .. dir_path)
+          vim.defer_fn(function()
+            Notify.remove(nid)
+          end, 2000)
+        end)
+        return true
+      end,
+    })
+    :find()
+end
+
 local function find_in_subdirectory()
   local telescope = require 'telescope.builtin'
   local actions = require 'telescope.actions'
