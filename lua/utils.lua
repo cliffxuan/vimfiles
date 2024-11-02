@@ -69,4 +69,12 @@ end
 M.strip = function(s)
   return s:match '^%s*(.-)%s*$'
 end
+
+M.split = function(s)
+  local result = {}
+  for word in s:gmatch '%S+' do
+    table.insert(result, word)
+  end
+  return result
+end
 return M

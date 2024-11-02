@@ -25,21 +25,21 @@ local function search_visual_selection()
   require('telescope.builtin').grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
-local function pick_directory(callback)
+local function pick_directory(callback, finder_command)
+  if not finder_command then
+    finder_command = 'fd --type d --hidden --max-depth 3 --exclude .git . ' .. vim.fn.getcwd()
+  end
   local actions = require 'telescope.actions'
 
   require('telescope.pickers')
     .new({}, {
       prompt_title = 'Select Directory',
-      finder = require('telescope.finders').new_oneshot_job(
-        { 'fd', '--type', 'd', '--hidden', '--max-depth', '3', '--exclude', '.git', '.', vim.fn.getcwd() },
-        {}
-      ),
+      finder = require('telescope.finders').new_oneshot_job(utils.split(finder_command), {}),
       sorter = require('telescope.config').values.generic_sorter {},
       initial_mode = 'normal',
       previewer = require('telescope.previewers').new_termopen_previewer {
         get_command = function(entry)
-          return { 'tree', '-L', '2', entry.value }
+          return { 'tree', '-L', '2', '-I', '*.pyc|__pycache__', entry.value }
         end,
       },
       attach_mappings = function(prompt_bufnr)
@@ -69,26 +69,21 @@ local function choose_working_directory()
   end)
 end
 
+local find_files = function(dir_path)
+  require('telescope.builtin').find_files {
+    prompt_title = 'Find Files in ' .. dir_path,
+    find_command = utils.split 'rg --files --color never --glob !*.pyc --glob !*.pyo --glob !*.pyd',
+    cwd = dir_path,
+    initial_mode = 'normal',
+  }
+end
+
 local function find_in_subdirectory()
-  pick_directory(function(dir_path)
-    require('telescope.builtin').find_files {
-      prompt_title = 'Find Files in ' .. dir_path,
-      find_command = {
-        'rg',
-        '--files',
-        '--color',
-        'never',
-        '--glob',
-        '!*.pyc',
-        '--glob',
-        '!*.pyo',
-        '--glob',
-        '!*.pyd',
-      },
-      cwd = dir_path,
-      initial_mode = 'normal',
-    }
-  end)
+  pick_directory(find_files)
+end
+
+local function find_in_frequent_directory()
+  pick_directory(find_files, 'zoxide query --list')
 end
 
 local keymap = vim.keymap.set
@@ -185,6 +180,7 @@ keymap('n', '<leader>ex', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
 keymap('n', '<leader>f', ':Telescope find_files<cr>', { noremap = true })
 
 keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
+keymap('n', '<leader>gA', ':exec "cd " .. GuessProjectRoot() <bar> :Git add .<cr>', { noremap = true })
 keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
 keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
@@ -213,6 +209,7 @@ keymap('n', '<leader>hh', require('telescope.builtin').oldfiles, { noremap = tru
 keymap('n', '<leader>hs', require('telescope.builtin').search_history, { noremap = true })
 keymap('n', '<leader>hc', require('telescope.builtin').command_history, { noremap = true })
 
+keymap('n', '<leader>jf', find_in_frequent_directory)
 keymap('n', '<leader>jj', function()
   require('telescope.builtin').find_files {
     cwd = vim.fn.expand '%:p:h',
