@@ -31,7 +31,10 @@ local function pick_directory(callback)
   require('telescope.pickers')
     .new({}, {
       prompt_title = 'Select Directory',
-      finder = require('telescope.finders').new_oneshot_job({ 'fd', '--type', 'd', '.', vim.fn.getcwd() }, {}),
+      finder = require('telescope.finders').new_oneshot_job(
+        { 'fd', '--type', 'd', '--hidden', '--max-depth', '3', '--exclude', '.git', '.', vim.fn.getcwd() },
+        {}
+      ),
       sorter = require('telescope.config').values.generic_sorter {},
       initial_mode = 'normal',
       previewer = require('telescope.previewers').new_termopen_previewer {
@@ -70,6 +73,18 @@ local function find_in_subdirectory()
   pick_directory(function(dir_path)
     require('telescope.builtin').find_files {
       prompt_title = 'Find Files in ' .. dir_path,
+      find_command = {
+        'rg',
+        '--files',
+        '--color',
+        'never',
+        '--glob',
+        '!*.pyc',
+        '--glob',
+        '!*.pyo',
+        '--glob',
+        '!*.pyd',
+      },
       cwd = dir_path,
       initial_mode = 'normal',
     }
@@ -137,7 +152,7 @@ keymap(
 )
 keymap(
   'n',
-  '<leader>kl',
+  '<leader>kh',
   ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
   { desc = 'cd into parent directory', noremap = true }
 )
