@@ -6,6 +6,7 @@
 --   vim.cmd('Rg ' .. selected_text)
 -- end, { desc = "Search hilighted text"})
 -- search_hilighted_text()
+local utils = require 'utils'
 local function get_cursor_word()
   local current_word = vim.fn.expand '<cword>'
   print(current_word)
@@ -63,3 +64,6 @@ GptPopup = function(...)
     end,
   }):sync()
 end
+
+vim.print(utils.split 'tree -L 2 -I *.pyc|__pycache__')
+vim.print(utils.split('tree -L 2 -I *.pyc|__pycache__|.git'))

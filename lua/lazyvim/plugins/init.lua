@@ -37,9 +37,17 @@ return {
       vim.o.timeoutlen = 1000
     end,
     opts = {},
+    config = function()
+      require('which-key.plugins.presets').operators['y'] = nil
+    end,
   },
   { 'folke/neodev.nvim', opts = {} },
-  'williamboman/mason.nvim',
+  {
+    'williamboman/mason.nvim',
+    config = function()
+      require('mason').setup()
+    end,
+  },
   -- theme
   'morhetz/gruvbox',
   'sickill/vim-monokai',

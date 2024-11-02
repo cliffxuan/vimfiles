@@ -52,7 +52,7 @@ local function pick_directory(callback, finder_command)
       initial_mode = 'normal',
       previewer = require('telescope.previewers').new_termopen_previewer {
         get_command = function(entry)
-          return { 'tree', '-L', '2', '-I', '*.pyc|__pycache__', entry.value }
+          return utils.split('tree -L 2 -I *.pyc -I __pycache__ -I .git ' .. entry.value) -- TODO more generic
         end,
       },
       attach_mappings = function(prompt_bufnr)
@@ -69,17 +69,6 @@ local function pick_directory(callback, finder_command)
       end,
     })
     :find()
-end
-
-local function choose_working_directory()
-  pick_directory(function(dir_path)
-    local Notify = require 'mini.notify'
-    vim.fn.chdir(dir_path)
-    local nid = Notify.add('pwd: ' .. dir_path)
-    vim.defer_fn(function()
-      Notify.remove(nid)
-    end, 2000)
-  end)
 end
 
 local find_files = function(dir_path)
@@ -152,27 +141,6 @@ keymap('n', '<leader>b', function()
   }
 end, { desc = 'Search buffers', noremap = true })
 
-keymap(
-  'n',
-  '<leader>kj',
-  ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>',
-  { desc = 'cd into the project root', noremap = true }
-)
-keymap(
-  'n',
-  '<leader>kk',
-  ':exec "cd " .. expand("%:h") <bar> :pwd<cr>',
-  { desc = 'cd into the directory of the current file', noremap = true }
-)
-keymap(
-  'n',
-  '<leader>kh',
-  ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
-  { desc = 'cd into parent directory', noremap = true }
-)
-keymap('n', '<leader>k ', choose_working_directory, { desc = 'choose working direcotry', noremap = true })
-keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
-
 keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
 -- keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
 -- keymap('v', '<leader>dd', ':<C-U>GptVisual ', { noremap = true })
@@ -242,6 +210,36 @@ keymap(
   '<leader>j ',
   find_in_subdirectory,
   { noremap = true, silent = true, desc = 'open file in chosen sub directory' }
+)
+
+keymap('n', '<leader>k ', function()
+  pick_directory(function(dir_path)
+    local Notify = require 'mini.notify'
+    vim.fn.chdir(dir_path)
+    local nid = Notify.add('pwd: ' .. dir_path)
+    vim.defer_fn(function()
+      Notify.remove(nid)
+    end, 2000)
+  end)
+end, { desc = 'choose working direcotry', noremap = true })
+keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
+keymap(
+  'n',
+  '<leader>kj',
+  ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>',
+  { desc = 'cd into the project root', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>kk',
+  ':exec "cd " .. expand("%:h") <bar> :pwd<cr>',
+  { desc = 'cd into the directory of the current file', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>kh',
+  ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
+  { desc = 'cd into parent directory', noremap = true }
 )
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
