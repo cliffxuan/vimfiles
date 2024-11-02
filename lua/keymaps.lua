@@ -13,10 +13,19 @@ local function search_highlighted_text()
   }
 end
 
-local function search_word_under_cursor_in_current_file()
+local function search_word_in_current_file(default_text, initial_mode)
+  default_text = default_text or ''
+  initial_mode = initial_mode or 'insert'
   telescope.current_buffer_fuzzy_find {
-    initial_mode = 'normal',
-    default_text = vim.fn.expand '<cword>',
+    prompt_title = 'Search in ' .. vim.api.nvim_buf_get_name(0),
+    sorting_strategy = 'ascending',
+    -- Sort by line number by giving it higher score
+    tiebreak = function(entry1, entry2)
+      return entry1.lnum < entry2.lnum
+    end,
+    initial_mode = initial_mode,
+    default_text = default_text,
+    fuzzy = false,
   }
 end
 
@@ -127,13 +136,10 @@ keymap('n', '<leader>ab', function()
   }
 end, { desc = 'Live grep in open buffers', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap('n', '<leader>af', telescope.current_buffer_fuzzy_find, { desc = 'Search in current buffer', noremap = true })
-keymap(
-  'n',
-  '<leader>al',
-  search_word_under_cursor_in_current_file,
-  { desc = 'Search word under the cursor in current file', noremap = true }
-)
+keymap('n', '<leader>af', search_word_in_current_file, { desc = 'Search in current buffer', noremap = true })
+keymap('n', '<leader>al', function()
+  search_word_in_current_file(vim.fn.expand '<cword>', 'normal')
+end, { desc = 'Search word under the cursor in current file', noremap = true })
 keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
 keymap('n', '<leader>aj', function()
   require('trouble').toggle 'lsp_references'
