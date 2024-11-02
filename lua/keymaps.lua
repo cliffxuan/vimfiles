@@ -27,29 +27,21 @@ end
 
 local function pick_directory(callback)
   local actions = require 'telescope.actions'
-  local action_state = require 'telescope.actions.state'
-  local finders = require 'telescope.finders'
-  local conf = require('telescope.config').values
-  local pickers = require 'telescope.pickers'
-  local previewers = require 'telescope.previewers'
 
-  local find_command = { 'fd', '--type', 'd', '.', vim.fn.getcwd() }
-  local tree_previewer = previewers.new_termopen_previewer {
-    get_command = function(entry)
-      return { 'tree', '-L', '2', entry.value }
-    end,
-  }
-
-  pickers
+  require('telescope.pickers')
     .new({}, {
       prompt_title = 'Select Directory',
-      finder = finders.new_oneshot_job(find_command, {}),
-      sorter = conf.generic_sorter {},
+      finder = require('telescope.finders').new_oneshot_job({ 'fd', '--type', 'd', '.', vim.fn.getcwd() }, {}),
+      sorter = require('telescope.config').values.generic_sorter {},
       initial_mode = 'normal',
-      previewer = tree_previewer,
+      previewer = require('telescope.previewers').new_termopen_previewer {
+        get_command = function(entry)
+          return { 'tree', '-L', '2', entry.value }
+        end,
+      },
       attach_mappings = function(prompt_bufnr)
         actions.select_default:replace(function()
-          local selection = action_state.get_selected_entry()
+          local selection = require('telescope.actions.state').get_selected_entry()
           if selection == nil then
             return
           end
