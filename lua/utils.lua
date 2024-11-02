@@ -5,6 +5,8 @@ M.get_highlighted_text = function()
   hl_text = string.gsub(hl_text, '\\[<>]', '\\b') -- word boundary \<\> -> \b, e,g, \<abc\> -> \babc\b
   hl_text = string.gsub(hl_text, '\\_s\\+', '\\s+') -- whitespace \_s\+ -> \s+
   hl_text = string.gsub(hl_text, '\\V', '') -- prefix indicating visualed selected
+  hl_text = string.gsub(hl_text, '%(', '\\(') -- escape (
+  hl_text = string.gsub(hl_text, '%)', '\\)') -- escape )
   return hl_text
 end
 

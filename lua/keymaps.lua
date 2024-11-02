@@ -1,10 +1,12 @@
 local utils = require 'utils'
+local telescope = require 'telescope.builtin'
+
 local function search_word_under_cursor()
-  require('telescope.builtin').grep_string { search = vim.fn.expand '<cword>', initial_mode = 'normal' }
+  telescope.grep_string { search = vim.fn.expand '<cword>', initial_mode = 'normal' }
 end
 
 local function search_highlighted_text()
-  require('telescope.builtin').grep_string {
+  telescope.grep_string {
     search = utils.get_highlighted_text(),
     use_regex = true,
     initial_mode = 'normal',
@@ -12,7 +14,7 @@ local function search_highlighted_text()
 end
 
 local function search_word_under_cursor_in_current_file()
-  require('telescope.builtin').current_buffer_fuzzy_find {
+  telescope.current_buffer_fuzzy_find {
     initial_mode = 'normal',
     default_text = vim.fn.expand '<cword>',
   }
@@ -24,7 +26,7 @@ local function search_visual_selection()
   text = vim.fn.escape(text, '?\\.*$^~[')
   -- Replace whitespace sequences with a pattern matching any whitespace
   text = text:gsub('%s+', '\\_s\\+')
-  require('telescope.builtin').grep_string { search = text, use_regex = true, initial_mode = 'normal' }
+  telescope.grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
 local function pick_directory(callback, finder_command)
@@ -72,7 +74,7 @@ local function choose_working_directory()
 end
 
 local find_files = function(dir_path)
-  require('telescope.builtin').find_files {
+  telescope.find_files {
     prompt_title = 'Find Files in ' .. dir_path,
     find_command = utils.split 'rg --files --color never --glob !*.pyc --glob !*.pyo --glob !*.pyd',
     cwd = dir_path,
@@ -115,9 +117,9 @@ require('which-key').add {
 }
 
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
-keymap('n', '<leader>a ', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
+keymap('n', '<leader>a ', telescope.live_grep, { desc = 'Live search', noremap = true })
 keymap('n', '<leader>ab', function()
-  require('telescope.builtin').live_grep {
+  telescope.live_grep {
     grep_open_files = true,
     default_text = vim.fn.expand '<cword>',
     prompt_title = 'Live Grep in Open Buffers',
@@ -125,12 +127,7 @@ keymap('n', '<leader>ab', function()
   }
 end, { desc = 'Live grep in open buffers', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap(
-  'n',
-  '<leader>af',
-  require('telescope.builtin').current_buffer_fuzzy_find,
-  { desc = 'Search in current buffer', noremap = true }
-)
+keymap('n', '<leader>af', telescope.current_buffer_fuzzy_find, { desc = 'Search in current buffer', noremap = true })
 keymap(
   'n',
   '<leader>al',
@@ -144,7 +141,7 @@ end, { desc = 'Search references', noremap = true })
 keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
 keymap('n', '<leader>b', function()
-  require('telescope.builtin').buffers {
+  telescope.buffers {
     initial_mode = 'normal',
   }
 end, { desc = 'Search buffers', noremap = true })
@@ -204,14 +201,14 @@ keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
 keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
 keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
 keymap('v', '<leader>gl', function()
-  require('telescope.builtin').git_bcommits_range()
+  telescope.git_bcommits_range()
 end, { noremap = true })
 keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
 keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
 keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
 keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
 keymap('n', '<leader>gs', function()
-  require('telescope.builtin').git_status {
+  telescope.git_status {
     initial_mode = 'normal',
   }
 end, { noremap = true })
@@ -221,13 +218,13 @@ keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
 keymap('n', '<leader>gj', '<plug>(signify-next-hunk)', { noremap = true, silent = true })
 keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, silent = true })
 
-keymap('n', '<leader>hh', require('telescope.builtin').oldfiles, { noremap = true })
-keymap('n', '<leader>hs', require('telescope.builtin').search_history, { noremap = true })
-keymap('n', '<leader>hc', require('telescope.builtin').command_history, { noremap = true })
+keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true })
+keymap('n', '<leader>hs', telescope.search_history, { noremap = true })
+keymap('n', '<leader>hc', telescope.command_history, { noremap = true })
 
 keymap('n', '<leader>jf', find_in_frequent_directory)
 keymap('n', '<leader>jj', function()
-  require('telescope.builtin').find_files {
+  telescope.find_files {
     cwd = vim.fn.expand '%:p:h',
     initial_mode = 'normal',
     preview_title = vim.fn.expand '%:p:h',
