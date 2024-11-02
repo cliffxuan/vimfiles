@@ -79,4 +79,52 @@ M.split = function(s)
   end
   return result
 end
+
+M.find_project_root = function()
+  -- Get initial directory: either file's directory or current working directory
+  local current_file = vim.fn.expand '%:p'
+  local current_dir = current_file ~= '' and vim.fn.fnamemodify(current_file, ':h') or vim.fn.getcwd()
+
+  -- Project root markers
+  local markers = {
+    '.rootdir',
+    '.git',
+    '.hg',
+    '.svn',
+    '.bzr',
+    'site-packages',
+  }
+
+  -- Traverse up the directory tree
+  local dir = current_dir
+  while dir ~= '/' and dir ~= '.' do -- Better path termination check
+    -- Check for any marker
+    for _, marker in ipairs(markers) do
+      local marker_path = dir .. '/' .. marker
+      if vim.fn.isdirectory(marker_path) == 1 then
+        return dir
+      end
+    end
+
+    -- Move to parent directory
+    local parent = vim.fn.fnamemodify(dir, ':h')
+    if parent == dir then -- Prevent infinite loop
+      break
+    end
+    dir = parent
+  end
+
+  -- Fallback to starting directory if no root found
+  return current_dir
+end
+
+M.guess_project_root = function()
+  local ok, result = pcall(M.find_project_root)
+  if not ok then
+    vim.notify('Error finding project root: ' .. tostring(result), vim.log.levels.ERROR)
+    return vim.fn.getcwd()
+  end
+  return result
+end
+
 return M

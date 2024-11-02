@@ -201,7 +201,7 @@ function! GuessProjectRoot()
     let l:dir = getcwd()
   endif
   while index(['/', '.'], l:dir) == -1
-    for l:marker in ['.rootdir', '.git', '.hg', '.svn', 'bzr']
+    for l:marker in ['.rootdir', '.git', '.hg', '.svn', '.bzr', 'site-packages']
       if isdirectory(l:dir . '/' . l:marker)
         return l:dir
       endif

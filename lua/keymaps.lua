@@ -1,11 +1,12 @@
 local utils = require 'utils'
 local telescope = require 'telescope.builtin'
+local Notify = require 'mini.notify'
 
-local function search_word_under_cursor()
+local search_word_under_cursor = function()
   telescope.grep_string { search = vim.fn.expand '<cword>', initial_mode = 'normal' }
 end
 
-local function search_highlighted_text()
+local search_highlighted_text = function()
   telescope.grep_string {
     search = utils.get_highlighted_text(),
     use_regex = true,
@@ -13,7 +14,10 @@ local function search_highlighted_text()
   }
 end
 
-local function search_word_in_current_file(default_text, initial_mode)
+local search_word_in_current_file = function(default_text, initial_mode, fuzzy)
+  if fuzzy == nil then
+    fuzzy = false
+  end
   telescope.current_buffer_fuzzy_find {
     prompt_title = 'Search in ' .. vim.api.nvim_buf_get_name(0),
     sorting_strategy = 'ascending',
@@ -23,11 +27,11 @@ local function search_word_in_current_file(default_text, initial_mode)
     end,
     initial_mode = initial_mode or 'insert',
     default_text = default_text or '',
-    fuzzy = false,
+    fuzzy = fuzzy,
   }
 end
 
-local function search_visual_selection()
+local search_visual_selection = function()
   -- Get the visually selected text and escape it
   local text = utils.get_visual_selection()
   text = vim.fn.escape(text, '?\\.*$^~[')
@@ -36,7 +40,7 @@ local function search_visual_selection()
   telescope.grep_string { search = text, use_regex = true, initial_mode = 'normal' }
 end
 
-local function pick_directory(callback, finder_command)
+local pick_directory = function(callback, finder_command)
   if not finder_command then
     finder_command = 'fd --type d --hidden --max-depth 3 --exclude .git . ' .. vim.fn.getcwd()
   end
@@ -78,12 +82,13 @@ local find_files = function(dir_path)
   }
 end
 
-local function find_in_subdirectory()
-  pick_directory(find_files)
-end
-
-local function find_in_frequent_directory()
-  pick_directory(find_files, 'zoxide query --list')
+local open_file_in_buffer_dir = function()
+  local cwd = vim.fn.expand '%:p:h'
+  telescope.find_files {
+    cwd = cwd,
+    initial_mode = 'normal',
+    prompt_title = 'Find files in ' .. cwd,
+  }
 end
 
 local keymap = vim.keymap.set
@@ -162,12 +167,17 @@ keymap('n', '<leader>ev', ':Vexplore<cr>', { noremap = true })
 keymap('n', '<leader>en', ':vnew<cr>', { noremap = true })
 keymap('n', '<leader>ex', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
 
-keymap('n', '<leader>f', ':Telescope find_files<cr>', { noremap = true })
+keymap('n', '<leader>f', function()
+  telescope.find_files {
+    prompt_title = 'Find files in ' .. vim.fn.getcwd(),
+  }
+end, { noremap = true })
 
 keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
-keymap('n', '<leader>gA', ':exec "cd " .. GuessProjectRoot() <bar> :Git add .<cr>', { noremap = true })
+keymap('n', '<leader>gA', ':exec "cd " .. GuessProjectRoot() <bar> :pwd <bar> :Git add . <bar> :Git status<cr>', { noremap = true })
 keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
+keymap('n', '<leader>gC', ':Git commit <bar> :GptGitCommitMsg<cr>', { noremap = true })
 keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
 keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
 keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
@@ -194,50 +204,52 @@ keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true })
 keymap('n', '<leader>hs', telescope.search_history, { noremap = true })
 keymap('n', '<leader>hc', telescope.command_history, { noremap = true })
 
-keymap('n', '<leader>jf', find_in_frequent_directory, { noremap = true, desc = 'open file in a z directory' })
+keymap('n', '<leader>jf', function()
+  pick_directory(find_files, 'zoxide query --list')
+end, { noremap = true, desc = 'open file in a z directory' })
 keymap('n', '<leader>jj', function()
+  local cwd = utils.guess_project_root()
   telescope.find_files {
-    cwd = vim.fn.expand '%:p:h',
+    cwd = cwd,
     initial_mode = 'normal',
-    prompt_title = "Find files in " .. vim.fn.expand '%:p:h',
+    prompt_title = 'Find files in ' .. cwd,
   }
-end, { noremap = true, desc = 'open file in the same directory' })
-keymap('n', '<leader>jl', function()
+end, { noremap = true, desc = 'open file in project root' })
+keymap('n', '<leader>jk', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
+keymap('n', '<leader>j ', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
+keymap('n', '<leader>jh', function()
+  local cwd = vim.fn.expand '%:p:h:h'
   telescope.find_files {
-    cwd = vim.fn.expand '%:p:h:h',
+    cwd = cwd,
     initial_mode = 'normal',
-    prompt_title = "Find files in " .. vim.fn.expand '%:p:h:h',
+    prompt_title = 'Find files in ' .. cwd,
   }
 end, { noremap = true, desc = 'open file in parent directory' })
 
-keymap(
-  'n',
-  '<leader>j ',
-  find_in_subdirectory,
-  { noremap = true, silent = true, desc = 'open file in chosen sub directory' }
-)
+keymap('n', '<leader>jl', function()
+  pick_directory(find_files)
+end, { noremap = true, silent = true, desc = 'open file in chosen sub directory' })
 
-keymap('n', '<leader>k ', function()
+keymap('n', '<leader>kl', function()
   pick_directory(function(dir_path)
-    local Notify = require 'mini.notify'
     vim.fn.chdir(dir_path)
     local nid = Notify.add('pwd: ' .. dir_path)
     vim.defer_fn(function()
       Notify.remove(nid)
     end, 2000)
   end)
-end, { desc = 'choose working direcotry', noremap = true })
-keymap('n', '<leader>kf', find_in_frequent_directory, { noremap = true, desc = 'open file in a z directory' })
+end, { desc = 'cd into a subdirectory', noremap = true })
+keymap('n', '<leader>kf', function()
+  pick_directory(vim.fn.chdir, 'zoxide query --list')
+end, { noremap = true, desc = 'cd into a z directory' })
 keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
+keymap('n', '<leader>kj', function()
+  vim.fn.chdir(utils.guess_project_root())
+  vim.print('pwd: ' .. vim.fn.getcwd())
+end, { desc = 'cd into the project root', noremap = true })
 keymap(
   'n',
-  '<leader>kj',
-  ':exec "cd " .. GuessProjectRoot() <bar> :pwd<cr>',
-  { desc = 'cd into the project root', noremap = true }
-)
-keymap(
-  'n',
-  '<leader>kh',
+  '<leader>k~',
   ':exec "cd " .. expand("~") <bar> :pwd<cr>',
   { desc = 'cd into home directory', noremap = true }
 )
@@ -249,16 +261,11 @@ keymap(
 )
 keymap(
   'n',
-  '<leader>kl',
+  '<leader>kh',
   ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
   { desc = 'cd into parent directory', noremap = true }
 )
-keymap(
-  'n',
-  '<leader>k/',
-  ':exec  "cd /"  <bar> :pwd<cr>',
-  { desc = 'cd into /', noremap = true }
-)
+keymap('n', '<leader>k/', ':exec  "cd /"  <bar> :pwd<cr>', { desc = 'cd into /', noremap = true })
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
 keymap('n', '<leader><leader>D', ':call DeleteOtherBuffers()<CR>', { noremap = true })
