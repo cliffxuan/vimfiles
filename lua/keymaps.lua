@@ -12,8 +12,10 @@ local function search_highlighted_text()
 end
 
 local function search_word_under_cursor_in_current_file()
-  local current_word = vim.fn.expand '<cword>'
-  vim.cmd('Lines ' .. current_word)
+  require('telescope.builtin').current_buffer_fuzzy_find {
+    initial_mode = 'normal',
+    default_text = vim.fn.expand '<cword>',
+  }
 end
 
 local function search_visual_selection()
@@ -114,7 +116,21 @@ require('which-key').add {
 
 keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
 keymap('n', '<leader>a ', require('telescope.builtin').live_grep, { desc = 'Live search', noremap = true })
+keymap('n', '<leader>ab', function()
+  require('telescope.builtin').live_grep {
+    grep_open_files = true,
+    default_text = vim.fn.expand '<cword>',
+    prompt_title = 'Live Grep in Open Buffers',
+    initial_mode = 'normal',
+  }
+end, { desc = 'Live grep in open buffers', noremap = true })
 keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
+keymap(
+  'n',
+  '<leader>af',
+  require('telescope.builtin').current_buffer_fuzzy_find,
+  { desc = 'Search in current buffer', noremap = true }
+)
 keymap(
   'n',
   '<leader>al',
