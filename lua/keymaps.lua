@@ -14,8 +14,6 @@ local function search_highlighted_text()
 end
 
 local function search_word_in_current_file(default_text, initial_mode)
-  default_text = default_text or ''
-  initial_mode = initial_mode or 'insert'
   telescope.current_buffer_fuzzy_find {
     prompt_title = 'Search in ' .. vim.api.nvim_buf_get_name(0),
     sorting_strategy = 'ascending',
@@ -23,8 +21,8 @@ local function search_word_in_current_file(default_text, initial_mode)
     tiebreak = function(entry1, entry2)
       return entry1.lnum < entry2.lnum
     end,
-    initial_mode = initial_mode,
-    default_text = default_text,
+    initial_mode = initial_mode or 'insert',
+    default_text = default_text or '',
     fuzzy = false,
   }
 end
@@ -196,14 +194,21 @@ keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true })
 keymap('n', '<leader>hs', telescope.search_history, { noremap = true })
 keymap('n', '<leader>hc', telescope.command_history, { noremap = true })
 
-keymap('n', '<leader>jf', find_in_frequent_directory)
+keymap('n', '<leader>jf', find_in_frequent_directory, { noremap = true, desc = 'open file in a z directory' })
 keymap('n', '<leader>jj', function()
   telescope.find_files {
     cwd = vim.fn.expand '%:p:h',
     initial_mode = 'normal',
-    preview_title = vim.fn.expand '%:p:h',
+    prompt_title = "Find files in " .. vim.fn.expand '%:p:h',
   }
-end, { noremap = true, desc = 'open the directory of current file' })
+end, { noremap = true, desc = 'open file in the same directory' })
+keymap('n', '<leader>jl', function()
+  telescope.find_files {
+    cwd = vim.fn.expand '%:p:h:h',
+    initial_mode = 'normal',
+    prompt_title = "Find files in " .. vim.fn.expand '%:p:h:h',
+  }
+end, { noremap = true, desc = 'open file in parent directory' })
 
 keymap(
   'n',
@@ -222,6 +227,7 @@ keymap('n', '<leader>k ', function()
     end, 2000)
   end)
 end, { desc = 'choose working direcotry', noremap = true })
+keymap('n', '<leader>kf', find_in_frequent_directory, { noremap = true, desc = 'open file in a z directory' })
 keymap('n', '<leader>kp', ':echo getcwd()<cr>', { desc = 'echo current directory', noremap = true })
 keymap(
   'n',
@@ -231,15 +237,27 @@ keymap(
 )
 keymap(
   'n',
+  '<leader>kh',
+  ':exec "cd " .. expand("~") <bar> :pwd<cr>',
+  { desc = 'cd into home directory', noremap = true }
+)
+keymap(
+  'n',
   '<leader>kk',
   ':exec "cd " .. expand("%:h") <bar> :pwd<cr>',
   { desc = 'cd into the directory of the current file', noremap = true }
 )
 keymap(
   'n',
-  '<leader>kh',
+  '<leader>kl',
   ':exec  "cd " . join([getcwd(), ".."], "/")  <bar> :pwd<cr>',
   { desc = 'cd into parent directory', noremap = true }
+)
+keymap(
+  'n',
+  '<leader>k/',
+  ':exec  "cd /"  <bar> :pwd<cr>',
+  { desc = 'cd into /', noremap = true }
 )
 
 keymap('n', '<leader><leader>d', ':bwipeout<CR>', { noremap = true })
