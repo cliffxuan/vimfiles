@@ -110,7 +110,8 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 require('which-key').add {
   { '<leader>a', group = 'Text Search' },
   { '<leader>d', group = 'Gpt' },
-  { '<leader>u', group = 'Display Settings' },
+  { '<leader>j', group = 'Open file' },
+  { '<leader>u', group = 'Display settings' },
   { '<leader>e', group = 'Edit' },
   { '<leader>g', group = 'Git' },
   { '<leader>k', group = 'Change directory' },
@@ -171,7 +172,7 @@ keymap('n', '<leader>f', function()
   telescope.find_files {
     prompt_title = 'Find files in ' .. vim.fn.getcwd(),
   }
-end, { noremap = true })
+end, { noremap = true, desc = 'open file in workdir' })
 
 keymap('n', '<leader>ga', function()
   vim.cmd('cd' .. utils.guess_project_root '.git')
