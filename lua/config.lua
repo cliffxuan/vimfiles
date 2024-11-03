@@ -1,6 +1,6 @@
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
-local opts = { noremap = true, silent = true }
+-- local opts = { noremap = true, silent = true }
 -- vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
 -- vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
 -- vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
@@ -46,13 +46,14 @@ require('lspconfig')['vtsls'].setup {
   flags = lsp_flags,
 }
 require('lspconfig')['lua_ls'].setup {
+  on_attach = on_attach,
   settings = {
     Lua = {
       completion = {
         callSnippet = 'Replace',
       },
       runtime = {
-        version = "LuaJIT"
+        version = 'LuaJIT',
       },
     },
   },

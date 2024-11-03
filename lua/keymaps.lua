@@ -206,6 +206,12 @@ keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true, desc = 'Show Gi
 keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true, desc = 'Show buffer commits' })
 keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true, desc = 'Push to Git' })
 keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true, desc = 'Read from Git' })
+keymap('n', '<leader>gs', function()
+  telescope.git_status {
+    initial_mode = 'normal',
+    cwd = vim.fn.expand '%:p:h',
+  }
+end, { noremap = true, desc = 'Git status' })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true, desc = 'Undo Git hunk' })
 keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true, desc = 'Show Git diff' })
 keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true, desc = 'Write to Git' })
