@@ -174,7 +174,14 @@ keymap('n', '<leader>f', function()
 end, { noremap = true })
 
 keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
-keymap('n', '<leader>gA', ':exec "cd " .. GuessProjectRoot() <bar> :pwd <bar> :Git add . <bar> :Git status<cr>', { noremap = true })
+keymap('n', '<leader>gA', function()
+  vim.cmd('cd' .. utils.guess_project_root '.git')
+  vim.cmd [[
+    pwd
+    Git add .
+    Git status
+  ]]
+end, { noremap = true })
 keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
 keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
 keymap('n', '<leader>gC', ':Git commit <bar> :GptGitCommitMsg<cr>', { noremap = true })
@@ -192,6 +199,7 @@ keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
 keymap('n', '<leader>gs', function()
   telescope.git_status {
     initial_mode = 'normal',
+    cwd = vim.fn.expand '%:p:h',
   }
 end, { noremap = true })
 keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })

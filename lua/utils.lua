@@ -80,18 +80,21 @@ M.split = function(s)
   return result
 end
 
-M.find_project_root = function()
+M.find_project_root = function(markers)
   -- Get initial directory: either file's directory or current working directory
   local current_file = vim.fn.expand '%:p'
   local current_dir = current_file ~= '' and vim.fn.fnamemodify(current_file, ':h') or vim.fn.getcwd()
 
   -- Project root markers
-  local markers = {
-    '.rootdir',
+  if type(markers) == 'string' then
+    markers = { markers }
+  end
+  markers = markers or {
     '.git',
     '.hg',
     '.svn',
     '.bzr',
+    '.rootdir',
     'site-packages',
   }
 
@@ -118,8 +121,8 @@ M.find_project_root = function()
   return current_dir
 end
 
-M.guess_project_root = function()
-  local ok, result = pcall(M.find_project_root)
+M.guess_project_root = function(markers)
+  local ok, result = pcall(M.find_project_root, markers)
   if not ok then
     vim.notify('Error finding project root: ' .. tostring(result), vim.log.levels.ERROR)
     return vim.fn.getcwd()
