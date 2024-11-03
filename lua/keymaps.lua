@@ -148,13 +148,13 @@ end, { desc = 'Search buffers', noremap = true })
 keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
 -- keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
 -- keymap('v', '<leader>dd', ':<C-U>GptVisual ', { noremap = true })
-keymap('n', '<leader>dd', ':GptInput<cr>', { noremap = true })
-keymap('v', '<leader>dd', ':<C-U>GptInputVisual<cr>', { noremap = true })
-keymap('n', '<leader>dk', ':GptCode ', { noremap = true })
-keymap('v', '<leader>dk', ':<C-U>GptCodeVisual ', { noremap = true })
-keymap('n', '<leader>dm', ':GptGitCommitMsg<cr>', { noremap = true })
-keymap('n', '<leader>dM', ':GptGitDiffSummary<cr>', { noremap = true })
-keymap('n', '<leader>dj', ':GptWindowOpen<cr>', { noremap = true })
+keymap('n', '<leader>dd', ':GptInput<cr>', { noremap = true, desc = 'Input for Gpt' })
+keymap('v', '<leader>dd', ':<C-U>GptInputVisual<cr>', { noremap = true, desc = 'Input for Gpt in visual mode' })
+keymap('n', '<leader>dk', ':GptCode ', { noremap = true, desc = 'Generate code with Gpt' })
+keymap('v', '<leader>dk', ':<C-U>GptCodeVisual ', { noremap = true, desc = 'Generate code with Gpt in visual mode' })
+keymap('n', '<leader>dm', ':GptGitCommitMsg<cr>', { noremap = true, desc = 'Get commit message from Gpt' })
+keymap('n', '<leader>dM', ':GptGitDiffSummary<cr>', { noremap = true, desc = 'Get diff summary from Gpt' })
+keymap('n', '<leader>dj', ':GptWindowOpen<cr>', { noremap = true, desc = 'Open Gpt window' })
 
 keymap('n', '<leader>eb', ':botright new<cr>', { noremap = true })
 keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })
@@ -181,7 +181,7 @@ keymap('n', '<leader>ga', function()
     Git add %
     Git status
   ]]
-end, { noremap = true })
+end, { noremap = true, desc = 'Git add current file' })
 keymap('n', '<leader>gA', function()
   vim.cmd('cd' .. utils.guess_project_root '.git')
   vim.cmd [[
@@ -189,36 +189,32 @@ keymap('n', '<leader>gA', function()
     Git add .
     Git status
   ]]
-end, { noremap = true })
-keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true })
-keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true })
-keymap('n', '<leader>gC', ':Git commit <bar> :GptGitCommitMsg<cr>', { noremap = true })
-keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true })
-keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true })
-keymap('n', '<leader>gg', ':Git<cr>', { noremap = true })
-keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true })
-keymap('v', '<leader>gl', function()
-  telescope.git_bcommits_range()
-end, { noremap = true })
-keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true })
-keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true })
-keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true })
-keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true })
-keymap('n', '<leader>gs', function()
-  telescope.git_status {
-    initial_mode = 'normal',
-    cwd = vim.fn.expand '%:p:h',
-  }
-end, { noremap = true })
-keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true })
-keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true })
-keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true })
-keymap('n', '<leader>gj', '<plug>(signify-next-hunk)', { noremap = true, silent = true })
-keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, silent = true })
+end, { noremap = true, desc = 'Git add all files' })
+keymap('n', '<leader>gb', ':Git blame<cr>', { noremap = true, desc = 'Show Git blame' })
+keymap('n', '<leader>gc', ':Git commit<cr>', { noremap = true, desc = 'Git commit' })
+keymap(
+  'n',
+  '<leader>gC',
+  ':Git commit <bar> :GptGitCommitMsg<cr>',
+  { noremap = true, desc = 'Git commit with Gpt message' }
+)
+keymap('n', '<leader>gd', ':SignifyHunkDiff<cr>', { noremap = true, desc = 'Show Git hunk diff' })
+keymap('n', '<leader>gf', ':GFiles?<cr>', { noremap = true, desc = 'Find Git files' })
+keymap('n', '<leader>gg', ':Git<cr>', { noremap = true, desc = 'Open Git status' })
+keymap('n', '<leader>gl', ':Commits<cr>', { noremap = true, desc = 'Show Git commits' })
+keymap('n', '<leader>gm', ':GitMessenger<cr>', { noremap = true, desc = 'Show Git messages' })
+keymap('n', '<leader>go', ':BCommits<cr>', { noremap = true, desc = 'Show buffer commits' })
+keymap('n', '<leader>gp', ':Git push<cr>', { noremap = true, desc = 'Push to Git' })
+keymap('n', '<leader>gr', ':Gread<cr>', { noremap = true, desc = 'Read from Git' })
+keymap('n', '<leader>gu', ':SignifyHunkUndo<cr>', { noremap = true, desc = 'Undo Git hunk' })
+keymap('n', '<leader>gv', ':Gvdiff<cr>', { noremap = true, desc = 'Show Git diff' })
+keymap('n', '<leader>gw', ':Gwrite<cr>', { noremap = true, desc = 'Write to Git' })
+keymap('n', '<leader>gj', '<plug>(signify-next-hunk)', { noremap = true, desc = 'Next Git hunk' })
+keymap('n', '<leader>gk', '<plug>(signify-prev-hunk)', { noremap = true, desc = 'Previous Git hunk' })
 
-keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true })
-keymap('n', '<leader>hs', telescope.search_history, { noremap = true })
-keymap('n', '<leader>hc', telescope.command_history, { noremap = true })
+keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true, desc = 'Show old files' })
+keymap('n', '<leader>hs', telescope.search_history, { noremap = true, desc = 'Show search history' })
+keymap('n', '<leader>hc', telescope.command_history, { noremap = true, desc = 'Show command history' })
 
 keymap('n', '<leader>jf', function()
   pick_directory(find_files, 'zoxide query --list')
