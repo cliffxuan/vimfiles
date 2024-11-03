@@ -183,6 +183,10 @@ local gpt_prompt = function(on_submit)
   input:on(event.BufLeave, function()
     input:unmount()
   end)
+
+  input:map('n', '<esc>', function ()
+   input:unmount() 
+  end)
 end
 
 vim.api.nvim_create_user_command('GptWindowOpen', function()

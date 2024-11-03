@@ -173,7 +173,14 @@ keymap('n', '<leader>f', function()
   }
 end, { noremap = true })
 
-keymap('n', '<leader>ga', ':Git add %<cr>', { noremap = true })
+keymap('n', '<leader>ga', function()
+  vim.cmd('cd' .. utils.guess_project_root '.git')
+  vim.cmd [[
+    pwd
+    Git add %
+    Git status
+  ]]
+end, { noremap = true })
 keymap('n', '<leader>gA', function()
   vim.cmd('cd' .. utils.guess_project_root '.git')
   vim.cmd [[
