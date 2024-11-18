@@ -56,6 +56,10 @@ M.is_wsl = function()
   end
 end
 
+M.is_linux = function()
+  return vim.loop.os_uname().sysname == 'Linux'
+end
+
 M.set_open_api_key = function()
   local openai_api_key_path = vim.fn.expand '~/.config/openai_api_key'
   if vim.fn.filereadable(openai_api_key_path) == 1 then
