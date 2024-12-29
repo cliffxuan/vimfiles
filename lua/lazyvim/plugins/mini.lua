@@ -2,7 +2,6 @@ return {
   'echasnovski/mini.nvim',
   config = function ()
     require('mini.align').setup()
-    require('mini.animate').setup()
     require('mini.basics').setup()
     require('mini.cursorword').setup()
     require('mini.files').setup()
