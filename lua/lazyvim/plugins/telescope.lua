@@ -1,10 +1,9 @@
-local actions = require 'telescope.actions'
-local action_layout = require 'telescope.actions.layout'
-
 return {
   'nvim-telescope/telescope.nvim',
   dependencies = { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
   config = function()
+    local actions = require 'telescope.actions'
+    local action_layout = require 'telescope.actions.layout'
     require('telescope').setup {
       defaults = {
         mappings = {
