@@ -18,6 +18,7 @@ return {
       lua = { 'stylua' },
       sh = { 'shfmt' },
     }
+    g.ale_linter_aliases = { typescriptreact = 'typescript' }
     g.ale_hover_cursor = 0
     g.ale_echo_msg_format = '[%linter%] (%code%). %s [%severity%]'
     g.ale_echo_msg_error_str = '🚫'
