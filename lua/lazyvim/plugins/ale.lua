@@ -6,7 +6,7 @@ return {
     g.ale_linters_ignore = { typescript = { 'deno' }, typescriptreact = { 'deno' } }
     g.ale_rust_rustfmt_options = '--edition 2018' -- this is not a perm solution
     g.ale_fixers = {
-      python = { 'ruff', 'black', 'autopep8' },
+      python = { 'ruff_format', 'black', 'autopep8' },
       go = { 'gofmt', 'goimports' },
       terraform = { 'terraform' },
       javascript = { 'prettier' },
