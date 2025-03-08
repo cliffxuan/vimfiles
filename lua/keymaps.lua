@@ -108,9 +108,9 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 
 -- leader
 require('which-key').add {
-  { '<leader>a', group = 'Text Search' },
+  { '<leader>a', group = 'Avante' },
   { '<leader>d', group = 'Gpt' },
-  { '<leader>n', group = 'Avante' },
+  { '<leader>n', group = 'Text Search' },
   { '<leader>j', group = 'Open file' },
   { '<leader>u', group = 'Display settings' },
   { '<leader>e', group = 'Edit' },
@@ -119,9 +119,9 @@ require('which-key').add {
   { '<leader>h', group = 'History' },
 }
 
-keymap('n', '<leader>aa', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
-keymap('n', '<leader>a ', telescope.live_grep, { desc = 'Live search', noremap = true })
-keymap('n', '<leader>ab', function()
+keymap('n', '<leader>nn', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
+keymap('n', '<leader>n ', telescope.live_grep, { desc = 'Live search', noremap = true })
+keymap('n', '<leader>nb', function()
   telescope.live_grep {
     grep_open_files = true,
     default_text = vim.fn.expand '<cword>',
@@ -129,16 +129,16 @@ keymap('n', '<leader>ab', function()
     initial_mode = 'normal',
   }
 end, { desc = 'Live grep in open buffers', noremap = true })
-keymap('n', '<leader>as', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap('n', '<leader>af', search_word_in_current_file, { desc = 'Search in current buffer', noremap = true })
-keymap('n', '<leader>al', function()
+keymap('n', '<leader>ns', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
+keymap('n', '<leader>nf', search_word_in_current_file, { desc = 'Search in current buffer', noremap = true })
+keymap('n', '<leader>nl', function()
   search_word_in_current_file(vim.fn.expand '<cword>', 'normal')
 end, { desc = 'Search word under the cursor in current file', noremap = true })
-keymap('n', '<leader>ag', ':Rg ', { desc = 'Search with Rg', noremap = true })
-keymap('n', '<leader>aj', function()
+keymap('n', '<leader>ng', ':Rg ', { desc = 'Search with Rg', noremap = true })
+keymap('n', '<leader>nj', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Search references', noremap = true })
-keymap({ 'n', 'v' }, '<leader>av', search_visual_selection, { desc = 'Search visual selection', noremap = true })
+keymap({ 'n', 'v' }, '<leader>nv', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
 keymap('n', '<leader>b', function()
   telescope.buffers {

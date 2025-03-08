@@ -49,9 +49,5 @@ return {
         provider = 'telescope',
       },
     }
-    require('which-key').add {
-      { '<leader>nn', ':AvanteToggle<cr>', desc = 'Toggle Avante' },
-      { '<leader>nf', ':AvanteFocus<cr>', desc = 'Toggle Avante Focus' },
-    }
   end,
 }
