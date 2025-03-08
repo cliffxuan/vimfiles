@@ -110,6 +110,7 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 require('which-key').add {
   { '<leader>a', group = 'Text Search' },
   { '<leader>d', group = 'Gpt' },
+  { '<leader>n', group = 'Avante' },
   { '<leader>j', group = 'Open file' },
   { '<leader>u', group = 'Display settings' },
   { '<leader>e', group = 'Edit' },

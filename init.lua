@@ -313,7 +313,6 @@ vim.cmd [[
 ]]
 
 require 'config'
-require 'copilot'
 require 'keymaps'
 require 'clipboard'
 require 'gpt'
