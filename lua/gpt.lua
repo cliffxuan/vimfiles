@@ -152,6 +152,9 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
   }):start()
 end
 
+local prompt_history = {}
+local history_index = 0
+
 local gpt_prompt = function(on_submit)
   local Popup = require 'nui.popup'
   local event = require('nui.utils.autocmd').event
@@ -190,9 +193,30 @@ local gpt_prompt = function(on_submit)
     local lines = vim.api.nvim_buf_get_lines(popup.bufnr, 0, -1, false)
     local value = table.concat(lines, '\n')
     if utils.strip(value) ~= '' then
+      table.insert(prompt_history, value)
+      history_index = #prompt_history + 1
       on_submit(value)
     end
     popup:unmount()
+  end)
+
+  popup:map('n', '<up>', function()
+    if history_index > 1 then
+      history_index = history_index - 1
+      local previous_prompt = prompt_history[history_index]
+      vim.api.nvim_buf_set_lines(popup.bufnr, 0, -1, false, vim.split(previous_prompt, '\n'))
+    end
+  end)
+
+  popup:map('n', '<down>', function()
+    if history_index < #prompt_history then
+      history_index = history_index + 1
+      local next_prompt = prompt_history[history_index]
+      vim.api.nvim_buf_set_lines(popup.bufnr, 0, -1, false, vim.split(next_prompt, '\n'))
+    elseif history_index == #prompt_history then
+      history_index = #prompt_history + 1
+      vim.api.nvim_buf_set_lines(popup.bufnr, 0, -1, false, { '' })
+    end
   end)
 end
 
