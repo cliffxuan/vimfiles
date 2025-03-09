@@ -21,6 +21,8 @@ local window_config = {
   border = 'rounded',
 }
 
+-- Load buffer from file
+
 local load_buffer_for_path = function(file_path) -- TODO: better way to do it?
   local buf = vim.api.nvim_create_buf(false, true) -- false: not listed, true scratch
   local file = io.open(file_path, 'r')
@@ -89,8 +91,9 @@ local default_on_exit = function(job, code, buffer)
     result = job:stderr_result()
     print 'error!'
   end
-  local processed_result =
-    { '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(vim.list_slice(job.args, 2), ' ') }
+  local processed_result = {
+    '# ' .. os.date '!%Y-%m-%dT%H:%M:%S' .. ' >>> ' .. table.concat(vim.list_slice(job.args, 2), ' '):gsub('\n', ' '),
+  }
   for _, line in ipairs(result) do
     table.insert(processed_result, utils.rstrip(line))
   end
@@ -150,14 +153,15 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
 end
 
 local gpt_prompt = function(on_submit)
-  local Input = require 'nui.input'
+  local Popup = require 'nui.popup'
   local event = require('nui.utils.autocmd').event
 
-  local input = Input({
+  local popup = Popup {
     position = '50%',
     relative = 'editor',
     size = {
       width = 100,
+      height = 10, -- Adjust height as needed for multi-line input
     },
     border = {
       style = 'rounded',
@@ -169,23 +173,26 @@ local gpt_prompt = function(on_submit)
     win_options = {
       winhighlight = 'Normal:Normal,FloatBorder:FloatBorder',
     },
-  }, {
-    prompt = '> ',
-    on_submit = function(value)
-      if utils.strip(value) ~= '' then
-        on_submit(value)
-      end
-    end,
-  })
+    enter = true, -- Allow entering the popup for multi-line input
+  }
 
-  input:mount()
+  popup:mount()
 
-  input:on(event.BufLeave, function()
-    input:unmount()
+  popup:on(event.BufLeave, function()
+    popup:unmount()
   end)
 
-  input:map('n', '<esc>', function()
-    input:unmount()
+  popup:map('n', '<esc>', function()
+    popup:unmount()
+  end)
+
+  popup:map('n', '<cr>', function()
+    local lines = vim.api.nvim_buf_get_lines(popup.bufnr, 0, -1, false)
+    local value = table.concat(lines, '\n')
+    if utils.strip(value) ~= '' then
+      on_submit(value)
+    end
+    popup:unmount()
   end)
 end
 
