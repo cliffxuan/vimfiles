@@ -306,9 +306,10 @@ vim.api.nvim_create_user_command('GptInput', function()
 end, { nargs = 0 })
 
 vim.api.nvim_create_user_command('GptInputVisual', function()
+  local visual_selection = utils.get_visual_selection() -- Capture the visual selection
   gpt_prompt(function(value)
     utils.set_open_api_key()
-    run_shell_command({ 'sgpt ', '"' .. value .. '"', ' --no-md' }, utils.get_visual_selection())
+    run_shell_command({ 'sgpt ', '"' .. value .. '"', ' --no-md' }, visual_selection)
   end)
 end, { nargs = 0 })
 
