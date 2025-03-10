@@ -181,6 +181,8 @@ local gpt_prompt = function(on_submit)
 
   popup:mount()
 
+  vim.api.nvim_command 'startinsert'
+
   popup:on(event.BufLeave, function()
     popup:unmount()
   end)
