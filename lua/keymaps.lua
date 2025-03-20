@@ -110,8 +110,8 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 require('which-key').add {
   { '<leader>a', group = 'Avante' },
   { '<leader>d', group = 'Gpt' },
-  { '<leader>n', group = 'Text Search' },
-  { '<leader>j', group = 'Open file' },
+  { '<leader>j', group = 'Text Search' },
+  { '<leader>n', group = 'Open file' },
   { '<leader>u', group = 'Display settings' },
   { '<leader>e', group = 'Edit' },
   { '<leader>g', group = 'Git' },
@@ -119,9 +119,9 @@ require('which-key').add {
   { '<leader>h', group = 'History' },
 }
 
-keymap('n', '<leader>nn', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
-keymap('n', '<leader>n ', telescope.live_grep, { desc = 'Live search', noremap = true })
-keymap('n', '<leader>nb', function()
+keymap('n', '<leader>jj', search_word_under_cursor, { desc = 'Search word under the cursor', noremap = true })
+keymap('n', '<leader>j ', telescope.live_grep, { desc = 'Live search', noremap = true })
+keymap('n', '<leader>jb', function()
   telescope.live_grep {
     grep_open_files = true,
     default_text = vim.fn.expand '<cword>',
@@ -129,16 +129,24 @@ keymap('n', '<leader>nb', function()
     initial_mode = 'normal',
   }
 end, { desc = 'Live grep in open buffers', noremap = true })
-keymap('n', '<leader>ns', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
-keymap('n', '<leader>nf', search_word_in_current_file, { desc = 'Search in current buffer', noremap = true })
-keymap('n', '<leader>nl', function()
+keymap('n', '<leader>js', search_highlighted_text, { desc = 'Search highlighted text', noremap = true })
+keymap('n', '<leader>jn', function()
+  telescope.live_grep {
+    additional_args = function()
+      return { "--no-ignore" }
+    end,
+  }
+end, { desc = 'Live grep with no ignore', noremap = true })
+
+keymap('n', '<leader>jf', search_word_in_current_file, { desc = 'Search in current buffer', noremap = true })
+keymap('n', '<leader>jl', function()
   search_word_in_current_file(vim.fn.expand '<cword>', 'normal')
 end, { desc = 'Search word under the cursor in current file', noremap = true })
-keymap('n', '<leader>ng', ':Rg ', { desc = 'Search with Rg', noremap = true })
-keymap('n', '<leader>nj', function()
+keymap('n', '<leader>jg', ':Rg ', { desc = 'Search with Rg', noremap = true })
+keymap('n', '<leader>jr', function()
   require('trouble').toggle 'lsp_references'
 end, { desc = 'Search references', noremap = true })
-keymap({ 'n', 'v' }, '<leader>nv', search_visual_selection, { desc = 'Search visual selection', noremap = true })
+keymap({ 'n', 'v' }, '<leader>jv', search_visual_selection, { desc = 'Search visual selection', noremap = true })
 
 keymap('n', '<leader>b', function()
   telescope.buffers {
@@ -226,10 +234,10 @@ keymap('n', '<leader>hh', telescope.oldfiles, { noremap = true, desc = 'Show old
 keymap('n', '<leader>hs', telescope.search_history, { noremap = true, desc = 'Show search history' })
 keymap('n', '<leader>hc', telescope.command_history, { noremap = true, desc = 'Show command history' })
 
-keymap('n', '<leader>jf', function()
+keymap('n', '<leader>nf', function()
   pick_directory(find_files, 'zoxide query --list')
 end, { noremap = true, desc = 'open file in a z directory' })
-keymap('n', '<leader>jj', function()
+keymap('n', '<leader>nj', function()
   local cwd = utils.guess_project_root()
   telescope.find_files {
     cwd = cwd,
@@ -237,9 +245,9 @@ keymap('n', '<leader>jj', function()
     prompt_title = 'Find files in ' .. cwd,
   }
 end, { noremap = true, desc = 'open file in project root' })
-keymap('n', '<leader>jk', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
-keymap('n', '<leader>j ', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
-keymap('n', '<leader>jh', function()
+keymap('n', '<leader>nk', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
+keymap('n', '<leader>n ', open_file_in_buffer_dir, { noremap = true, desc = 'open file in the same directory' })
+keymap('n', '<leader>nh', function()
   local cwd = vim.fn.expand '%:p:h:h'
   telescope.find_files {
     cwd = cwd,
@@ -248,7 +256,7 @@ keymap('n', '<leader>jh', function()
   }
 end, { noremap = true, desc = 'open file in parent directory' })
 
-keymap('n', '<leader>jl', function()
+keymap('n', '<leader>nl', function()
   pick_directory(find_files)
 end, { noremap = true, silent = true, desc = 'open file in chosen sub directory' })
 
