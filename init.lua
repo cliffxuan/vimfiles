@@ -300,10 +300,6 @@ vim.cmd [[
   let g:fzf_layout = { 'window': { 'width': 0.98, 'height': 0.8, 'highlight': 'Todo', 'border': 'sharp' } }
   let g:indentLine_setColors = 0
   let g:terraform_align=1
-  let g:UltiSnipsSnippetDirectories=['ultisnips']
-  let g:UltiSnipsExpandTrigger = '<C-j>'
-  let g:UltiSnipsJumpForwardTrigger = '<C-j>'
-  let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
   " python provider uses pynvim specific virtualenv
   if !empty(glob('~/.virtualenvs/pynvim/bin/python3'))
