@@ -1,3 +1,6 @@
+noremap  <LocalLeader>a :py set_breakpoint()<cr>:update<cr>
+noremap <LocalLeader>b :py remove_breakpoints()<cr>:update<cr>
+
 python << EOF
 import re
 import vim
@@ -34,5 +37,3 @@ def remove_breakpoints():
 
     vim.command( 'normal %dG' % n_currentline)
 EOF
-noremap  <LocalLeader>a :py set_breakpoint()<cr>:update<cr>
-noremap <LocalLeader>b :py remove_breakpoints()<cr>:update<cr>
