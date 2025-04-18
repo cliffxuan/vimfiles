@@ -1,6 +1,6 @@
 import subprocess
 
-import pynvim
+import pynvim  # type: ignore
 
 
 def decode_bytes(text):

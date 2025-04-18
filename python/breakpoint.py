@@ -1,6 +1,6 @@
 import re
 
-import vim
+import vim  # type: ignore
 
 DEBUGGERS = ["pdb", "ipdb", "pudb"]
 
