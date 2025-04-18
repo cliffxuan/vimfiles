@@ -1,4 +1,5 @@
 noremap  <LocalLeader>a :py set_breakpoint()<cr>:update<cr>
+noremap  <LocalLeader>p :py set_breakpoint(LINE1)<cr>:update<cr>
 noremap <LocalLeader>b :py remove_breakpoints()<cr>:update<cr>
 
 python << EOF
@@ -9,10 +10,10 @@ LINE1 = '__import__("pdb").set_trace()  # !!!!!!!!!!'
 LINE2 = '__import__("ipdb").set_trace()  # !!!!!!!!!!'
 
 
-def set_breakpoint():
+def set_breakpoint(breakpoint=LINE0):
     n_line = int(vim.eval('line(".")'))
     whitespace = re.search(r'^(\s*)', vim.current.line).group(1)
-    vim.current.buffer.append(whitespace + LINE0, n_line - 1)
+    vim.current.buffer.append(whitespace + breakpoint, n_line - 1)
     vim.command( 'normal j1')
 
 
