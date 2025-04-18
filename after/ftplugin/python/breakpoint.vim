@@ -1,5 +1,5 @@
-noremap  <LocalLeader>a :py set_breakpoint()<cr>:update<cr>
-noremap  <LocalLeader>p :py set_breakpoint('pdb')<cr>:update<cr>
+noremap <LocalLeader>a :py set_breakpoint()<cr>:update<cr>
+noremap <LocalLeader>p :py set_breakpoint('pdb')<cr>:update<cr>
 noremap <LocalLeader>b :py remove_breakpoints()<cr>:update<cr>
 
 python3 << EOF
