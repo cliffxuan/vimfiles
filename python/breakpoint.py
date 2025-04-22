@@ -9,7 +9,7 @@ def get_line(debugger=None):
     if debugger is None:
         statement = "breakpoint()"
     else:
-        statement = f'__import__("{debugger}")'
+        statement = f'__import__("{debugger}").set_trace()'
     return f"{statement}  # !!!!!!!!!!"
 
 
