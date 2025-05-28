@@ -179,6 +179,7 @@ keymap('n', '<leader>eu', ':UltiSnipsEdit<cr>', { noremap = true })
 keymap('n', '<leader>ev', ':Vexplore<cr>', { noremap = true })
 keymap('n', '<leader>en', ':vnew<cr>', { noremap = true })
 keymap('n', '<leader>ex', [[:%s/\s\+$//<CR>:let @/=''<CR>]], { noremap = true })
+keymap('n', '<leader>el', ':FormatLongString<cr>', { noremap = true, silent = true, desc = 'Format long string' })
 
 keymap('n', '<leader>f', function()
   telescope.find_files {
