@@ -80,9 +80,10 @@ function M.format_long_string()
   vim.notify('String formatted successfully', vim.log.levels.INFO)
 end
 
--- Register the command
-vim.api.nvim_create_user_command('FormatLongString', function()
-  M.format_long_string()
-end, {})
+function M.setup()
+  vim.api.nvim_create_user_command('FormatLongString', function()
+    M.format_long_string()
+  end, {})
+end
 
 return M

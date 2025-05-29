@@ -7,7 +7,7 @@ return {
     provider = 'openai',
     -- provider = 'claude',
     openai = {
-      model = 'gpt-4o-mini',
+      model = 'gpt-4.1-mini',
     },
     claude = {
       endpoint = 'https://api.anthropic.com',

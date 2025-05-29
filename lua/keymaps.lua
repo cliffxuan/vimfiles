@@ -1,6 +1,7 @@
 local utils = require 'utils'
 local telescope = require 'telescope.builtin'
 local Notify = require 'mini.notify'
+require('format_long_strings').setup()
 
 local search_word_under_cursor = function()
   telescope.grep_string { search = vim.fn.expand '<cword>', initial_mode = 'normal' }
@@ -133,7 +134,7 @@ keymap('n', '<leader>js', search_highlighted_text, { desc = 'Search highlighted 
 keymap('n', '<leader>jn', function()
   telescope.live_grep {
     additional_args = function()
-      return { "--no-ignore" }
+      return { '--no-ignore' }
     end,
   }
 end, { desc = 'Live grep with no ignore', noremap = true })
