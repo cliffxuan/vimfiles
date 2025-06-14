@@ -6,14 +6,18 @@ return {
   opts = {
     provider = 'openai',
     -- provider = 'claude',
-    openai = {
-      model = 'gpt-4.1-mini',
-    },
-    claude = {
-      endpoint = 'https://api.anthropic.com',
-      model = 'claude-3-5-sonnet-20241022',
-      temperature = 0,
-      max_tokens = 4096,
+    providers = {
+      openai = {
+        model = 'gpt-4.1-mini',
+      },
+      claude = {
+        endpoint = 'https://api.anthropic.com',
+        model = 'claude-3-5-sonnet-20241022',
+        extra_reqest_body = {
+          temperature = 0,
+          max_tokens = 4096,
+        },
+      },
     },
     file_selector = {
       provider = 'telescope',
