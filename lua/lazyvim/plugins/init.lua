@@ -26,7 +26,8 @@ return {
   {
     'sheerun/vim-polyglot',
     init = function()
-      vim.g.polyglot_disabled = { 'python', 'markdown', 'autoindent' }
+      -- ftdetect fails for *.lean
+      vim.g.polyglot_disabled = { 'python', 'markdown', 'autoindent', 'ftdetect' }
     end,
   },
   {

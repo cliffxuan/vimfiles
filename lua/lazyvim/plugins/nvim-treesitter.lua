@@ -1,7 +1,7 @@
 return {
   {
     'nvim-treesitter/nvim-treesitter',
-    build = ":TSUpdate",
+    build = ':TSUpdate',
     config = function()
       require('nvim-treesitter.install').prefer_git = true
       require('nvim-treesitter.configs').setup {
@@ -13,8 +13,8 @@ return {
           additional_vim_regex_highlighting = false,
         },
         indent = { enable = true },
-        modules={},
-        ignore_install={},
+        modules = {},
+        ignore_install = {},
       }
     end,
   },

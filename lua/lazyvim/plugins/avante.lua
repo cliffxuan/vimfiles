@@ -6,6 +6,7 @@ return {
   opts = {
     provider = 'openai',
     -- provider = 'claude',
+    mode = "legacy",
     providers = {
       openai = {
         model = 'gpt-4.1-mini',

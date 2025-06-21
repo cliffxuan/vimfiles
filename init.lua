@@ -307,7 +307,6 @@ vim.cmd [[
   endif
 " }}}
 ]]
-
 require 'config'
 require 'keymaps'
 require 'clipboard'
