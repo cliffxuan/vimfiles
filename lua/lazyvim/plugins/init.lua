@@ -92,7 +92,7 @@ return {
   { 'OmniSharp/omnisharp-vim', ft = 'cs' },
   { 'Glench/Vim-Jinja2-Syntax', ft = 'jinja' },
   { 'jeetsukumaran/vim-pythonsense', ft = 'python' },
-  { 'simrat39/rust-tools.nvim', ft = 'rust' }, -- rust analyzer inlay
+  { 'mrcjkb/rustaceanvim', ft = 'rust' },
   { 'rust-lang/rust.vim', ft = 'rust' },
   {
     'MeanderingProgrammer/render-markdown.nvim',
