@@ -108,6 +108,11 @@ do
         context_files = {},
     }
 
+    -- Accessor function to safely get messages from other modules
+    function VibeChat.get_messages()
+        return messages_for_display
+    end
+
     function VibeChat.update_context_buffer()
         local buf_id = VibeChat.state.context_buf_id
         if not buf_id or not vim.api.nvim_buf_is_valid(buf_id) then return end
@@ -219,7 +224,13 @@ do
         messages_for_display = {}
         VibeChat.append_to_output("Welcome to Vibe Coding! Submit with Ctrl+s (Insert) or Enter (Normal).")
 
-        local initial_buf_name = vim.api.nvim_buf_get_name(VibeChat.state.main_editor_win_id and vim.api.nvim_win_get_buf(VibeChat.state.main_editor_win_id) or 0)
+        -- Auto-add current file to context
+        local initial_buf_name = ""
+        if VibeChat.state.main_editor_win_id and vim.api.nvim_win_is_valid(VibeChat.state.main_editor_win_id) then
+            local buf_id = vim.api.nvim_win_get_buf(VibeChat.state.main_editor_win_id)
+            initial_buf_name = vim.api.nvim_buf_get_name(buf_id)
+        end
+
         if initial_buf_name and initial_buf_name ~= "" then
             VibeChat.state.context_files = { initial_buf_name }
             VibeChat.update_context_buffer()
@@ -229,11 +240,14 @@ do
         vim.api.nvim_set_current_win(VibeChat.state.input_win_id)
         vim.cmd('startinsert')
 
-        vim.api.nvim_create_autocmd("WinClosed", {
-            group = VIBE_AUGROUP,
-            pattern = tostring(VibeChat.state.input_win_id),
-            callback = function() vim.schedule(VibeChat.close_layout) end,
-        })
+        -- Create autocmd only if the window was created successfully
+        if VibeChat.state.input_win_id and vim.api.nvim_win_is_valid(VibeChat.state.input_win_id) then
+            vim.api.nvim_create_autocmd("WinClosed", {
+                group = VIBE_AUGROUP,
+                pattern = tostring(VibeChat.state.input_win_id),
+                callback = function() vim.schedule(VibeChat.close_layout) end,
+            })
+        end
     end
 
     function VibeChat.close_layout()
@@ -333,10 +347,11 @@ end
 local VibeDiff = {}
 do
     function VibeDiff.get_last_ai_response()
+        local messages = VibeChat.get_messages() -- Use the accessor
         local last_ai_message = nil
-        for i = #messages_for_display, 1, -1 do
-            if messages_for_display[i].role == 'assistant' then
-                last_ai_message = messages_for_display[i].content
+        for i = #messages, 1, -1 do
+            if messages[i].role == 'assistant' then
+                last_ai_message = messages[i].content
                 break
             end
         end
@@ -373,7 +388,6 @@ do
             return
         end
         vim.api.nvim_set_current_win(main_win)
-        local original_buf = vim.api.nvim_win_get_buf(main_win)
         local diff_buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(ai_content, '\n'))
         vim.cmd('diffthis')
