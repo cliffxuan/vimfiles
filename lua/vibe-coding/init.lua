@@ -2160,6 +2160,211 @@ do
 end
 
 -- =============================================================================
+-- Vibe Patcher: Applies unified diffs from AI responses
+-- =============================================================================
+local VibePatcher = {}
+do
+  --- Parses a single unified diff block.
+  -- @param diff_content The string content of the diff.
+  -- @return A table with parsed diff info, or nil and an error message.
+  function VibePatcher.parse_diff(diff_content)
+    local lines = vim.split(diff_content, '\n', { plain = true })
+    local diff = { hunks = {} }
+
+    if #lines < 3 then
+      return nil, 'Diff content is too short'
+    end
+
+    diff.old_path = lines[1]:match '^---%s+(.*)$'
+    diff.new_path = lines[2]:match '^%+%+%+%s+(.*)$'
+
+    if not diff.old_path or not diff.new_path then
+      return nil, 'Could not parse file paths from diff header'
+    end
+
+    diff.old_path = diff.old_path:match '^a/(.*)' or diff.old_path
+    diff.new_path = diff.new_path:match '^b/(.*)' or diff.new_path
+
+    if diff.old_path:match '%s' then
+      diff.old_path = diff.old_path:gsub('%s+$', '')
+    end
+    if diff.new_path:match '%s' then
+      diff.new_path = diff.new_path:gsub('%s+$', '')
+    end
+
+    local current_hunk = nil
+    for i = 3, #lines do
+      local line = lines[i]
+      if line:match '^@@' then
+        if current_hunk and #current_hunk.lines > 0 then
+          table.insert(diff.hunks, current_hunk)
+        end
+        current_hunk = { lines = {} }
+      elseif current_hunk and (line:match '^[-+]') then
+        table.insert(current_hunk.lines, line)
+      end
+    end
+    if current_hunk and #current_hunk.lines > 0 then
+      table.insert(diff.hunks, current_hunk)
+    end
+
+    if #diff.hunks == 0 then
+      return nil, 'Diff contains no changes'
+    end
+
+    return diff, nil
+  end
+
+  --- Applies a single parsed diff to the corresponding file.
+  -- @param parsed_diff The diff table from parse_diff.
+  -- @return boolean, string: success status and a message.
+  function VibePatcher.apply_diff(parsed_diff)
+    local target_file = parsed_diff.new_path
+    if target_file == '/dev/null' then
+      return true, 'Skipped file deletion.'
+    end
+
+    local original_lines
+    local is_new_file = parsed_diff.old_path == '/dev/null'
+
+    if is_new_file then
+      original_lines = {}
+    else
+      local content, err = FileCache.get_content(parsed_diff.old_path)
+      if not content then
+        return false, 'Failed to read file ' .. parsed_diff.old_path .. ': ' .. (err or 'Unknown Error')
+      end
+      original_lines = vim.split(content, '\n', { plain = true })
+    end
+
+    local modified_lines = vim.deepcopy(original_lines)
+    local hunks_applied_count = 0
+
+    for _, hunk in ipairs(parsed_diff.hunks) do
+      local to_remove = {}
+      local to_add = {}
+      for _, line in ipairs(hunk.lines) do
+        local op = line:sub(1, 1)
+        local text = line:sub(2)
+        if op == '-' then
+          table.insert(to_remove, text)
+        elseif op == '+' then
+          table.insert(to_add, text)
+        end
+      end
+
+      local found_at = -1
+      if #to_remove > 0 then
+        for i = 1, #modified_lines - #to_remove + 1 do
+          local match = true
+          for j = 1, #to_remove do
+            if modified_lines[i + j - 1] ~= to_remove[j] then
+              match = false
+              break
+            end
+          end
+          if match then
+            found_at = i
+            break
+          end
+        end
+      elseif is_new_file or #to_add > 0 then
+        found_at = #modified_lines + 1
+      end
+
+      if found_at > -1 then
+        local prefix = {}
+        for i = 1, found_at - 1 do
+          table.insert(prefix, modified_lines[i])
+        end
+
+        local suffix = {}
+        local start_of_suffix = found_at + #to_remove
+        for i = start_of_suffix, #modified_lines do
+          table.insert(suffix, modified_lines[i])
+        end
+
+        modified_lines = prefix
+        for _, line in ipairs(to_add) do
+          table.insert(modified_lines, line)
+        end
+        for _, line in ipairs(suffix) do
+          table.insert(modified_lines, line)
+        end
+
+        hunks_applied_count = hunks_applied_count + 1
+      else
+        return false, 'Failed to apply a hunk to ' .. target_file .. '. Aborting.'
+      end
+    end
+
+    if hunks_applied_count == #parsed_diff.hunks then
+      local success, write_err = Utils.write_file(target_file, modified_lines)
+      if not success then
+        return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or '')
+      end
+      return true, 'Applied ' .. hunks_applied_count .. ' hunks to ' .. target_file
+    else
+      return false, 'Not all hunks could be applied to ' .. target_file
+    end
+  end
+
+  --- Finds the last AI response, extracts diffs, and applies them.
+  function VibePatcher.apply_last_response()
+    local messages = VibeChat.get_messages()
+    local last_ai_message = nil
+    for i = #messages, 1, -1 do
+      if messages[i].role == 'assistant' then
+        last_ai_message = messages[i].content
+        break
+      end
+    end
+
+    if not last_ai_message then
+      vim.notify('[Vibe] No AI response found to apply.', vim.log.levels.WARN)
+      return
+    end
+
+    local code_blocks = VibeDiff.extract_code_blocks(last_ai_message)
+    local diff_blocks = {}
+    for _, block in ipairs(code_blocks) do
+      if block.language == 'diff' then
+        table.insert(diff_blocks, block.content_str)
+      end
+    end
+
+    if #diff_blocks == 0 then
+      vim.notify('[Vibe] No diff blocks found in the last AI response.', vim.log.levels.WARN)
+      return
+    end
+
+    local applied_count = 0
+    local failed_count = 0
+    for _, diff_content in ipairs(diff_blocks) do
+      local parsed_diff, parse_err = VibePatcher.parse_diff(diff_content)
+      if parsed_diff then
+        local success, apply_msg = VibePatcher.apply_diff(parsed_diff)
+        if success then
+          vim.notify('[Vibe] ' .. apply_msg, vim.log.levels.INFO)
+          applied_count = applied_count + 1
+        else
+          vim.notify('[Vibe] ' .. apply_msg, vim.log.levels.ERROR)
+          failed_count = failed_count + 1
+        end
+      else
+        vim.notify('[Vibe] Failed to parse diff: ' .. (parse_err or ''), vim.log.levels.ERROR)
+        failed_count = failed_count + 1
+      end
+    end
+
+    vim.notify(
+      '[Vibe] Patch complete. Applied: ' .. applied_count .. '. Failed: ' .. failed_count .. '.',
+      vim.log.levels.INFO
+    )
+  end
+end
+
+-- =============================================================================
 -- User Commands
 -- =============================================================================
 vim.api.nvim_create_user_command(
@@ -2189,6 +2394,12 @@ vim.api.nvim_create_user_command(
   'VibeDiff',
   VibeDiff.show,
   { desc = 'Diff the last AI code block with the main editor buffer' }
+)
+
+vim.api.nvim_create_user_command(
+  'VibeApplyPatch',
+  VibePatcher.apply_last_response,
+  { desc = 'Apply diff from the last AI response to the corresponding file(s)' }
 )
 
 vim.api.nvim_create_user_command('VibeSessionStart', function(opts)
