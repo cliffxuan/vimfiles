@@ -6,11 +6,8 @@
 -- =============================================================================
 local CONFIG = {
   -- API Configuration
-  -- api_url = 'https://aws.ai-gateway.c3.zone/v1/chat/completions',
-  -- api_url = 'https://aws.ai-gateway.c3.zone/v1',
-  -- model = 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
-  api_url = 'https://ai-gateway.c3.zone/v1/resource/openai/v1',
-  model = 'gpt-4o',
+  api_url = os.getenv 'OPENAI_API_BASE_URL' or 'https://api.openai.com/v1',
+  model = os.getenv 'OPENAI_CHAT_MODEL_ID' or 'gpt-4.1-mini',
 
   -- UI Configuration
   sidebar_width = 80,
