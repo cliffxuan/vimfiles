@@ -6,6 +6,7 @@
 -- =============================================================================
 local CONFIG = {
   -- API Configuration
+  api_key = os.getenv 'OPENAI_API_KEY',
   api_url = os.getenv 'OPENAI_API_BASE_URL' or 'https://api.openai.com/v1',
   model = os.getenv 'OPENAI_CHAT_MODEL_ID' or 'gpt-4.1-mini',
 
@@ -182,7 +183,6 @@ local VibeAPI = {}
 
 do
   local plenary_job = require 'plenary.job'
-  local api_key = os.getenv 'OPENAI_API_KEY'
 
   -- Function to write debug curl script
   function VibeAPI.write_debug_script(messages)
@@ -253,7 +253,7 @@ do
 
   -- Function to get streaming completion
   function VibeAPI.get_completion(messages, callback, stream_callback)
-    if not api_key or api_key == '' then
+    if not CONFIG.api_key or CONFIG.api_key == '' then
       vim.notify('[Vibe] OPENAI_API_KEY environment variable not set.', vim.log.levels.ERROR)
       callback(nil, 'API Key not set.')
       return
@@ -301,7 +301,7 @@ do
           '-H',
           'Content-Type: application/json',
           '-H',
-          'Authorization: Bearer ' .. api_key,
+          'Authorization: Bearer ' .. CONFIG.api_key,
           '-d',
           '@' .. temp_json_path, -- Use the temporary file for the payload
         },
