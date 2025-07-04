@@ -1380,6 +1380,15 @@ IMPORTANT RULES FOR CODE RESPONSES:
 FORMAT YOUR CODE RESPONSES:
 For each file that needs to be changed, write out the changes similar to a unified diff like `diff -U0` would produce.
 
+IMPORTANT: Always wrap your diffs in code blocks with the diff language identifier:
+```diff
+--- path/to/file.ext
++++ path/to/file.ext
+@@ ... @@
+-old line
++new line
+```
+
 # File editing rules:
 Return edits similar to unified diffs that `diff -U0` would produce.
 Make sure you include the first 2 lines with the file paths.
@@ -2215,6 +2224,53 @@ do
     return diff, nil
   end
 
+  --- Extracts diff content from raw text that may not be in code blocks.
+  -- @param text The raw text content to search for diffs.
+  -- @return string|nil: The extracted diff content, or nil if none found.
+  function VibePatcher.extract_diff_from_text(text)
+    local lines = vim.split(text, '\n', { plain = true })
+    local diff_lines = {}
+    local in_diff = false
+    local found_diff_header = false
+    
+    for _, line in ipairs(lines) do
+      -- Look for diff header patterns
+      if line:match('^---%s+') or line:match('^%+%+%+%s+') then
+        if not in_diff then
+          in_diff = true
+          found_diff_header = true
+          diff_lines = { line }
+        else
+          table.insert(diff_lines, line)
+        end
+      elseif in_diff then
+        -- Continue collecting diff lines
+        if line:match('^@@') or line:match('^[-+]') or line:match('^%s') then
+          table.insert(diff_lines, line)
+        elseif line:match('^$') then
+          -- Empty lines are okay in diffs
+          table.insert(diff_lines, line)
+        else
+          -- Non-diff line found, check if we have a complete diff
+          if found_diff_header and #diff_lines > 2 then
+            break
+          else
+            -- Reset if we don't have a valid diff yet
+            in_diff = false
+            found_diff_header = false
+            diff_lines = {}
+          end
+        end
+      end
+    end
+    
+    if found_diff_header and #diff_lines > 2 then
+      return table.concat(diff_lines, '\n')
+    end
+    
+    return nil
+  end
+
   --- Applies a single parsed diff to the corresponding file.
   -- @param parsed_diff The diff table from parse_diff.
   -- @return boolean, string: success status and a message.
@@ -2327,9 +2383,19 @@ do
 
     local code_blocks = VibeDiff.extract_code_blocks(last_ai_message)
     local diff_blocks = {}
+    
+    -- First, look for explicit diff code blocks
     for _, block in ipairs(code_blocks) do
       if block.language == 'diff' then
         table.insert(diff_blocks, block.content_str)
+      end
+    end
+    
+    -- If no explicit diff blocks found, look for diff patterns in the raw message
+    if #diff_blocks == 0 then
+      local diff_content = VibePatcher.extract_diff_from_text(last_ai_message)
+      if diff_content then
+        table.insert(diff_blocks, diff_content)
       end
     end
 
