@@ -167,19 +167,6 @@ function FileCache._remove_from_access_order(filepath)
   end
 end
 
--- Validate buffer and window existence
-function Utils.is_valid_buffer(buf_id)
-  return buf_id and vim.api.nvim_buf_is_valid(buf_id)
-end
-
-function Utils.is_invalid_buffer(buf_id)
-  return buf_id == nil or not vim.api.nvim_buf_is_valid(buf_id)
-end
-
-function Utils.is_valid_window(win_id)
-  return win_id and vim.api.nvim_win_is_valid(win_id)
-end
-
 -- =============================================================================
 -- Vibe API: Handles communication with the OpenAI API
 -- =============================================================================
@@ -1031,7 +1018,7 @@ do
 
   function VibeChat.update_context_buffer()
     local buf_id = VibeChat.state.context_buf_id
-    if not Utils.is_valid_buffer(buf_id) then
+    if buf_id == nil or not vim.api.nvim_buf_is_valid(buf_id) then
       return
     end
 
@@ -1317,7 +1304,7 @@ do
 
   function VibeChat.append_to_output(text)
     local buf_id = VibeChat.state.output_buf_id
-    if not Utils.is_valid_buffer(buf_id) then
+    if buf_id == nil or not vim.api.nvim_buf_is_valid(buf_id) then
       return
     end
     vim.bo[buf_id].modifiable = true
@@ -1325,7 +1312,7 @@ do
     vim.api.nvim_buf_set_lines(buf_id, -1, -1, false, { '' })
     vim.bo[buf_id].modifiable = false
     local win_id = VibeChat.state.output_win_id
-    if Utils.is_valid_window(win_id) then
+    if win_id ~= nil and vim.api.nvim_win_is_valid(win_id) then
       vim.api.nvim_win_set_cursor(win_id, { vim.api.nvim_buf_line_count(buf_id), 0 })
     end
   end
@@ -1338,7 +1325,7 @@ do
     end
 
     local input_buf = VibeChat.state.input_buf_id
-    if not Utils.is_valid_buffer(input_buf) then
+    if input_buf == nil or not vim.api.nvim_buf_is_valid(input_buf) then
       vim.notify('[Vibe] Input buffer is not valid.', vim.log.levels.ERROR)
       return
     end
@@ -1557,9 +1544,12 @@ Use the provided file contexts to understand the codebase structure and maintain
         return
       end
 
+      local output_buf = VibeChat.state.output_buf_id
+      if output_buf == nil or not vim.api.nvim_buf_is_valid(output_buf) then
+        return
+      end
       if not streaming_started then
         -- Remove "thinking" message and start AI response
-        local output_buf = VibeChat.state.output_buf_id
         vim.bo[output_buf].modifiable = true
         local lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false)
         for i = #lines, 1, -1 do
@@ -1574,7 +1564,6 @@ Use the provided file contexts to understand the codebase structure and maintain
       end
 
       -- Append the streaming chunk directly to the buffer
-      local output_buf = VibeChat.state.output_buf_id
       vim.bo[output_buf].modifiable = true
       -- Split the chunk by newlines to handle multi-line chunks correctly
       local chunk_lines = vim.split(chunk, '\n', { plain = true })
