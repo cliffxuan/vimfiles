@@ -1563,8 +1563,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.add_context_to_chat()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
     VibeContext.add_files_to_context(function(filepaths)
       if filepaths and #filepaths > 0 then
@@ -1604,8 +1603,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.remove_context_from_chat()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
 
     VibeContext.remove_file_from_context(VibeChat.state.context_files, function(filepaths)
@@ -1650,8 +1648,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.add_current_buffer_to_context()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
 
     local filepath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
@@ -1675,8 +1672,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.clear_context()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
 
     if #VibeChat.state.context_files == 0 then
@@ -1703,8 +1699,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.remove_single_file_from_context()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
 
     if #VibeChat.state.context_files == 0 then
@@ -1745,8 +1740,7 @@ Use the provided file contexts to understand the codebase structure and maintain
 
   function VibeChat.remove_selected_files_from_context()
     if not VibeChat.state.layout_active then
-      vim.notify('[Vibe] Chat layout is not open.', vim.log.levels.WARN)
-      return
+      VibeChat.open_chat_window()
     end
 
     if #VibeChat.state.context_files == 0 then
