@@ -172,6 +172,10 @@ function Utils.is_valid_buffer(buf_id)
   return buf_id and vim.api.nvim_buf_is_valid(buf_id)
 end
 
+function Utils.is_invalid_buffer(buf_id)
+  return buf_id == nil or not vim.api.nvim_buf_is_valid(buf_id)
+end
+
 function Utils.is_valid_window(win_id)
   return win_id and vim.api.nvim_win_is_valid(win_id)
 end
@@ -1400,7 +1404,10 @@ To move code within a file, use 2 hunks: 1 to delete it from its current locatio
 To make a new file, show a diff from `--- /dev/null` to `+++ path/to/new/file.ext`.
 
 EXAMPLE:
-If asked to replace a function, respond like:
+If asked to replace a function, respond like these 2 examples below:
+
+- example 1
+
 ```diff
 --- path/to/file.lua
 +++ path/to/file.lua
@@ -1413,6 +1420,44 @@ If asked to replace a function, respond like:
 +    -- new implementation
 +    return new_result
 +end
+```
+- example 2
+
+```diff
+--- mathweb/flask/app.py
++++ mathweb/flask/app.py
+@@ ... @@
+-class MathWeb:
++import sympy
++
++class MathWeb:
+@@ ... @@
+-def is_prime(x):
+-    if x < 2:
+-        return False
+-    for i in range(2, int(math.sqrt(x)) + 1):
+-        if x % i == 0:
+-            return False
+-    return True
+@@ ... @@
+-@app.route('/prime/<int:n>')
+-def nth_prime(n):
+-    count = 0
+-    num = 1
+-    while count < n:
+-        num += 1
+-        if is_prime(num):
+-            count += 1
+-    return str(num)
++@app.route('/prime/<int:n>')
++def nth_prime(n):
++    count = 0
++    num = 1
++    while count < n:
++        num += 1
++        if sympy.isprime(num):
++            count += 1
++    return str(num)
 ```
 
 Use proper language identifiers in code fences (```lua, ```python, ```javascript, etc.)
