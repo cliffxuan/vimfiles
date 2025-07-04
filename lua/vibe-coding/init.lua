@@ -281,6 +281,7 @@ do
     local buffer = ''
 
     plenary_job
+      ---@diagnostic disable-next-line
       :new({
         command = 'curl',
         args = {

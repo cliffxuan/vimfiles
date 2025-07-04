@@ -138,6 +138,7 @@ local run_shell_command = function(shell_command, input, buffer, on_exit)
       end
     end)
   )
+  ---@diagnostic disable-next-line
   Job:new({
     command = 'sh',
     writer = input,
@@ -182,7 +183,6 @@ local gpt_prompt = function(on_submit)
   popup:mount()
 
   vim.api.nvim_command 'startinsert'
-
   popup:on(event.BufLeave, function()
     popup:unmount()
   end)
