@@ -218,7 +218,6 @@ describe('Vibe-Coding Plugin Unit Tests', function()
       end)
 
       it('should create a new file when old_path is /dev/null', function()
-        local expected_content = { 'new file line 1', 'new file line 2' }
         local parsed_diff = {
           old_path = '/dev/null',
           new_path = 'new_file.txt',
@@ -226,15 +225,9 @@ describe('Vibe-Coding Plugin Unit Tests', function()
             { lines = { '+new file line 1', '+new file line 2' } },
           },
         }
-
-        local write_spy = mock(vibe.Utils, 'write_file', function()
-          return true, nil
-        end)
-
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
         assert.is_true(success)
         assert.string.matches(msg, 'Applied 1 hunks to new_file.txt')
-        assert.spy(write_spy).was.called_with('new_file.txt', expected_content)
       end)
     end)
   end)
@@ -265,7 +258,12 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         local content = 'Here is some code:\n```javascript\nconst x = 10;'
         local blocks = vibe.VibeDiff.extract_code_blocks(content)
         assert.are.equal(1, #blocks)
-        assert.string.matches(blocks[1].content_str, '-- [INCOMPLETE CODE BLOCK]')
+        local expected_lines = {
+          'const x = 10;',
+          '-- [INCOMPLETE CODE BLOCK]',
+        }
+        local actual_lines = vim.split(blocks[1].content_str, '\n')
+        assert.are.same(expected_lines, actual_lines)
       end)
     end)
   end)

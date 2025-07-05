@@ -168,7 +168,8 @@ keymap('n', '<leader>dq', function()
   vim.cmd 'diffoff!'
 end, { desc = 'Close diff and cleanup' })
 
-keymap('n', '<leader>da', function()
+keymap('n', '<leader>da', ':VibeApplyPatch<cr>', { noremap = true, desc = 'Apply diff from last AI response' })
+keymap('n', '<leader>dp', function()
   vim.cmd '%diffget'
   vim.cmd 'write'
   require('vibe-coding.VibeDiff').cleanup_diff_buffers()
@@ -177,7 +178,6 @@ end, { desc = 'Accept all AI suggestions' })
 -- VibeSession management keybindings
 keymap('n', '<leader>dn', ':VibeSessionStart<cr>', { noremap = true, desc = 'Start new Vibe session' })
 keymap('n', '<leader>dl', ':VibeSessionLoad<cr>', { noremap = true, desc = 'Load Vibe session' })
-keymap('n', '<leader>dL', ':VibeSessionList<cr>', { noremap = true, desc = 'List Vibe sessions' })
 keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'Delete Vibe session' })
 keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
 local update_openai_api_key = function()
