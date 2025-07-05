@@ -125,6 +125,31 @@ function Utils.get_relative_path(file_path)
   return display_path
 end
 
+function Utils.update_openai_api_key()
+  -- Read the API key from file
+  local keyfile = vim.fn.expand '$HOME/.config/openai_api_key'
+  if vim.fn.filereadable(keyfile) ~= 1 then
+    vim.notify('[Vibe] API key file not found: ' .. keyfile, vim.log.levels.ERROR)
+    return
+  end
+
+  local api_key_lines = vim.fn.readfile(keyfile)
+  if not api_key_lines or #api_key_lines == 0 then
+    vim.notify('[Vibe] API key file is empty: ' .. keyfile, vim.log.levels.ERROR)
+    return
+  end
+
+  local api_key = api_key_lines[1]:gsub('%s+', '') -- trim whitespace
+  if api_key == '' then
+    vim.notify('[Vibe] API key is empty after trimming.', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.env.OPENAI_API_KEY = api_key
+  CONFIG.api_key = api_key
+  vim.notify('[Vibe] OpenAI API key updated.', vim.log.levels.INFO)
+end
+
 -- File content caching system
 local FileCache = {}
 FileCache.cache = {}
@@ -2517,31 +2542,7 @@ keymap('n', '<leader>dn', ':VibeSessionStart<cr>', { noremap = true, desc = 'Sta
 keymap('n', '<leader>dl', ':VibeSessionLoad<cr>', { noremap = true, desc = 'Load Vibe session' })
 keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'Delete Vibe session' })
 keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
-local update_openai_api_key = function()
-  -- Read the API key from file
-  local keyfile = vim.fn.expand '$HOME/.config/openai_api_key'
-  if vim.fn.filereadable(keyfile) ~= 1 then
-    vim.notify('[Vibe] API key file not found: ' .. keyfile, vim.log.levels.ERROR)
-    return
-  end
-
-  local api_key_lines = vim.fn.readfile(keyfile)
-  if not api_key_lines or #api_key_lines == 0 then
-    vim.notify('[Vibe] API key file is empty: ' .. keyfile, vim.log.levels.ERROR)
-    return
-  end
-
-  local api_key = api_key_lines[1]:gsub('%s+', '') -- trim whitespace
-  if api_key == '' then
-    vim.notify('[Vibe] API key is empty after trimming.', vim.log.levels.ERROR)
-    return
-  end
-
-  vim.env.OPENAI_API_KEY = api_key
-  CONFIG.api_key = api_key
-  vim.notify('[Vibe] OpenAI API key updated.', vim.log.levels.INFO)
-end
-keymap('n', '<leader>du', update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
+keymap('n', '<leader>du', Utils.update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
 
 -- Export the VibeDiff module
 return {
