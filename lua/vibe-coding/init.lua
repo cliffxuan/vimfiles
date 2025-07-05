@@ -1915,17 +1915,6 @@ do
       vim.notify('[Vibe] Applied AI suggestion to buffer', vim.log.levels.INFO)
     end, create_diff_keymap_opts(original_buf))
 
-    vim.keymap.set('n', '<leader>da', function()
-      -- Copy suggested content to main buffer
-      local suggested_lines = vim.api.nvim_buf_get_lines(suggested_buf, 0, -1, false)
-      vim.api.nvim_buf_set_lines(main_buf, 0, -1, false, suggested_lines)
-
-      -- Focus main window and close diff
-      vim.api.nvim_set_current_win(VibeChat.state.main_editor_win_id)
-      vim.cmd('tabclose ' .. tab_id)
-      vim.notify('[Vibe] Applied AI suggestion to buffer', vim.log.levels.INFO)
-    end, create_diff_keymap_opts(suggested_buf))
-
     vim.notify('[Vibe] Code block diff opened. Use q to close, <leader>da to accept suggestion', vim.log.levels.INFO)
   end
 end
@@ -2500,9 +2489,6 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 })
 
 local keymap = vim.keymap.set
-local Notify = require 'mini.notify'
-local telescope = require 'telescope.builtin'
-local utils = require 'utils'
 
 -- Vibe coding keymaps moved here from keymaps.lua
 
@@ -2537,6 +2523,7 @@ local update_openai_api_key = function()
   vim.env.OPENAI_API_KEY = api_key
   vim.notify('OpenAI API key updated:' .. api_key, vim.log.levels.INFO)
 end
+keymap('n', '<leader>du', update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
 
 -- Export the VibeDiff module
 return {

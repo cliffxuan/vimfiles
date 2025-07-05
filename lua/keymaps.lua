@@ -110,6 +110,7 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 -- leader
 require('which-key').add {
   { '<leader>a', group = 'Avante' },
+  { '<leader>d', group = 'Vibe' },
   { '<leader>j', group = 'Text Search' },
   { '<leader>n', group = 'Open file' },
   { '<leader>u', group = 'Display settings' },
