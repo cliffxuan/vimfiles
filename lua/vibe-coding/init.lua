@@ -2502,4 +2502,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
 -- Export the VibeDiff module
 return {
   VibeDiff = VibeDiff,
+  Utils = Utils,
+  FileCache = FileCache,
+  VibePatcher = VibePatcher,
 }
