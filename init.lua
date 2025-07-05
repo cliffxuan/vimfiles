@@ -77,15 +77,6 @@ augroup tabs
   autocmd FileType go         setlocal sw=4 ts=4 sts=4 noet
 augroup END
 " }}}
-" foldmethod{{{
-set foldmethod=syntax
-set foldlevelstart=20
-
-augroup folding
-  autocmd!
-  autocmd FileType python setlocal foldmethod=indent
-augroup END
-" }}}
 " wildmenu completion {{{
 set wildmenu
 set wildmode=longest:full,full

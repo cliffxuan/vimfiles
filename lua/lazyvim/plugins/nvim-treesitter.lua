@@ -15,7 +15,15 @@ return {
         indent = { enable = true },
         modules = {},
         ignore_install = {},
+        fold = {
+          enable = true,
+        },
       }
+      -- Set the foldmethod to use Treesitter
+      vim.opt.foldmethod = 'expr'
+      vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+      -- Start with folds closed
+      vim.opt.foldlevel = 0
     end,
   },
 }
