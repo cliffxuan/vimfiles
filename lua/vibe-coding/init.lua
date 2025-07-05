@@ -2391,13 +2391,12 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command('VibeSessionStart', function(opts)
+  local session_name = opts.args ~= '' and opts.args or nil
+  VibeChat.sessions.start(session_name)
   -- If chat is not open, open it
   if not VibeChat.state.layout_active then
     VibeChat.open_chat_window()
   end
-
-  local session_name = opts.args ~= '' and opts.args or nil
-  VibeChat.sessions.start(session_name)
 end, {
   nargs = '?',
   desc = 'Start a new Vibe session with optional name',
