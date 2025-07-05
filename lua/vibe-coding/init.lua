@@ -1163,6 +1163,8 @@ do
     vim.api.nvim_buf_set_name(VibeChat.state.input_buf_id, 'vibe-input')
     -- Enable line wrapping in output window
     vim.wo[VibeChat.state.output_win_id].wrap = true
+    -- Do not fold lines by default in output window
+    vim.wo[VibeChat.state.output_win_id].foldenable = false
 
     -- 6. Set keymaps
     local function create_keymap_opts(buf_id)
@@ -1346,10 +1348,20 @@ do
     VibeChat.append_to_output '🤔 AI is thinking...'
 
     -- In your send_message() function, replace the messages_for_api initialization with:
+    local prompt_path = vim.fn.stdpath('config') .. '/prompts/unified-diffs.md'
+    local prompt_content = ''
+    local prompt_file = io.open(prompt_path, 'r')
+    if prompt_file then
+      prompt_content = prompt_file:read('*a')
+      prompt_file:close()
+    else
+      vim.notify('[Vibe] Failed to read prompt file at ' .. prompt_path, vim.log.levels.ERROR)
+    end
+
     local messages_for_api = {
       {
         role = 'system',
-        content = '',  -- load from ./prompts/unified-diffs.md  AI!
+        content = prompt_content,
       },
     }
 
