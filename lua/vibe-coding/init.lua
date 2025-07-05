@@ -22,6 +22,7 @@ local CONFIG = {
   max_cache_entries = 100,
 
   -- Debug Settings
+  -- debug_mode = true,
   debug_mode = false,
 }
 
@@ -69,6 +70,46 @@ function Utils.write_file(filepath, content)
   return true, nil
 end
 
+-- Helper: split path into components
+function Utils.split_path(path)
+  local parts = {}
+  for part in string.gmatch(path, '[^/]+') do
+    table.insert(parts, part)
+  end
+  return parts
+end
+
+-- Helper: compute relative path from 'from' to 'to'
+function Utils.path_relative(from, to)
+  local from_parts = Utils.split_path(from)
+  local to_parts = Utils.split_path(to)
+
+  -- Find common prefix length
+  local i = 1
+  while i <= #from_parts and i <= #to_parts and from_parts[i] == to_parts[i] do
+    i = i + 1
+  end
+  i = i - 1 -- last common index
+
+  -- Construct relative path
+  local rel_parts = {}
+
+  -- Up from 'from' remaining parts
+  for _ = i + 1, #from_parts do
+    table.insert(rel_parts, '..')
+  end
+
+  -- Down into 'to' remaining parts
+  for j = i + 1, #to_parts do
+    table.insert(rel_parts, to_parts[j])
+  end
+
+  if #rel_parts == 0 then
+    return '.' -- same path
+  else
+    return table.concat(rel_parts, '/')
+  end
+end
 -- Get relative path for display purposes (extracted from repeated code)
 function Utils.get_relative_path(file_path)
   -- Check if file is in a git repo and get relative path if possible
@@ -78,15 +119,7 @@ function Utils.get_relative_path(file_path)
 
   local display_path = file_path
   if git_root ~= '' and vim.v.shell_error == 0 then
-    local rel_path_cmd = 'realpath --relative-to='
-      .. vim.fn.shellescape(git_root)
-      .. ' '
-      .. vim.fn.shellescape(file_path)
-    local rel_path = vim.fn.trim(vim.fn.system(rel_path_cmd))
-
-    if rel_path ~= '' and vim.v.shell_error == 0 then
-      display_path = rel_path
-    end
+    display_path = Utils.path_relative(git_root, file_path)
   end
 
   return display_path
@@ -1348,11 +1381,11 @@ do
     VibeChat.append_to_output '🤔 AI is thinking...'
 
     -- In your send_message() function, replace the messages_for_api initialization with:
-    local prompt_path = vim.fn.stdpath('config') .. '/prompts/unified-diffs.md'
+    local prompt_path = vim.fn.stdpath 'config' .. '/prompts/unified-diffs.md'
     local prompt_content = ''
     local prompt_file = io.open(prompt_path, 'r')
     if prompt_file then
-      prompt_content = prompt_file:read('*a')
+      prompt_content = prompt_file:read '*a'
       prompt_file:close()
     else
       vim.notify('[Vibe] Failed to read prompt file at ' .. prompt_path, vim.log.levels.ERROR)
