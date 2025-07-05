@@ -155,11 +155,8 @@ keymap('n', '<leader>b', function()
   }
 end, { desc = 'Search buffers', noremap = true })
 
-keymap('n', '<leader>d ', ':GptWindowToggle<cr>', { noremap = true })
--- keymap('n', '<leader>dd', ':Gpt ', { noremap = true })
--- keymap('v', '<leader>dd', ':<C-U>GptVisual ', { noremap = true })
-
 keymap('n', '<leader>d ', ':VibeToggle<cr>', { noremap = true, desc = 'Toggle Window' })
+keymap('n', '<leader>dc', ':GptInput<cr>', { noremap = true, desc = 'Oneoff Chat' })
 keymap('n', '<leader>db', ':VibeAddCurrentBuffer<cr>', { noremap = true, desc = 'Add current buffer to context' })
 keymap('n', '<leader>df', ':VibeAddToContext<cr>', { noremap = true, desc = 'Add file to context' })
 keymap('n', '<leader>dx', ':VibeRemoveFromContext<cr>', { noremap = true, desc = 'Remove file from context' })
