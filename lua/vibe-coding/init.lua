@@ -1381,7 +1381,7 @@ do
     VibeChat.append_to_output '🤔 AI is thinking...'
 
     -- In your send_message() function, replace the messages_for_api initialization with:
-    local prompt_path = vim.fn.stdpath 'config' .. '/prompts/unified-diffs.md'
+    local prompt_path = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts/unified-diffs.md'
     local prompt_content = ''
     local prompt_file = io.open(prompt_path, 'r')
     if prompt_file then
