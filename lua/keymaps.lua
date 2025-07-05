@@ -110,7 +110,6 @@ keymap('n', 'K', ':hide<CR>', { noremap = true })
 -- leader
 require('which-key').add {
   { '<leader>a', group = 'Avante' },
-  { '<leader>d', group = 'Gpt' },
   { '<leader>j', group = 'Text Search' },
   { '<leader>n', group = 'Open file' },
   { '<leader>u', group = 'Display settings' },
@@ -154,38 +153,6 @@ keymap('n', '<leader>b', function()
     initial_mode = 'normal',
   }
 end, { desc = 'Search buffers', noremap = true })
-
-keymap('n', '<leader>d ', ':VibeToggle<cr>', { noremap = true, desc = 'Toggle Window' })
-keymap('n', '<leader>dc', ':GptInput<cr>', { noremap = true, desc = 'Oneoff Chat' })
-keymap('n', '<leader>db', ':VibeAddCurrentBuffer<cr>', { noremap = true, desc = 'Add current buffer to context' })
-keymap('n', '<leader>df', ':VibeAddToContext<cr>', { noremap = true, desc = 'Add file to context' })
-keymap('n', '<leader>dx', ':VibeRemoveFromContext<cr>', { noremap = true, desc = 'Remove file from context' })
-keymap('n', '<leader>dd', ':VibeChat<cr>', { noremap = true, desc = 'Vibe Chat' })
-keymap('n', '<leader>dv', ':VibeDiff<cr>', { noremap = true, desc = 'Show diff with AI suggestion' })
-keymap('n', '<leader>d?', ':VibeDebugToggle<cr>', { noremap = true, desc = 'Toggle debug mode' })
-keymap('n', '<leader>dq', function()
-  require('vibe-coding.VibeDiff').cleanup_diff_buffers()
-  vim.cmd 'diffoff!'
-end, { desc = 'Close diff and cleanup' })
-
-keymap('n', '<leader>da', ':VibeApplyPatch<cr>', { noremap = true, desc = 'Apply diff from last AI response' })
-keymap('n', '<leader>dp', function()
-  vim.cmd '%diffget'
-  vim.cmd 'write'
-  require('vibe-coding.VibeDiff').cleanup_diff_buffers()
-  vim.cmd 'diffoff!'
-end, { desc = 'Accept all AI suggestions' })
--- VibeSession management keybindings
-keymap('n', '<leader>dn', ':VibeSessionStart<cr>', { noremap = true, desc = 'Start new Vibe session' })
-keymap('n', '<leader>dl', ':VibeSessionLoad<cr>', { noremap = true, desc = 'Load Vibe session' })
-keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'Delete Vibe session' })
-keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
-local update_openai_api_key = function()
-  vim.fn.system('source ' .. vim.fn.expand '$HOME/.env'):gsub('[\n\r]', '')
-  local api_key = vim.fn.system('cat ' .. vim.fn.expand '$HOME/.config/openai_api_key'):gsub('[\n\r]', '')
-  vim.env.OPENAI_API_KEY = api_key
-  vim.notify('OpenAI API key updated:' .. api_key, vim.log.levels.INFO)
-end
 
 keymap('n', '<leader>eb', ':botright new<cr>', { noremap = true })
 keymap('n', '<leader>ee', '<cmd>lua vim.diagnostic.setloclist()<CR>', { noremap = true })
