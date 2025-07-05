@@ -145,9 +145,13 @@ function Utils.update_openai_api_key()
     return
   end
 
+  -- Obfuscate printing of API key except last 4 characters
+  local num_dots = math.max(0, #api_key - 4)
+  local obfuscated_key = string.rep('.', num_dots) .. api_key:sub(-4)
+
   vim.env.OPENAI_API_KEY = api_key
   CONFIG.api_key = api_key
-  vim.notify('[Vibe] OpenAI API key updated.', vim.log.levels.INFO)
+  vim.notify('[Vibe] OpenAI API key updated: ' .. obfuscated_key, vim.log.levels.INFO)
 end
 
 -- File content caching system
