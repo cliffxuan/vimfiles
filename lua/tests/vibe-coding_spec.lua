@@ -283,9 +283,19 @@ describe('Vibe-Coding Plugin Unit Tests', function()
             { lines = { '+new file line 1', '+new file line 2' } },
           },
         }
+        local expected_content = {
+          'new file line 1',
+          'new file line 2',
+        }
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
         assert.is_true(success)
         assert.string.matches(msg, 'Applied 1 hunks to new_file.txt')
+        assert.spy(write_spy).was.called(1)
+        assert.spy(write_spy).was.called_with('new_file.txt', expected_content)
       end)
     end)
   end)
