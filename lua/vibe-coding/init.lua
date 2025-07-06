@@ -153,6 +153,57 @@ do
     CONFIG.api_key = api_key
     vim.notify('[Vibe] OpenAI API key updated: ' .. obfuscated_key, vim.log.levels.INFO)
   end
+
+  function Utils.create_telescope_picker(opts)
+    local pickers = require 'telescope.pickers'
+    local finders = require 'telescope.finders'
+    local actions = require 'telescope.actions'
+    local action_state = require 'telescope.actions.state'
+    local conf = require('telescope.config').values
+
+    pickers.new({}, {
+      prompt_title = opts.prompt_title,
+      finder = finders.new_table {
+        results = opts.items,
+        entry_maker = opts.entry_maker or function(entry)
+          return {
+            value = entry,
+            display = tostring(entry),
+            ordinal = tostring(entry),
+          }
+        end,
+      },
+      sorter = conf.generic_sorter {},
+      previewer = opts.previewer,
+      attach_mappings = function(prompt_bufnr)
+        local function handle_selection()
+          local picker = action_state.get_current_picker(prompt_bufnr)
+
+          -- Handle multi-selection if callback is provided
+          local multi_selection = picker:get_multi_selection()
+          if #multi_selection > 0 and opts.on_multi_selection then
+            local selections = {}
+            for _, entry in ipairs(multi_selection) do
+              table.insert(selections, entry.value)
+            end
+            actions.close(prompt_bufnr)
+            opts.on_multi_selection(selections)
+            return
+          end
+
+          -- Handle single selection
+          local entry = action_state.get_selected_entry()
+          if entry and opts.on_selection then
+            actions.close(prompt_bufnr)
+            opts.on_selection(entry.value)
+          end
+        end
+
+        actions.select_default:replace(handle_selection)
+        return true
+      end,
+    }):find()
+  end
 end
 
 -- File content caching system
@@ -468,92 +519,58 @@ do
       return
     end
 
-    local telescope_pickers = require 'telescope.pickers'
-    local telescope_finders = require 'telescope.finders'
-    local telescope_conf = require('telescope.config').values
-    local actions = require 'telescope.actions'
-    local action_state = require 'telescope.actions.state'
-
-    -- Create display entries for telescope
-    local display_entries = {}
     local file_map = {}
-
+    local display_entries = {}
     for _, file_path in ipairs(context_files) do
       local display_path = Utils.get_relative_path(file_path)
       table.insert(display_entries, display_path)
       file_map[display_path] = file_path
     end
 
-    telescope_pickers
-      .new({}, {
-        prompt_title = 'Remove files from context (Tab to multi-select)',
-        finder = telescope_finders.new_table {
-          results = display_entries,
-        },
-        sorter = telescope_conf.generic_sorter {},
-        previewer = require('telescope.previewers').new_buffer_previewer {
-          title = 'File Preview',
-          define_preview = function(self, entry)
-            local filepath = file_map[entry.value]
-            if not filepath or vim.fn.filereadable(filepath) ~= 1 then
-              vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'File not readable or does not exist' })
-              return
-            end
+    Utils.create_telescope_picker({
+      prompt_title = 'Remove files from context (Tab to multi-select)',
+      items = display_entries,
+      previewer = require('telescope.previewers').new_buffer_previewer {
+        title = 'File Preview',
+        define_preview = function(self, entry)
+          local filepath = file_map[entry.value]
+          if not filepath or vim.fn.filereadable(filepath) ~= 1 then
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'File not readable or does not exist' })
+            return
+          end
 
-            -- Read file content with error handling
-            local content, err = FileCache.get_content(filepath)
-            if not content then
-              vim.api.nvim_buf_set_lines(
-                self.state.bufnr,
-                0,
-                -1,
-                false,
-                { 'Error reading file: ' .. (err or 'Unknown error') }
-              )
-              return
-            end
+          local content, err = FileCache.get_content(filepath)
+          if not content then
+            vim.api.nvim_buf_set_lines(
+              self.state.bufnr,
+              0,
+              -1,
+              false,
+              { 'Error reading file: ' .. (err or 'Unknown error') }
+            )
+            return
+          end
 
-            -- Split content into lines and set in preview buffer
-            local lines = vim.split(content, '\n')
-            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+          local lines = vim.split(content, '\n')
+          vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
 
-            -- Set appropriate filetype for syntax highlighting
-            local filetype = vim.filetype.match { filename = filepath }
-            if filetype then
-              vim.bo[self.state.bufnr].filetype = filetype
-            end
-          end,
-        },
-        attach_mappings = function(prompt_bufnr)
-          actions.select_default:replace(function()
-            local selections = {}
-            local picker = action_state.get_current_picker(prompt_bufnr)
-
-            -- Get multi-selected files
-            local multi_selection = picker:get_multi_selection()
-            if #multi_selection > 0 then
-              for _, entry in ipairs(multi_selection) do
-                table.insert(selections, file_map[entry.value])
-              end
-            else
-              -- Get single selection if no multi-selection
-              local entry = action_state.get_selected_entry()
-              if entry then
-                table.insert(selections, file_map[entry.value])
-              end
-            end
-
-            actions.close(prompt_bufnr)
-
-            if #selections > 0 then
-              callback(selections)
-            end
-          end)
-
-          return true
+          local filetype = vim.filetype.match { filename = filepath }
+          if filetype then
+            vim.bo[self.state.bufnr].filetype = filetype
+          end
         end,
-      })
-      :find()
+      },
+      on_selection = function(selection)
+        callback({ file_map[selection] })
+      end,
+      on_multi_selection = function(selections)
+        local result = {}
+        for _, sel in ipairs(selections) do
+          table.insert(result, file_map[sel])
+        end
+        callback(result)
+      end,
+    })
   end
 end
 
@@ -590,72 +607,58 @@ do
       return
     end
 
-    pickers
-      .new({}, {
-        prompt_title = 'Select Prompt',
-        finder = finders.new_table {
-          results = prompts,
-          entry_maker = function(entry)
-            return {
-              value = entry,
-              display = entry.name,
-              ordinal = entry.name,
-            }
-          end,
-        },
-        previewer = previewers.new_buffer_previewer {
-          title = 'Prompt Preview',
-          define_preview = function(self, entry)
-            local filepath = entry.value.path
-            if not filepath or vim.fn.filereadable(filepath) ~= 1 then
-              vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'Prompt file not readable or missing' })
-              return
-            end
+    Utils.create_telescope_picker({
+      prompt_title = 'Select Prompt',
+      items = prompts,
+      entry_maker = function(entry)
+        return {
+          value = entry,
+          display = entry.name,
+          ordinal = entry.name,
+        }
+      end,
+      previewer = previewers.new_buffer_previewer {
+        title = 'Prompt Preview',
+        define_preview = function(self, entry)
+          local filepath = entry.value.path
+          if not filepath or vim.fn.filereadable(filepath) ~= 1 then
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'Prompt file not readable or missing' })
+            return
+          end
 
-            local content, err = Utils.read_file(filepath)
-            if not content then
-              vim.api.nvim_buf_set_lines(
-                self.state.bufnr,
-                0,
-                -1,
-                false,
-                { 'Error reading prompt: ' .. (err or 'Unknown error') }
-              )
-              return
-            end
+          local content, err = Utils.read_file(filepath)
+          if not content then
+            vim.api.nvim_buf_set_lines(
+              self.state.bufnr,
+              0,
+              -1,
+              false,
+              { 'Error reading prompt: ' .. (err or 'Unknown error') }
+            )
+            return
+          end
 
-            local max_preview_lines = 400
-            local preview_lines = {}
-            for i = 1, math.min(#content, max_preview_lines) do
-              table.insert(preview_lines, content[i])
-            end
-            if #content > max_preview_lines then
-              table.insert(preview_lines, '...')
-            end
+          local max_preview_lines = 400
+          local preview_lines = {}
+          for i = 1, math.min(#content, max_preview_lines) do
+            table.insert(preview_lines, content[i])
+          end
+          if #content > max_preview_lines then
+            table.insert(preview_lines, '...')
+          end
 
-            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, preview_lines)
-            -- Set filetype to markdown
-            vim.bo[self.state.bufnr].filetype = 'markdown'
-          end,
-        },
-        sorter = conf.generic_sorter {},
-        attach_mappings = function(prompt_bufnr)
-          actions.select_default:replace(function()
-            local selection = action_state.get_selected_entry()
-            actions.close(prompt_bufnr)
-            if selection then
-              PromptManager.selected_prompt_name = selection.value.name
-              vim.notify('[Vibe] Selected prompt: ' .. selection.value.name, vim.log.levels.INFO)
-
-              if callback then
-                callback(selection.value.name, selection.value.path)
-              end
-            end
-          end)
-          return true
+          vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, preview_lines)
+          vim.bo[self.state.bufnr].filetype = 'markdown'
         end,
-      })
-      :find()
+      },
+      on_selection = function(selection)
+        PromptManager.selected_prompt_name = selection.name
+        vim.notify('[Vibe] Selected prompt: ' .. selection.name, vim.log.levels.INFO)
+        if callback then
+          callback(selection.name, selection.path)
+        end
+      end,
+    })
   end
 
   -- Get content of selected prompt, fallback on unified-diffs.md
@@ -929,14 +932,6 @@ do
   function VibeChat.sessions.load_interactive()
     VibeChat.sessions.init()
 
-    local pickers = require 'telescope.pickers'
-    local finders = require 'telescope.finders'
-    local conf = require('telescope.config').values
-    local actions = require 'telescope.actions'
-    local action_state = require 'telescope.actions.state'
-    local previewers = require 'telescope.previewers'
-
-    -- Get session files with metadata
     local files = vim.fn.glob(VibeChat.sessions.sessions_dir .. '/*.json', false, true)
     if #files == 0 then
       vim.notify('[Vibe] No saved sessions found.', vim.log.levels.INFO)
@@ -949,7 +944,6 @@ do
       local mod_time = vim.fn.getftime(file)
       local mod_date = os.date('%Y-%m-%d %H:%M:%S', mod_time)
 
-      -- Try to read session data for preview
       local content, _ = Utils.read_file(file)
       local session_data = nil
       if content then
@@ -966,112 +960,88 @@ do
       })
     end
 
-    -- Sort by modification time (most recent first)
     table.sort(sessions_with_data, function(a, b)
       return a.time > b.time
     end)
 
-    pickers
-      .new({}, {
-        prompt_title = 'Select Session to Load',
-        finder = finders.new_table {
-          results = sessions_with_data,
-          entry_maker = function(entry)
-            return {
-              value = entry,
-              display = entry.display,
-              ordinal = entry.name,
-            }
-          end,
-        },
-        previewer = previewers.new_buffer_previewer {
-          title = 'Session Preview',
-          define_preview = function(self, entry)
-            local session = entry.value
-            local lines = {}
+    Utils.create_telescope_picker({
+      prompt_title = 'Select Session to Load',
+      items = sessions_with_data,
+      entry_maker = function(entry)
+        return {
+          value = entry,
+          display = entry.display,
+          ordinal = entry.name,
+        }
+      end,
+      previewer = require('telescope.previewers').new_buffer_previewer {
+        title = 'Session Preview',
+        define_preview = function(self, entry)
+          local session = entry.value
+          local lines = {}
 
-            -- Session info
-            table.insert(lines, '📂 Session: ' .. session.name)
-            table.insert(lines, '📅 Modified: ' .. session.date)
-            table.insert(lines, '')
+          table.insert(lines, '📂 Session: ' .. session.name)
+          table.insert(lines, '📅 Modified: ' .. session.date)
+          table.insert(lines, '')
 
-            if session.data then
-              -- Context files
-              if session.data.context_files and #session.data.context_files > 0 then
-                table.insert(lines, '📁 Context Files (' .. #session.data.context_files .. '):')
-                for i, file in ipairs(session.data.context_files) do
-                  local rel_path = Utils.get_relative_path(file)
-                  table.insert(lines, '  ' .. i .. '. ' .. rel_path)
-                end
-                table.insert(lines, '')
-              else
-                table.insert(lines, '📁 Context Files: None')
-                table.insert(lines, '')
+          if session.data then
+            if session.data.context_files and #session.data.context_files > 0 then
+              table.insert(lines, '📁 Context Files (' .. #session.data.context_files .. '):')
+              for i, file in ipairs(session.data.context_files) do
+                local rel_path = Utils.get_relative_path(file)
+                table.insert(lines, '  ' .. i .. '. ' .. rel_path)
               end
+              table.insert(lines, '')
+            else
+              table.insert(lines, '📁 Context Files: None')
+              table.insert(lines, '')
+            end
 
-              -- Messages
-              if session.data.messages and #session.data.messages > 0 then
-                table.insert(lines, '💬 Messages (' .. #session.data.messages .. '):')
-                table.insert(lines, '')
+            if session.data.messages and #session.data.messages > 0 then
+              table.insert(lines, '💬 Messages (' .. #session.data.messages .. '):')
+              table.insert(lines, '')
 
-                -- Show last few messages
-                local start_idx = math.max(1, #session.data.messages - 4)
-                for i = start_idx, #session.data.messages do
-                  local msg = session.data.messages[i]
-                  if msg.role == 'user' then
-                    table.insert(lines, '👤 You:')
-                    -- Show first few lines of user message
-                    local content_lines = vim.split(msg.content, '\n')
-                    for j = 1, math.min(3, #content_lines) do
-                      table.insert(lines, '  ' .. content_lines[j])
-                    end
-                    if #content_lines > 3 then
-                      table.insert(lines, '  ...')
-                    end
-                  elseif msg.role == 'assistant' then
-                    table.insert(lines, '🤖 AI:')
-                    -- Show first few lines of AI response
-                    local content_lines = vim.split(msg.content, '\n')
-                    for j = 1, math.min(3, #content_lines) do
-                      table.insert(lines, '  ' .. content_lines[j])
-                    end
-                    if #content_lines > 3 then
-                      table.insert(lines, '  ...')
-                    end
+              local start_idx = math.max(1, #session.data.messages - 4)
+              for i = start_idx, #session.data.messages do
+                local msg = session.data.messages[i]
+                if msg.role == 'user' then
+                  table.insert(lines, '👤 You:')
+                  local content_lines = vim.split(msg.content, '\n')
+                  for j = 1, math.min(3, #content_lines) do
+                    table.insert(lines, '  ' .. content_lines[j])
                   end
-                  table.insert(lines, '')
+                  if #content_lines > 3 then
+                    table.insert(lines, '  ...')
+                  end
+                elseif msg.role == 'assistant' then
+                  table.insert(lines, '🤖 AI:')
+                  local content_lines = vim.split(msg.content, '\n')
+                  for j = 1, math.min(3, #content_lines) do
+                    table.insert(lines, '  ' .. content_lines[j])
+                  end
+                  if #content_lines > 3 then
+                    table.insert(lines, '  ...')
+                  end
                 end
-              else
-                table.insert(lines, '💬 Messages: None')
+                table.insert(lines, '')
               end
             else
-              table.insert(lines, '⚠️  Could not read session data')
+              table.insert(lines, '💬 Messages: None')
             end
+          else
+            table.insert(lines, '⚠️  Could not read session data')
+          end
 
-            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
-          end,
-        },
-        sorter = conf.generic_sorter {},
-        attach_mappings = function(prompt_bufnr)
-          actions.select_default:replace(function()
-            local entry = action_state.get_selected_entry()
-            actions.close(prompt_bufnr)
-
-            if entry and entry.value then
-              -- Open chat window if not already open
-              if not VibeChat.state.layout_active then
-                VibeChat.open_chat_window()
-              end
-
-              -- Load the selected session
-              VibeChat.sessions.start(entry.value.name)
-            end
-          end)
-
-          return true
+          vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
         end,
-      })
-      :find()
+      },
+      on_selection = function(selection)
+        if not VibeChat.state.layout_active then
+          VibeChat.open_chat_window()
+        end
+        VibeChat.sessions.start(selection.name)
+      end,
+    })
   end
 
   -- Delete a session interactively
