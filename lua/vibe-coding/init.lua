@@ -2261,49 +2261,50 @@ do
     local diff = { hunks = {} }
 
     if #lines < 3 then
-      return nil, 'Diff content is too short'
+      return nil, 'Diff content is too short to be valid.'
     end
 
-    diff.old_path = lines[1]:match '^---%s+(.*)$'
-    diff.new_path = lines[2]:match '^%+%+%+%s+(.*)$'
+    -- More robust path parsing
+    diff.old_path = lines[1]:match '^---%s+a/(.*)$' or lines[1]:match '^---%s+(.*)$'
+    diff.new_path = lines[2]:match '^%+%+%+%s+b/(.*)$' or lines[2]:match '^%+%+%+%s+(.*)$'
 
     if not diff.old_path or not diff.new_path then
-      return nil, 'Could not parse file paths from diff header'
+      return nil, 'Could not parse file paths from diff header.\nHeader was:\n' .. lines[1] .. '\n' .. lines[2]
     end
 
-    diff.old_path = diff.old_path:match '^a/(.*)' or diff.old_path
-    diff.new_path = diff.new_path:match '^b/(.*)' or diff.new_path
-
-    if diff.old_path:match '%s' then
-      diff.old_path = diff.old_path:gsub('%s+$', '')
-    end
-    if diff.new_path:match '%s' then
-      diff.new_path = diff.new_path:gsub('%s+$', '')
-    end
+    -- Trim trailing whitespace from paths
+    diff.old_path = diff.old_path:gsub('%s+$', '')
+    diff.new_path = diff.new_path:gsub('%s+$', '')
 
     local current_hunk = nil
-    for i = 3, #lines do
-      local line = lines[i]
+    local line_num = 3
+    while line_num <= #lines do
+      local line = lines[line_num]
       if line:match '^@@' then
-        if current_hunk and #current_hunk.lines > 0 then
+        if current_hunk then
           table.insert(diff.hunks, current_hunk)
         end
-        current_hunk = { lines = {} }
-      elseif current_hunk and (line:match '^[-+]') then
+        current_hunk = { header = line, lines = {} }
+      elseif current_hunk and (line:match '^[-+%s]') then -- Include context lines for better error reporting
         table.insert(current_hunk.lines, line)
+      elseif current_hunk and #current_hunk.lines > 0 then
+        -- End of hunk, maybe some trailing text from LLM.
+        table.insert(diff.hunks, current_hunk)
+        current_hunk = nil -- Stop collecting
       end
+      line_num = line_num + 1
     end
+
     if current_hunk and #current_hunk.lines > 0 then
       table.insert(diff.hunks, current_hunk)
     end
 
     if #diff.hunks == 0 then
-      return nil, 'Diff contains no changes'
+      return nil, 'Diff contains no hunks or changes.'
     end
 
     return diff, nil
   end
-
   --- Extracts diff content from raw text that may not be in code blocks.
   -- @param text The raw text content to search for diffs.
   -- @return string|nil: The extracted diff content, or nil if none found.
@@ -2357,11 +2358,12 @@ do
   function VibePatcher.apply_diff(parsed_diff)
     local target_file = parsed_diff.new_path
     if target_file == '/dev/null' then
-      return true, 'Skipped file deletion.'
+      -- TODO: Handle file deletion
+      return true, 'Skipped file deletion for ' .. parsed_diff.old_path
     end
 
     local original_lines
-    local is_new_file = parsed_diff.old_path == '/dev/null'
+    local is_new_file = (parsed_diff.old_path == '/dev/null')
 
     if is_new_file then
       original_lines = {}
@@ -2370,18 +2372,23 @@ do
       if not content then
         return false, 'Failed to read file ' .. parsed_diff.old_path .. ': ' .. (err or 'Unknown Error')
       end
-      original_lines = vim.split(content, '\n', { plain = true })
+      original_lines = vim.split(content, '\n', { plain = true, trimempty = false })
     end
 
     local modified_lines = vim.deepcopy(original_lines)
-    local hunks_applied_count = 0
+    local offset = 0
 
-    for _, hunk in ipairs(parsed_diff.hunks) do
+    for hunk_idx, hunk in ipairs(parsed_diff.hunks) do
+      local context_lines = {}
       local to_remove = {}
       local to_add = {}
+
       for _, line in ipairs(hunk.lines) do
         local op = line:sub(1, 1)
         local text = line:sub(2)
+        if op == ' ' or op == '-' then
+          table.insert(context_lines, text)
+        end
         if op == '-' then
           table.insert(to_remove, text)
         elseif op == '+' then
@@ -2389,62 +2396,57 @@ do
         end
       end
 
-      local found_at = -1
-      if #to_remove > 0 then
-        for i = 1, #modified_lines - #to_remove + 1 do
-          local match = true
-          for j = 1, #to_remove do
-            if modified_lines[i + j - 1] ~= to_remove[j] then
-              match = false
-              break
-            end
-          end
-          if match then
-            found_at = i
-            break
-          end
-        end
-      elseif is_new_file or #to_add > 0 then
-        found_at = #modified_lines + 1
-      end
-
-      if found_at > -1 then
-        local prefix = {}
-        for i = 1, found_at - 1 do
-          table.insert(prefix, modified_lines[i])
-        end
-
-        local suffix = {}
-        local start_of_suffix = found_at + #to_remove
-        for i = start_of_suffix, #modified_lines do
-          table.insert(suffix, modified_lines[i])
-        end
-
-        modified_lines = prefix
+      local search_lines = (#context_lines > 0) and context_lines or to_remove
+      if #search_lines == 0 and #to_add > 0 then -- Pure addition
+        -- For pure additions, we can insert at the end. This is a simplification.
+        -- A more robust solution would use the line numbers from `@@ -l,c +l,c @@`
         for _, line in ipairs(to_add) do
           table.insert(modified_lines, line)
         end
-        for _, line in ipairs(suffix) do
-          table.insert(modified_lines, line)
+        offset = offset + #to_add
+        goto continue -- luacheck: no max line length
+      end
+
+      local found_at = -1
+      for i = 1, #modified_lines - #search_lines + 1 do
+        local match = true
+        for j = 1, #search_lines do
+          if modified_lines[i + j - 1] ~= search_lines[j] then
+            match = false
+            break
+          end
         end
+        if match then
+          found_at = i
+          break
+        end
+      end
 
-        hunks_applied_count = hunks_applied_count + 1
+      if found_at > -1 then
+        -- Apply the changes for this hunk
+        local start_index = found_at - 1
+        for _ = 1, #to_remove do
+          table.remove(modified_lines, start_index + 1)
+        end
+        for i = 1, #to_add do
+          table.insert(modified_lines, start_index + i, to_add[i])
+        end
+        offset = offset + (#to_add - #to_remove)
       else
-        return false, 'Failed to apply a hunk to ' .. target_file .. '. Aborting.'
+        local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
+        error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
+        error_msg = error_msg .. 'Could not find this context in the file.'
+        return false, error_msg
       end
+      ::continue::
     end
 
-    if hunks_applied_count == #parsed_diff.hunks then
-      local success, write_err = Utils.write_file(target_file, modified_lines)
-      if not success then
-        return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or '')
-      end
-      return true, 'Applied ' .. hunks_applied_count .. ' hunks to ' .. target_file
-    else
-      return false, 'Not all hunks could be applied to ' .. target_file
+    local success, write_err = Utils.write_file(target_file, modified_lines)
+    if not success then
+      return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or 'Unknown Error')
     end
+    return true, 'Successfully applied ' .. #parsed_diff.hunks .. ' hunks to ' .. target_file
   end
-
   --- Finds the last AI response, extracts diffs, and applies them.
   function VibePatcher.apply_last_response()
     local messages = VibeChat.get_messages()

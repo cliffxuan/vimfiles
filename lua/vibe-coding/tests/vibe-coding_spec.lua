@@ -53,6 +53,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
     package.loaded['telescope.actions'] = {}
     package.loaded['telescope.actions.state'] = {}
 
+    package.loaded['telescope.previewers'] = {}
     -- Now we can safely require the module
     -- Clear any previous load of the module first
     package.loaded['vibe-coding'] = nil
@@ -142,9 +143,13 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal('file.lua', parsed.old_path)
         assert.are.equal('file.lua', parsed.new_path)
         assert.are.equal(1, #parsed.hunks)
-        assert.are.equal(2, #parsed.hunks[1].lines)
-        assert.are.equal('-local b = 2 -- remove', parsed.hunks[1].lines[1])
-        assert.are.equal('+local b = 3 -- add', parsed.hunks[1].lines[2])
+        assert.are.equal(6, #parsed.hunks[1].lines)
+        assert.are.equal(' local a = 1', parsed.hunks[1].lines[1])
+        assert.are.equal('-local b = 2 -- remove', parsed.hunks[1].lines[2])
+        assert.are.equal('+local b = 3 -- add', parsed.hunks[1].lines[3])
+        assert.are.equal(' local c = 4', parsed.hunks[1].lines[4])
+        assert.are.equal(' local d = 5', parsed.hunks[1].lines[5])
+        assert.are.equal(' local e = 6', parsed.hunks[1].lines[6])
       end)
     end)
 
@@ -176,7 +181,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
 
         assert.is_true(success)
-        assert.string.matches(msg, 'Applied 1 hunks to file.txt')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to file.txt')
 
         -- 3. Now, you can make assertions on the spy object itself
         assert.spy(write_spy).was.called(1)
@@ -201,7 +206,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         mock(vibe.Utils, 'write_file', write_spy)
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
         assert.is_true(success)
-        assert.string.matches(msg, 'Applied 1 hunks to new_file.txt')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to new_file.txt')
         assert.spy(write_spy).was.called(1)
         assert.spy(write_spy).was.called_with('new_file.txt', expected_content)
       end)
