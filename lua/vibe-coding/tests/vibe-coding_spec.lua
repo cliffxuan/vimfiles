@@ -154,8 +154,19 @@ describe('Vibe-Coding Plugin Unit Tests', function()
     end)
 
     describe('apply_diff function', function()
+      -- This test now includes a shared context line ('line1'), which is more realistic
+      -- and helps verify the patching logic more accurately.
       it('should apply a modification hunk to a file', function()
         local original_content = 'line1\nline2_to_remove\nline3'
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        -- Test Data
         local expected_content = { 'line1', 'line2_to_add', 'line3' }
         local parsed_diff = {
           old_path = 'file.txt',
@@ -165,30 +176,22 @@ describe('Vibe-Coding Plugin Unit Tests', function()
           },
         }
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        -- 1. Create a spy that has the behavior of our mock
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-
-        -- 2. Place the spy into the Utils table using mock()
-        mock(vibe.Utils, 'write_file', write_spy)
-
-        -- Call the function we are testing
+        -- Execution
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
 
-        assert.is_true(success)
+        -- Assertions
+        assert.is_true(success, 'Expected apply_diff to succeed')
         assert.string.matches(msg, 'Successfully applied 1 hunks to file.txt')
-
-        -- 3. Now, you can make assertions on the spy object itself
         assert.spy(write_spy).was.called(1)
         assert.spy(write_spy).was.called_with('file.txt', expected_content)
       end)
 
       it('should create a new file when old_path is /dev/null', function()
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
         local parsed_diff = {
           old_path = '/dev/null',
           new_path = 'new_file.txt',
@@ -200,15 +203,89 @@ describe('Vibe-Coding Plugin Unit Tests', function()
           'new file line 1',
           'new file line 2',
         }
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
         assert.is_true(success)
         assert.string.matches(msg, 'Successfully applied 1 hunks to new_file.txt')
         assert.spy(write_spy).was.called(1)
         assert.spy(write_spy).was.called_with('new_file.txt', expected_content)
+      end)
+
+      -- This test now correctly expects the output after applying both hunks in sequence.
+      it('should apply a patch with multiple hunks correctly', function()
+        mock(vibe.FileCache, 'get_content', function()
+          return 'a\nb\nc\nd\ne', nil
+        end)
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local parsed_diff = {
+          old_path = 'test.txt',
+          new_path = 'test.txt',
+          hunks = {
+            { lines = { ' a', '-b', '+B', ' c' } },
+            { lines = { ' c', '-d', '+D', ' e' } },
+          },
+        }
+        local expected_content = { 'a', 'B', 'c', 'D', 'e' }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success, 'Expected multi-hunk apply to succeed')
+        assert.string.matches(msg, 'Successfully applied 2 hunks to test.txt')
+        assert.spy(write_spy).was.called(1)
+        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+      end)
+
+      -- This test now asserts the exact, detailed error message for better diagnostics.
+      it('should return a detailed error if a hunk context cannot be found', function()
+        mock(vibe.FileCache, 'get_content', function()
+          return 'line1\nline2\nline3', nil
+        end)
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local hunk_lines = { '-nonexistent line', '+a new line' }
+        local parsed_diff = {
+          old_path = 'test.lua',
+          new_path = 'test.lua',
+          hunks = { { lines = hunk_lines } },
+        }
+        local expected_error_msg = 'Failed to apply hunk #1 to test.lua.\n'
+          .. 'Hunk content:\n'
+          .. table.concat(hunk_lines, '\n')
+          .. '\n\n'
+          .. 'Could not find this context in the file.'
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_false(success, 'Expected apply_diff to fail')
+        assert.are.equal(expected_error_msg, msg)
+        assert.spy(write_spy).was.not_called()
+      end)
+
+      it('should skip file deletion when new_path is /dev/null', function()
+        local write_spy = spy.new(function()
+          return true
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local parsed_diff = {
+          old_path = 'file_to_delete.txt',
+          new_path = '/dev/null',
+          hunks = {
+            { lines = { '-line1' } },
+          },
+        }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success)
+        assert.are.equal('Skipped file deletion for file_to_delete.txt', msg)
+        assert.spy(write_spy).was.not_called()
       end)
     end)
   end)
