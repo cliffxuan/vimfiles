@@ -161,48 +161,50 @@ do
     local action_state = require 'telescope.actions.state'
     local conf = require('telescope.config').values
 
-    pickers.new({}, {
-      prompt_title = opts.prompt_title,
-      finder = finders.new_table {
-        results = opts.items,
-        entry_maker = opts.entry_maker or function(entry)
-          return {
-            value = entry,
-            display = tostring(entry),
-            ordinal = tostring(entry),
-          }
-        end,
-      },
-      sorter = conf.generic_sorter {},
-      previewer = opts.previewer,
-      attach_mappings = function(prompt_bufnr)
-        local function handle_selection()
-          local picker = action_state.get_current_picker(prompt_bufnr)
+    pickers
+      .new({}, {
+        prompt_title = opts.prompt_title,
+        finder = finders.new_table {
+          results = opts.items,
+          entry_maker = opts.entry_maker or function(entry)
+            return {
+              value = entry,
+              display = tostring(entry),
+              ordinal = tostring(entry),
+            }
+          end,
+        },
+        sorter = conf.generic_sorter {},
+        previewer = opts.previewer,
+        attach_mappings = function(prompt_bufnr)
+          local function handle_selection()
+            local picker = action_state.get_current_picker(prompt_bufnr)
 
-          -- Handle multi-selection if callback is provided
-          local multi_selection = picker:get_multi_selection()
-          if #multi_selection > 0 and opts.on_multi_selection then
-            local selections = {}
-            for _, entry in ipairs(multi_selection) do
-              table.insert(selections, entry.value)
+            -- Handle multi-selection if callback is provided
+            local multi_selection = picker:get_multi_selection()
+            if #multi_selection > 0 and opts.on_multi_selection then
+              local selections = {}
+              for _, entry in ipairs(multi_selection) do
+                table.insert(selections, entry.value)
+              end
+              actions.close(prompt_bufnr)
+              opts.on_multi_selection(selections)
+              return
             end
-            actions.close(prompt_bufnr)
-            opts.on_multi_selection(selections)
-            return
+
+            -- Handle single selection
+            local entry = action_state.get_selected_entry()
+            if entry and opts.on_selection then
+              actions.close(prompt_bufnr)
+              opts.on_selection(entry.value)
+            end
           end
 
-          -- Handle single selection
-          local entry = action_state.get_selected_entry()
-          if entry and opts.on_selection then
-            actions.close(prompt_bufnr)
-            opts.on_selection(entry.value)
-          end
-        end
-
-        actions.select_default:replace(handle_selection)
-        return true
-      end,
-    }):find()
+          actions.select_default:replace(handle_selection)
+          return true
+        end,
+      })
+      :find()
   end
 end
 
@@ -527,7 +529,7 @@ do
       file_map[display_path] = file_path
     end
 
-    Utils.create_telescope_picker({
+    Utils.create_telescope_picker {
       prompt_title = 'Remove files from context (Tab to multi-select)',
       items = display_entries,
       previewer = require('telescope.previewers').new_buffer_previewer {
@@ -561,7 +563,7 @@ do
         end,
       },
       on_selection = function(selection)
-        callback({ file_map[selection] })
+        callback { file_map[selection] }
       end,
       on_multi_selection = function(selections)
         local result = {}
@@ -570,18 +572,13 @@ do
         end
         callback(result)
       end,
-    })
+    }
   end
 end
 
 -- Prompt selection functionality
 local PromptManager = {}
 do
-  local pickers = require 'telescope.pickers'
-  local finders = require 'telescope.finders'
-  local conf = require('telescope.config').values
-  local actions = require 'telescope.actions'
-  local action_state = require 'telescope.actions.state'
   local previewers = require 'telescope.previewers'
 
   -- Table to keep prompt info: name -> file path
@@ -607,7 +604,7 @@ do
       return
     end
 
-    Utils.create_telescope_picker({
+    Utils.create_telescope_picker {
       prompt_title = 'Select Prompt',
       items = prompts,
       entry_maker = function(entry)
@@ -658,7 +655,7 @@ do
           callback(selection.name, selection.path)
         end
       end,
-    })
+    }
   end
 
   -- Get content of selected prompt, fallback on unified-diffs.md
@@ -964,7 +961,7 @@ do
       return a.time > b.time
     end)
 
-    Utils.create_telescope_picker({
+    Utils.create_telescope_picker {
       prompt_title = 'Select Session to Load',
       items = sessions_with_data,
       entry_maker = function(entry)
@@ -1041,7 +1038,7 @@ do
         end
         VibeChat.sessions.start(selection.name)
       end,
-    })
+    }
   end
 
   -- Delete a session interactively
@@ -1479,7 +1476,7 @@ do
     end
 
     local user_input = table.concat(vim.api.nvim_buf_get_lines(input_buf, 0, -1, false), '\n')
-    if user_input == '' or user_input:match('^%s*$') then
+    if user_input == '' or user_input:match '^%s*$' then
       vim.notify('[Vibe] Please enter a message.', vim.log.levels.WARN)
       return nil
     end
@@ -1527,7 +1524,7 @@ do
           break
         end
       end
-      VibeChat.append_to_output('❌ Request timed out after 2 minutes')
+      VibeChat.append_to_output '❌ Request timed out after 2 minutes'
     end
   end
 
@@ -1622,21 +1619,17 @@ do
     vim.api.nvim_buf_set_lines(VibeChat.state.input_buf_id, 0, -1, false, {})
     VibeChat.append_to_output('👤 You:\n' .. user_input)
     table.insert(messages_for_display, { role = 'user', content = user_input })
-    VibeChat.append_to_output('🤔 AI is thinking...')
+    VibeChat.append_to_output '🤔 AI is thinking...'
 
     local messages_for_api = build_api_payload(user_input)
     local timeout_timer = vim.fn.timer_start(120000, handle_timeout)
     local streaming_started = false
 
-    VibeAPI.get_completion(
-      messages_for_api,
-      function(response_text, err)
-        handle_completion(response_text, err, timeout_timer)
-      end,
-      function(chunk)
-        streaming_started = handle_stream_chunk(chunk, streaming_started)
-      end
-    )
+    VibeAPI.get_completion(messages_for_api, function(response_text, err)
+      handle_completion(response_text, err, timeout_timer)
+    end, function(chunk)
+      streaming_started = handle_stream_chunk(chunk, streaming_started)
+    end)
   end
 
   function VibeChat.add_context_to_chat()
