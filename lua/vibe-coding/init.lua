@@ -614,7 +614,13 @@ do
 
             local content, err = Utils.read_file(filepath)
             if not content then
-              vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'Error reading prompt: ' .. (err or 'Unknown error') })
+              vim.api.nvim_buf_set_lines(
+                self.state.bufnr,
+                0,
+                -1,
+                false,
+                { 'Error reading prompt: ' .. (err or 'Unknown error') }
+              )
               return
             end
 
@@ -640,6 +646,7 @@ do
             if selection then
               PromptManager.selected_prompt_name = selection.value.name
               vim.notify('[Vibe] Selected prompt: ' .. selection.value.name, vim.log.levels.INFO)
+
               if callback then
                 callback(selection.value.name, selection.value.path)
               end
@@ -723,15 +730,15 @@ do
       vim.bo[VibeChat.state.output_buf_id].modifiable = true
       vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, 0, -1, false, {})
 
-      -- Add welcome message
-      vim.api.nvim_buf_set_lines(
-        VibeChat.state.output_buf_id,
-        -1,
-        -1,
-        false,
-        vim.split('Welcome to Vibe Coding!\nModel: ' .. CONFIG.model, '\n')
-      )
-      vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, -1, -1, false, { '' })
+      -- Add welcome header with Model and Prompt name
+      local prompt_display_name = PromptManager.selected_prompt_name or 'unknown-prompt'
+      local header_lines = {
+        'Welcome to Vibe Coding!',
+        'Model: ' .. CONFIG.model,
+        'Prompt: ' .. prompt_display_name,
+        '',
+      }
+      vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, -1, -1, false, header_lines)
     end
 
     -- Check if session already exists
@@ -1805,6 +1812,36 @@ do
     end)
   end
 
+  function VibeChat.select_prompt()
+    if not VibeChat.state.layout_active then
+      VibeChat.open_chat_window()
+    end
+
+    local old_prompt = PromptManager.selected_prompt_name
+    PromptManager.select_prompt(function(new_prompt_name)
+      if old_prompt ~= new_prompt_name then
+        VibeChat.append_to_output('Prompt updated to "' .. new_prompt_name .. '"')
+
+        -- If chat output buffer exists, update the header
+        if VibeChat.state.output_buf_id and vim.api.nvim_buf_is_valid(VibeChat.state.output_buf_id) then
+          vim.bo[VibeChat.state.output_buf_id].modifiable = true
+          local lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
+
+          -- Find and update model and prompt lines
+          for i, line in ipairs(lines) do
+            if line:match '^Model:' then
+              lines[i] = 'Model: ' .. CONFIG.model
+            elseif line:match '^Prompt:' then
+              lines[i] = 'Prompt: ' .. new_prompt_name
+            end
+          end
+          vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, 0, -1, false, lines)
+          vim.bo[VibeChat.state.output_buf_id].modifiable = false
+        end
+      end
+    end)
+  end
+
   function VibeChat.remove_single_file_from_context()
     if not VibeChat.state.layout_active then
       VibeChat.open_chat_window()
@@ -2572,11 +2609,7 @@ vim.api.nvim_create_user_command(
 )
 
 -- User command to select prompt
-vim.api.nvim_create_user_command('VibePromptSelect', function()
-  PromptManager.select_prompt()
-end, {
-  desc = 'Select prompt for Vibe AI',
-})
+vim.api.nvim_create_user_command('VibePromptSelect', VibeChat.select_prompt, { desc = 'Select prompt for Vibe AI' })
 
 vim.api.nvim_create_user_command('VibeDebugOn', function()
   CONFIG.debug_mode = true
