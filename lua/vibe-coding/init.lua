@@ -2639,6 +2639,7 @@ keymap('n', '<leader>du', Utils.update_openai_api_key, { noremap = true, desc = 
 
 -- Export the VibeDiff module
 return {
+  CONFIG = CONFIG,
   VibeDiff = VibeDiff,
   Utils = Utils,
   FileCache = FileCache,
