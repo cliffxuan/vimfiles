@@ -30,201 +30,204 @@ local CONFIG = {
 -- Utility Functions
 -- =============================================================================
 local Utils = {}
-
--- Safe JSON operations with error handling
-function Utils.json_encode(data)
-  local ok, result = pcall(vim.fn.json_encode, data)
-  if not ok then
-    return nil, 'Failed to encode JSON: ' .. tostring(result)
-  end
-  return result, nil
-end
-
-function Utils.json_decode(str)
-  local ok, result = pcall(vim.fn.json_decode, str)
-  if not ok then
-    return nil, 'Failed to decode JSON: ' .. tostring(result)
-  end
-  return result, nil
-end
-
--- Safe file operations with error handling
-function Utils.read_file(filepath)
-  if vim.fn.filereadable(filepath) ~= 1 then
-    return nil, 'File not readable: ' .. filepath
+do
+  -- Safe JSON operations with error handling
+  function Utils.json_encode(data)
+    local ok, result = pcall(vim.fn.json_encode, data)
+    if not ok then
+      return nil, 'Failed to encode JSON: ' .. tostring(result)
+    end
+    return result, nil
   end
 
-  local ok, content = pcall(vim.fn.readfile, filepath)
-  if not ok then
-    return nil, 'Failed to read file: ' .. filepath
+  function Utils.json_decode(str)
+    local ok, result = pcall(vim.fn.json_decode, str)
+    if not ok then
+      return nil, 'Failed to decode JSON: ' .. tostring(result)
+    end
+    return result, nil
   end
 
-  return content, nil
-end
+  -- Safe file operations with error handling
+  function Utils.read_file(filepath)
+    if vim.fn.filereadable(filepath) ~= 1 then
+      return nil, 'File not readable: ' .. filepath
+    end
 
-function Utils.write_file(filepath, content)
-  local ok, _ = pcall(vim.fn.writefile, content, filepath)
-  if not ok then
-    return false, 'Failed to write file: ' .. filepath
-  end
-  return true, nil
-end
+    local ok, content = pcall(vim.fn.readfile, filepath)
+    if not ok then
+      return nil, 'Failed to read file: ' .. filepath
+    end
 
--- Helper: split path into components
-function Utils.split_path(path)
-  local parts = {}
-  for part in string.gmatch(path, '[^/]+') do
-    table.insert(parts, part)
-  end
-  return parts
-end
-
--- Helper: compute relative path from 'from' to 'to'
-function Utils.path_relative(from, to)
-  local from_parts = Utils.split_path(from)
-  local to_parts = Utils.split_path(to)
-
-  -- Find common prefix length
-  local i = 1
-  while i <= #from_parts and i <= #to_parts and from_parts[i] == to_parts[i] do
-    i = i + 1
-  end
-  i = i - 1 -- last common index
-
-  -- Construct relative path
-  local rel_parts = {}
-
-  -- Up from 'from' remaining parts
-  for _ = i + 1, #from_parts do
-    table.insert(rel_parts, '..')
+    return content, nil
   end
 
-  -- Down into 'to' remaining parts
-  for j = i + 1, #to_parts do
-    table.insert(rel_parts, to_parts[j])
+  function Utils.write_file(filepath, content)
+    local ok, _ = pcall(vim.fn.writefile, content, filepath)
+    if not ok then
+      return false, 'Failed to write file: ' .. filepath
+    end
+    return true, nil
   end
 
-  if #rel_parts == 0 then
-    return '.' -- same path
-  else
-    return table.concat(rel_parts, '/')
-  end
-end
--- Get relative path for display purposes (extracted from repeated code)
-function Utils.get_relative_path(file_path)
-  -- Check if file is in a git repo and get relative path if possible
-  local file_dir = vim.fn.fnamemodify(file_path, ':h')
-  local git_root_cmd = 'cd ' .. vim.fn.shellescape(file_dir) .. ' && git rev-parse --show-toplevel 2>/dev/null'
-  local git_root = vim.fn.trim(vim.fn.system(git_root_cmd))
-
-  local display_path = file_path
-  if git_root ~= '' and vim.v.shell_error == 0 then
-    display_path = Utils.path_relative(git_root, file_path)
+  -- Helper: split path into components
+  function Utils.split_path(path)
+    local parts = {}
+    for part in string.gmatch(path, '[^/]+') do
+      table.insert(parts, part)
+    end
+    return parts
   end
 
-  return display_path
-end
+  -- Helper: compute relative path from 'from' to 'to'
+  function Utils.path_relative(from, to)
+    local from_parts = Utils.split_path(from)
+    local to_parts = Utils.split_path(to)
 
-function Utils.update_openai_api_key()
-  -- Read the API key from file
-  local keyfile = vim.fn.expand '$HOME/.config/openai_api_key'
-  if vim.fn.filereadable(keyfile) ~= 1 then
-    vim.notify('[Vibe] API key file not found: ' .. keyfile, vim.log.levels.ERROR)
-    return
+    -- Find common prefix length
+    local i = 1
+    while i <= #from_parts and i <= #to_parts and from_parts[i] == to_parts[i] do
+      i = i + 1
+    end
+    i = i - 1 -- last common index
+
+    -- Construct relative path
+    local rel_parts = {}
+
+    -- Up from 'from' remaining parts
+    for _ = i + 1, #from_parts do
+      table.insert(rel_parts, '..')
+    end
+
+    -- Down into 'to' remaining parts
+    for j = i + 1, #to_parts do
+      table.insert(rel_parts, to_parts[j])
+    end
+
+    if #rel_parts == 0 then
+      return '.' -- same path
+    else
+      return table.concat(rel_parts, '/')
+    end
+  end
+  -- Get relative path for display purposes (extracted from repeated code)
+  function Utils.get_relative_path(file_path)
+    -- Check if file is in a git repo and get relative path if possible
+    local file_dir = vim.fn.fnamemodify(file_path, ':h')
+    local git_root_cmd = 'cd ' .. vim.fn.shellescape(file_dir) .. ' && git rev-parse --show-toplevel 2>/dev/null'
+    local git_root = vim.fn.trim(vim.fn.system(git_root_cmd))
+
+    local display_path = file_path
+    if git_root ~= '' and vim.v.shell_error == 0 then
+      display_path = Utils.path_relative(git_root, file_path)
+    end
+
+    return display_path
   end
 
-  local api_key_lines = vim.fn.readfile(keyfile)
-  if not api_key_lines or #api_key_lines == 0 then
-    vim.notify('[Vibe] API key file is empty: ' .. keyfile, vim.log.levels.ERROR)
-    return
+  function Utils.update_openai_api_key()
+    -- Read the API key from file
+    local keyfile = vim.fn.expand '$HOME/.config/openai_api_key'
+    if vim.fn.filereadable(keyfile) ~= 1 then
+      vim.notify('[Vibe] API key file not found: ' .. keyfile, vim.log.levels.ERROR)
+      return
+    end
+
+    local api_key_lines = vim.fn.readfile(keyfile)
+    if not api_key_lines or #api_key_lines == 0 then
+      vim.notify('[Vibe] API key file is empty: ' .. keyfile, vim.log.levels.ERROR)
+      return
+    end
+
+    local api_key = api_key_lines[1]:gsub('%s+', '') -- trim whitespace
+    if api_key == '' then
+      vim.notify('[Vibe] API key is empty after trimming.', vim.log.levels.ERROR)
+      return
+    end
+
+    -- Obfuscate printing of API key except last 4 characters
+    local num_dots = math.max(0, #api_key - 4)
+    local obfuscated_key = string.rep('.', num_dots) .. api_key:sub(-4)
+
+    vim.env.OPENAI_API_KEY = api_key
+    CONFIG.api_key = api_key
+    vim.notify('[Vibe] OpenAI API key updated: ' .. obfuscated_key, vim.log.levels.INFO)
   end
-
-  local api_key = api_key_lines[1]:gsub('%s+', '') -- trim whitespace
-  if api_key == '' then
-    vim.notify('[Vibe] API key is empty after trimming.', vim.log.levels.ERROR)
-    return
-  end
-
-  -- Obfuscate printing of API key except last 4 characters
-  local num_dots = math.max(0, #api_key - 4)
-  local obfuscated_key = string.rep('.', num_dots) .. api_key:sub(-4)
-
-  vim.env.OPENAI_API_KEY = api_key
-  CONFIG.api_key = api_key
-  vim.notify('[Vibe] OpenAI API key updated: ' .. obfuscated_key, vim.log.levels.INFO)
 end
 
 -- File content caching system
 local FileCache = {}
-FileCache.cache = {}
-FileCache.access_order = {}
+do
+  FileCache.cache = {}
+  FileCache.access_order = {}
 
-function FileCache.get_content(filepath)
-  if not CONFIG.cache_enabled then
+  function FileCache.get_content(filepath)
+    if not CONFIG.cache_enabled then
+      local content, err = Utils.read_file(filepath)
+      if not content then
+        return nil, err
+      end
+      return table.concat(content, '\n'), nil
+    end
+
+    local mtime = vim.fn.getftime(filepath)
+    if mtime == -1 then
+      return nil, 'File does not exist: ' .. filepath
+    end
+
+    -- Check cache
+    local cached = FileCache.cache[filepath]
+    if cached and cached.mtime >= mtime then
+      -- Update access order
+      FileCache._update_access(filepath)
+      return cached.content, nil
+    end
+
+    -- Read file and cache
     local content, err = Utils.read_file(filepath)
     if not content then
       return nil, err
     end
-    return table.concat(content, '\n'), nil
+
+    local content_str = table.concat(content, '\n')
+    FileCache._add_to_cache(filepath, content_str, mtime)
+
+    return content_str, nil
   end
 
-  local mtime = vim.fn.getftime(filepath)
-  if mtime == -1 then
-    return nil, 'File does not exist: ' .. filepath
+  function FileCache._add_to_cache(filepath, content, mtime)
+    -- Remove if already exists
+    if FileCache.cache[filepath] then
+      FileCache._remove_from_access_order(filepath)
+    end
+
+    -- Add to cache
+    FileCache.cache[filepath] = {
+      content = content,
+      mtime = mtime,
+    }
+
+    -- Add to access order
+    table.insert(FileCache.access_order, filepath)
+
+    -- Maintain cache size
+    if #FileCache.access_order > CONFIG.max_cache_entries then
+      local oldest = table.remove(FileCache.access_order, 1)
+      FileCache.cache[oldest] = nil
+    end
   end
 
-  -- Check cache
-  local cached = FileCache.cache[filepath]
-  if cached and cached.mtime >= mtime then
-    -- Update access order
-    FileCache._update_access(filepath)
-    return cached.content, nil
-  end
-
-  -- Read file and cache
-  local content, err = Utils.read_file(filepath)
-  if not content then
-    return nil, err
-  end
-
-  local content_str = table.concat(content, '\n')
-  FileCache._add_to_cache(filepath, content_str, mtime)
-
-  return content_str, nil
-end
-
-function FileCache._add_to_cache(filepath, content, mtime)
-  -- Remove if already exists
-  if FileCache.cache[filepath] then
+  function FileCache._update_access(filepath)
     FileCache._remove_from_access_order(filepath)
+    table.insert(FileCache.access_order, filepath)
   end
 
-  -- Add to cache
-  FileCache.cache[filepath] = {
-    content = content,
-    mtime = mtime,
-  }
-
-  -- Add to access order
-  table.insert(FileCache.access_order, filepath)
-
-  -- Maintain cache size
-  if #FileCache.access_order > CONFIG.max_cache_entries then
-    local oldest = table.remove(FileCache.access_order, 1)
-    FileCache.cache[oldest] = nil
-  end
-end
-
-function FileCache._update_access(filepath)
-  FileCache._remove_from_access_order(filepath)
-  table.insert(FileCache.access_order, filepath)
-end
-
-function FileCache._remove_from_access_order(filepath)
-  for i, path in ipairs(FileCache.access_order) do
-    if path == filepath then
-      table.remove(FileCache.access_order, i)
-      break
+  function FileCache._remove_from_access_order(filepath)
+    for i, path in ipairs(FileCache.access_order) do
+      if path == filepath then
+        table.remove(FileCache.access_order, i)
+        break
+      end
     end
   end
 end
@@ -565,6 +568,7 @@ do
 
   -- Table to keep prompt info: name -> file path
   PromptManager.prompt_dir = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts'
+  -- Set initial prompt on startup to unified-diffs by default
   PromptManager.selected_prompt_name = 'unified-diffs'
 
   local function load_prompts()
@@ -2553,9 +2557,6 @@ end, {
   desc = 'Select prompt for Vibe AI',
 })
 
-
--- Set initial prompt on startup to unified-diffs by default
-PromptManager.selected_prompt_name = 'unified-diffs'
 vim.api.nvim_create_user_command('VibeDebugOn', function()
   CONFIG.debug_mode = true
   vim.notify('[Vibe] Debug mode enabled. API calls will generate debug scripts.', vim.log.levels.INFO)
@@ -2623,18 +2624,19 @@ keymap('n', '<leader>dq', function()
   vim.cmd 'diffoff!'
 end, { desc = 'Close diff and cleanup' })
 
-keymap('n', '<leader>dp', function()
-  vim.cmd '%diffget'
-  vim.cmd 'write'
-  require('vibe-coding.VibeDiff').cleanup_diff_buffers()
-  vim.cmd 'diffoff!'
-end, { desc = 'Accept all AI suggestions' })
 -- VibeSession management keybindings
 keymap('n', '<leader>dn', ':VibeSessionStart<cr>', { noremap = true, desc = 'Start new Vibe session' })
 keymap('n', '<leader>dl', ':VibeSessionLoad<cr>', { noremap = true, desc = 'Load Vibe session' })
 keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'Delete Vibe session' })
 keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
-keymap('n', '<leader>ds', ':VibePromptSelect<cr>', { noremap = true, desc = 'Select Vibe prompt' })
+
+keymap('n', '<leader>dp', ':VibePromptSelect<cr>', { noremap = true, desc = 'Select Vibe prompt' })
+keymap('n', '<leader>ds', function()
+  vim.cmd '%diffget'
+  vim.cmd 'write'
+  require('vibe-coding.VibeDiff').cleanup_diff_buffers()
+  vim.cmd 'diffoff!'
+end, { desc = 'Accept all AI suggestions' })
 keymap('n', '<leader>du', Utils.update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
 
 -- Export the VibeDiff module
