@@ -1521,16 +1521,7 @@ do
     table.insert(messages_for_display, { role = 'user', content = user_input })
     VibeChat.append_to_output '🤔 AI is thinking...'
 
-    -- In your send_message() function, replace the messages_for_api initialization with:
-    local prompt_path = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts/unified-diffs.md'
     local prompt_content = PromptManager.get_prompt_content()
-    local prompt_file = io.open(prompt_path, 'r')
-    if prompt_file then
-      prompt_content = prompt_file:read '*a'
-      prompt_file:close()
-    else
-      vim.notify('[Vibe] Failed to read prompt file at ' .. prompt_path, vim.log.levels.ERROR)
-    end
 
     local messages_for_api = {
       {
