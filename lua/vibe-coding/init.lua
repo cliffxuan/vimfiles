@@ -2424,14 +2424,24 @@ do
 
       if found_at > -1 then
         -- Apply the changes for this hunk
-        local start_index = found_at - 1
-        for _ = 1, #to_remove do
-          table.remove(modified_lines, start_index + 1)
+        local new_hunk_lines = {}
+        for _, line in ipairs(hunk.lines) do
+          local op = line:sub(1, 1)
+          local text = line:sub(2)
+          if op == ' ' or op == '+' then
+            table.insert(new_hunk_lines, text)
+          end
         end
-        for i = 1, #to_add do
-          table.insert(modified_lines, start_index + i, to_add[i])
+
+        for _ = 1, #search_lines do
+          table.remove(modified_lines, found_at)
         end
-        offset = offset + (#to_add - #to_remove)
+
+        for i, line in ipairs(new_hunk_lines) do
+          table.insert(modified_lines, found_at + i - 1, line)
+        end
+
+        offset = offset + (#new_hunk_lines - #search_lines)
       else
         local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
         error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
