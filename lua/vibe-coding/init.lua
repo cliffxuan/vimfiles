@@ -233,7 +233,6 @@ end
 -- Vibe API: Handles communication with the OpenAI API
 -- =============================================================================
 local VibeAPI = {}
-
 do
   local plenary_job = require 'plenary.job'
 

@@ -2,15 +2,73 @@
 
 -- Note: The plugin code needs to be accessible.
 -- For a single-file plugin, you might need to load it manually in your test setup.
-local vibe = require 'vibe-coding'
 
 describe('Vibe-Coding Plugin Unit Tests', function()
   local mock = require 'luassert.mock'
+  local vibe -- Will be loaded after mocking
 
-  -- =============================================================================
-  --  Tear Down Mocks
-  -- =============================================================================
-  after_each(function() end)
+  -- Mock telescope.pickers module to avoid runtime errors in tests due to missing Telescope dependency
+  before_each(function()
+    -- Set up telescope mocks BEFORE requiring the module
+    package.loaded['telescope'] = {
+      pickers = {
+        new = function()
+          return {}
+        end,
+      },
+      finders = {
+        new_table = function()
+          return {}
+        end,
+      },
+      config = { values = { sorter = {
+        get_sorter = function()
+          return {}
+        end,
+      } } },
+      actions = {},
+      ['actions.state'] = {},
+    }
+
+    package.loaded['telescope.pickers'] = {
+      new = function()
+        return {}
+      end,
+    }
+
+    package.loaded['telescope.finders'] = {
+      new_table = function()
+        return {}
+      end,
+    }
+
+    package.loaded['telescope.config'] = {
+      values = { sorter = {
+        get_sorter = function()
+          return {}
+        end,
+      } },
+    }
+
+    package.loaded['telescope.actions'] = {}
+    package.loaded['telescope.actions.state'] = {}
+
+    -- Now we can safely require the module
+    -- Clear any previous load of the module first
+    package.loaded['vibe-coding'] = nil
+    vibe = require 'vibe-coding'
+  end)
+
+  after_each(function()
+    -- Clean up mocks
+    package.loaded['telescope'] = nil
+    package.loaded['telescope.pickers'] = nil
+    package.loaded['telescope.finders'] = nil
+    package.loaded['telescope.config'] = nil
+    package.loaded['telescope.actions'] = nil
+    package.loaded['telescope.actions.state'] = nil
+    package.loaded['vibe-coding'] = nil
+  end)
 
   -- =============================================================================
   --  Utils Module Tests
