@@ -2234,7 +2234,7 @@ do
       vim.cmd 'diffoff!'
     end, { buffer = main_buf, desc = 'Close diff and cleanup' })
 
-    vim.keymap.set('n', '<leader>da', function()
+    vim.keymap.set('n', '<leader>ds', function()
       vim.cmd '%diffget'
       vim.cmd 'write'
       VibeDiff.cleanup_diff_buffers()
@@ -2242,7 +2242,7 @@ do
     end, { buffer = main_buf, desc = 'Accept all AI suggestions' })
 
     vim.notify(
-      '[Vibe] Diff opened. Use do/dp for changes, <leader>da to accept all, <leader>dq to close',
+      '[Vibe] Diff opened. Use do/dp for changes, <leader>ds to accept all, <leader>dq to close',
       vim.log.levels.INFO
     )
   end
@@ -2685,12 +2685,6 @@ keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'De
 keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
 
 keymap('n', '<leader>dp', ':VibePromptSelect<cr>', { noremap = true, desc = 'Select Vibe prompt' })
-keymap('n', '<leader>ds', function()
-  vim.cmd '%diffget'
-  vim.cmd 'write'
-  require('vibe-coding.VibeDiff').cleanup_diff_buffers()
-  vim.cmd 'diffoff!'
-end, { desc = 'Accept all AI suggestions' })
 keymap('n', '<leader>du', Utils.update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
 
 -- Export the VibeDiff module
