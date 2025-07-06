@@ -555,6 +555,85 @@ do
   end
 end
 
+-- Prompt selection functionality
+local PromptManager = {}
+do
+  local pickers = require 'telescope.pickers'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+
+  -- Table to keep prompt info: name -> file path
+  PromptManager.prompt_dir = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts'
+  PromptManager.selected_prompt_name = 'unified-diffs'
+
+  local function load_prompts()
+    local prompt_files = vim.fn.glob(PromptManager.prompt_dir .. '/*.md', false, true)
+    local prompts = {}
+    for _, file in ipairs(prompt_files) do
+      local base = vim.fn.fnamemodify(file, ':t:r')
+      prompts[#prompts + 1] = { name = base, path = file }
+    end
+    return prompts
+  end
+
+  -- Invoke telescope picker to select prompt
+  function PromptManager.select_prompt(callback)
+    local prompts = load_prompts()
+    if #prompts == 0 then
+      vim.notify('[Vibe] No prompts found in ' .. PromptManager.prompt_dir, vim.log.levels.ERROR)
+      return
+    end
+
+    pickers
+      .new({}, {
+        prompt_title = 'Select Prompt',
+        finder = finders.new_table {
+          results = prompts,
+          entry_maker = function(entry)
+            return {
+              value = entry,
+              display = entry.name,
+              ordinal = entry.name,
+            }
+          end,
+        },
+        sorter = conf.generic_sorter {},
+        attach_mappings = function(prompt_bufnr)
+          actions.select_default:replace(function()
+            local selection = action_state.get_selected_entry()
+            actions.close(prompt_bufnr)
+            if selection then
+              PromptManager.selected_prompt_name = selection.value.name
+              vim.notify('[Vibe] Selected prompt: ' .. selection.value.name, vim.log.levels.INFO)
+              if callback then
+                callback(selection.value.name, selection.value.path)
+              end
+            end
+          end)
+          return true
+        end,
+      })
+      :find()
+  end
+
+  -- Get content of selected prompt, fallback on unified-diffs.md
+  function PromptManager.get_prompt_content()
+    local prompt_file = PromptManager.prompt_dir .. '/' .. PromptManager.selected_prompt_name .. '.md'
+    if vim.fn.filereadable(prompt_file) ~= 1 then
+      -- fallback to unified-diffs.md
+      prompt_file = PromptManager.prompt_dir .. '/unified-diffs.md'
+    end
+    local lines, err = Utils.read_file(prompt_file)
+    if not lines then
+      vim.notify('[Vibe] Failed to read prompt file: ' .. err, vim.log.levels.ERROR)
+      return ''
+    end
+    return table.concat(lines, '\n')
+  end
+end
+
 -- =============================================================================
 -- Vibe Chat: Manages the interactive chat window and sidebar layout
 -- =============================================================================
@@ -1411,7 +1490,7 @@ do
 
     -- In your send_message() function, replace the messages_for_api initialization with:
     local prompt_path = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts/unified-diffs.md'
-    local prompt_content = ''
+    local prompt_content = PromptManager.get_prompt_content()
     local prompt_file = io.open(prompt_path, 'r')
     if prompt_file then
       prompt_content = prompt_file:read '*a'
@@ -2468,6 +2547,16 @@ vim.api.nvim_create_user_command(
   { desc = 'Clear all files from the Vibe chat context' }
 )
 
+-- User command to select prompt
+vim.api.nvim_create_user_command('VibePromptSelect', function()
+  PromptManager.select_prompt()
+end, {
+  desc = 'Select prompt for Vibe AI',
+})
+
+
+-- Set initial prompt on startup to unified-diffs by default
+PromptManager.selected_prompt_name = 'unified-diffs'
 vim.api.nvim_create_user_command('VibeDebugOn', function()
   CONFIG.debug_mode = true
   vim.notify('[Vibe] Debug mode enabled. API calls will generate debug scripts.', vim.log.levels.INFO)
@@ -2522,6 +2611,7 @@ local keymap = vim.keymap.set
 -- Vibe coding keymaps moved here from keymaps.lua
 
 keymap('n', '<leader>d ', ':VibeToggle<cr>', { noremap = true, desc = 'Toggle Window' })
+keymap('n', '<leader>da', ':VibeApplyPatch<cr>', { noremap = true, desc = 'Apply diff from last AI response' })
 keymap('n', '<leader>dc', ':GptInput<cr>', { noremap = true, desc = 'Oneoff Chat' })
 keymap('n', '<leader>db', ':VibeAddCurrentBuffer<cr>', { noremap = true, desc = 'Add current buffer to context' })
 keymap('n', '<leader>df', ':VibeAddToContext<cr>', { noremap = true, desc = 'Add file to context' })
@@ -2534,7 +2624,6 @@ keymap('n', '<leader>dq', function()
   vim.cmd 'diffoff!'
 end, { desc = 'Close diff and cleanup' })
 
-keymap('n', '<leader>da', ':VibeApplyPatch<cr>', { noremap = true, desc = 'Apply diff from last AI response' })
 keymap('n', '<leader>dp', function()
   vim.cmd '%diffget'
   vim.cmd 'write'
@@ -2546,6 +2635,7 @@ keymap('n', '<leader>dn', ':VibeSessionStart<cr>', { noremap = true, desc = 'Sta
 keymap('n', '<leader>dl', ':VibeSessionLoad<cr>', { noremap = true, desc = 'Load Vibe session' })
 keymap('n', '<leader>dm', ':VibeSessionDelete<cr>', { noremap = true, desc = 'Delete Vibe session' })
 keymap('n', '<leader>dr', ':VibeSessionRename<cr>', { noremap = true, desc = 'Rename Vibe session' })
+keymap('n', '<leader>ds', ':VibePromptSelect<cr>', { noremap = true, desc = 'Select Vibe prompt' })
 keymap('n', '<leader>du', Utils.update_openai_api_key, { noremap = true, desc = 'Update OpenAI api key' })
 
 -- Export the VibeDiff module
