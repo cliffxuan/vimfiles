@@ -565,6 +565,7 @@ do
   local conf = require('telescope.config').values
   local actions = require 'telescope.actions'
   local action_state = require 'telescope.actions.state'
+  local previewers = require 'telescope.previewers'
 
   -- Table to keep prompt info: name -> file path
   PromptManager.prompt_dir = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts'
@@ -581,7 +582,7 @@ do
     return prompts
   end
 
-  -- Invoke telescope picker to select prompt
+  -- Invoke telescope picker to select prompt with preview
   function PromptManager.select_prompt(callback)
     local prompts = load_prompts()
     if #prompts == 0 then
@@ -600,6 +601,35 @@ do
               display = entry.name,
               ordinal = entry.name,
             }
+          end,
+        },
+        previewer = previewers.new_buffer_previewer {
+          title = 'Prompt Preview',
+          define_preview = function(self, entry)
+            local filepath = entry.value.path
+            if not filepath or vim.fn.filereadable(filepath) ~= 1 then
+              vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'Prompt file not readable or missing' })
+              return
+            end
+
+            local content, err = Utils.read_file(filepath)
+            if not content then
+              vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, { 'Error reading prompt: ' .. (err or 'Unknown error') })
+              return
+            end
+
+            local max_preview_lines = 400
+            local preview_lines = {}
+            for i = 1, math.min(#content, max_preview_lines) do
+              table.insert(preview_lines, content[i])
+            end
+            if #content > max_preview_lines then
+              table.insert(preview_lines, '...')
+            end
+
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, preview_lines)
+            -- Set filetype to markdown
+            vim.bo[self.state.bufnr].filetype = 'markdown'
           end,
         },
         sorter = conf.generic_sorter {},
