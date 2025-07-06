@@ -1501,40 +1501,26 @@ do
     end
   end
 
-  function VibeChat.send_message()
-    -- Enhanced race condition protection
-    if VibeChat.state.is_thinking then
-      vim.notify('[Vibe] Please wait for the AI to finish responding.', vim.log.levels.WARN)
-      return
-    end
-
+  local function get_user_input()
     local input_buf = VibeChat.state.input_buf_id
-    if input_buf == nil or not vim.api.nvim_buf_is_valid(input_buf) then
+    if not input_buf or not vim.api.nvim_buf_is_valid(input_buf) then
       vim.notify('[Vibe] Input buffer is not valid.', vim.log.levels.ERROR)
-      return
+      return nil
     end
 
     local user_input = table.concat(vim.api.nvim_buf_get_lines(input_buf, 0, -1, false), '\n')
-    if user_input == '' or user_input:match '^%s*$' then
+    if user_input == '' or user_input:match('^%s*$') then
       vim.notify('[Vibe] Please enter a message.', vim.log.levels.WARN)
-      return
+      return nil
     end
 
-    -- Set thinking state immediately to prevent race conditions
-    VibeChat.state.is_thinking = true
+    return user_input
+  end
 
-    vim.api.nvim_buf_set_lines(input_buf, 0, -1, false, {})
-    VibeChat.append_to_output('👤 You:\n' .. user_input)
-    table.insert(messages_for_display, { role = 'user', content = user_input })
-    VibeChat.append_to_output '🤔 AI is thinking...'
-
+  local function build_api_payload(user_input)
     local prompt_content = PromptManager.get_prompt_content()
-
     local messages_for_api = {
-      {
-        role = 'system',
-        content = prompt_content,
-      },
+      { role = 'system', content = prompt_content },
     }
 
     for _, file_path in ipairs(VibeChat.state.context_files) do
@@ -1550,130 +1536,137 @@ do
         vim.notify('[Vibe] Failed to read context file ' .. file_path .. ': ' .. err, vim.log.levels.WARN)
       end
     end
-    table.insert(messages_for_api, { role = 'user', content = user_input })
 
-    -- Set timeout to prevent getting stuck
-    local timeout_timer = vim.fn.timer_start(120000, function()
-      if VibeChat.state.is_thinking then
-        VibeChat.state.is_thinking = false
-        -- Remove thinking message
-        if VibeChat.state.layout_active then
-          local output_lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
-          for i = #output_lines, 1, -1 do
-            if string.find(output_lines[i], '🤔 AI is thinking...') then
-              vim.bo[VibeChat.state.output_buf_id].modifiable = true
-              vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, i - 1, i, false, {})
-              vim.bo[VibeChat.state.output_buf_id].modifiable = false
-              break
-            end
-          end
-          VibeChat.append_to_output '❌ Request timed out after 2 minutes'
+    table.insert(messages_for_api, { role = 'user', content = user_input })
+    return messages_for_api
+  end
+
+  local function handle_timeout()
+    if not VibeChat.state.is_thinking then
+      return
+    end
+    VibeChat.state.is_thinking = false
+
+    if VibeChat.state.layout_active then
+      local output_lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
+      for i = #output_lines, 1, -1 do
+        if string.find(output_lines[i], '🤔 AI is thinking...') then
+          vim.bo[VibeChat.state.output_buf_id].modifiable = true
+          vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, i - 1, i, false, {})
+          vim.bo[VibeChat.state.output_buf_id].modifiable = false
+          break
         end
       end
-    end)
+      VibeChat.append_to_output('❌ Request timed out after 2 minutes')
+    end
+  end
 
+  local function handle_stream_chunk(chunk, streaming_started)
+    if not VibeChat.state.layout_active or not VibeChat.state.is_thinking then
+      return streaming_started
+    end
+
+    local output_buf = VibeChat.state.output_buf_id
+    if not output_buf or not vim.api.nvim_buf_is_valid(output_buf) then
+      return streaming_started
+    end
+
+    if not streaming_started then
+      vim.bo[output_buf].modifiable = true
+      local lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false)
+      for i = #lines, 1, -1 do
+        if string.find(lines[i], '🤔 AI is thinking...') then
+          vim.api.nvim_buf_set_lines(output_buf, i - 1, i, false, { '🤖 AI:' })
+          break
+        end
+      end
+      vim.bo[output_buf].modifiable = false
+      streaming_started = true
+    end
+
+    vim.bo[output_buf].modifiable = true
+    local chunk_lines = vim.split(chunk, '\n', { plain = true })
+    local buffer_lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false)
+    local last_line_index = #buffer_lines
+
+    if last_line_index > 0 then
+      buffer_lines[last_line_index] = buffer_lines[last_line_index] .. chunk_lines[1]
+      if #chunk_lines > 1 then
+        for i = 2, #chunk_lines do
+          table.insert(buffer_lines, chunk_lines[i])
+        end
+      end
+      vim.api.nvim_buf_set_lines(output_buf, last_line_index - 1, -1, false, { unpack(buffer_lines, last_line_index) })
+    end
+    vim.bo[output_buf].modifiable = false
+
+    local win_id = vim.fn.bufwinid(output_buf)
+    if win_id ~= -1 then
+      local final_line_count = vim.api.nvim_buf_line_count(output_buf)
+      vim.api.nvim_win_set_cursor(win_id, { final_line_count, 0 })
+    end
+
+    return streaming_started
+  end
+
+  local function handle_completion(response_text, err, timeout_timer)
+    vim.fn.timer_stop(timeout_timer)
+    VibeChat.state.is_thinking = false
+
+    if not VibeChat.state.layout_active then
+      return
+    end
+
+    if err then
+      local output_lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
+      for i = #output_lines, 1, -1 do
+        if string.find(output_lines[i], '🤔 AI is thinking...') then
+          vim.bo[VibeChat.state.output_buf_id].modifiable = true
+          vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, i - 1, i, false, {})
+          vim.bo[VibeChat.state.output_buf_id].modifiable = false
+          break
+        end
+      end
+      VibeChat.append_to_output('❌ Error: ' .. err)
+    else
+      table.insert(messages_for_display, { role = 'assistant', content = response_text })
+    end
+
+    if VibeChat.sessions.current_session_id then
+      VibeChat.sessions.save()
+    end
+  end
+
+  function VibeChat.send_message()
+    if VibeChat.state.is_thinking then
+      vim.notify('[Vibe] Please wait for the AI to finish responding.', vim.log.levels.WARN)
+      return
+    end
+
+    local user_input = get_user_input()
+    if not user_input then
+      return
+    end
+
+    VibeChat.state.is_thinking = true
+    vim.api.nvim_buf_set_lines(VibeChat.state.input_buf_id, 0, -1, false, {})
+    VibeChat.append_to_output('👤 You:\n' .. user_input)
+    table.insert(messages_for_display, { role = 'user', content = user_input })
+    VibeChat.append_to_output('🤔 AI is thinking...')
+
+    local messages_for_api = build_api_payload(user_input)
+    local timeout_timer = vim.fn.timer_start(120000, handle_timeout)
     local streaming_started = false
 
-    VibeAPI.get_completion(messages_for_api, function(response_text, err)
-      -- Cancel timeout timer
-      vim.fn.timer_stop(timeout_timer)
-
-      -- ALWAYS reset thinking state regardless of success/failure
-      VibeChat.state.is_thinking = false
-
-      if not VibeChat.state.layout_active then
-        return
+    VibeAPI.get_completion(
+      messages_for_api,
+      function(response_text, err)
+        handle_completion(response_text, err, timeout_timer)
+      end,
+      function(chunk)
+        streaming_started = handle_stream_chunk(chunk, streaming_started)
       end
-
-      if err then
-        -- Remove thinking message and show error
-        local output_lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
-        for i = #output_lines, 1, -1 do
-          if string.find(output_lines[i], '🤔 AI is thinking...') then
-            vim.bo[VibeChat.state.output_buf_id].modifiable = true
-            vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, i - 1, i, false, {})
-            vim.bo[VibeChat.state.output_buf_id].modifiable = false
-            break
-          end
-        end
-        VibeChat.append_to_output('❌ Error: ' .. err)
-      else
-        table.insert(messages_for_display, { role = 'assistant', content = response_text })
-      end
-
-      -- Save session after each message exchange
-      if VibeChat.sessions.current_session_id then
-        VibeChat.sessions.save()
-      end
-    end, function(chunk)
-      -- Stream callback - called for each chunk
-      if not VibeChat.state.layout_active then
-        return
-      end
-
-      -- Additional safety check to prevent stuck state
-      if not VibeChat.state.is_thinking then
-        return
-      end
-
-      local output_buf = VibeChat.state.output_buf_id
-      if output_buf == nil or not vim.api.nvim_buf_is_valid(output_buf) then
-        return
-      end
-      if not streaming_started then
-        -- Remove "thinking" message and start AI response
-        vim.bo[output_buf].modifiable = true
-        local lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false)
-        for i = #lines, 1, -1 do
-          if string.find(lines[i], '🤔 AI is thinking...') then
-            -- Replace the "thinking" line with the start of the AI response
-            vim.api.nvim_buf_set_lines(output_buf, i - 1, i, false, { '🤖 AI:' })
-            break
-          end
-        end
-        vim.bo[output_buf].modifiable = false
-        streaming_started = true
-      end
-
-      -- Append the streaming chunk directly to the buffer
-      vim.bo[output_buf].modifiable = true
-      -- Split the chunk by newlines to handle multi-line chunks correctly
-      local chunk_lines = vim.split(chunk, '\n', { plain = true })
-
-      -- Get the current last line to append the first part of the chunk
-      local buffer_lines = vim.api.nvim_buf_get_lines(output_buf, 0, -1, false)
-      local last_line_index = #buffer_lines
-
-      if last_line_index > 0 then
-        -- Append the first part of the chunk to the existing last line
-        buffer_lines[last_line_index] = buffer_lines[last_line_index] .. chunk_lines[1]
-
-        -- If the chunk had newlines, add the rest of the chunk parts as new lines
-        if #chunk_lines > 1 then
-          for i = 2, #chunk_lines do
-            table.insert(buffer_lines, chunk_lines[i])
-          end
-        end
-
-        -- Replace the content starting from the original last line
-        vim.api.nvim_buf_set_lines(
-          output_buf,
-          last_line_index - 1,
-          -1,
-          false,
-          { unpack(buffer_lines, last_line_index) }
-        )
-      end
-
-      vim.bo[output_buf].modifiable = false
-
-      -- Auto-scroll to bottom
-      local win_id = vim.fn.bufwinid(output_buf)
-      if win_id ~= -1 then
-        local final_line_count = vim.api.nvim_buf_line_count(output_buf)
-        vim.api.nvim_win_set_cursor(win_id, { final_line_count, 0 })
-      end
-    end)
+    )
   end
 
   function VibeChat.add_context_to_chat()
