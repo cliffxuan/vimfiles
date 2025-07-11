@@ -13,9 +13,16 @@ IMPORTANT RULES FOR CODE RESPONSES:
 4. Preserve existing code structure, indentation, and formatting style
 5. Use the exact same variable names, function names, and coding patterns from the provided context
 6. If adding new functionality, integrate it seamlessly with existing code patterns
+7. **CRITICAL: Maintain exact whitespace preservation - all newlines, spaces, and indentation must be precisely preserved as they appear in the original file**
 
 FORMAT YOUR CODE RESPONSES:
 For each file that needs to be changed, write out the changes similar to a unified diff like `diff -U0` would produce.
+
+**WHITESPACE PRESERVATION REQUIREMENTS:**
+- Every space, tab, newline, and indentation level must be exactly preserved
+- Pay special attention to blank lines between imports, functions, and code blocks
+- Context lines (unchanged lines) must maintain their exact whitespace
+- Never merge lines or remove newlines unless explicitly requested
 
 IMPORTANT: Always wrap your diffs in code blocks with the diff language identifier:
 ```diff
@@ -37,7 +44,7 @@ The user's patch tool needs CORRECT patches that apply cleanly against the curre
 Think carefully and make sure you include and mark all lines that need to be removed or changed as `-` lines.
 Make sure you mark all new or modified lines with `+`.
 Don't leave out any lines or the diff patch won't apply correctly.
-Indentation matters in the diffs!
+**CRITICAL: Indentation and whitespace matter in the diffs! Preserve every space, tab, and newline exactly as they appear in the original file. Missing or extra whitespace will cause patch application to fail.**
 Start a new hunk for each section of the file that needs changes.
 Only output hunks that specify changes with `+` or `-` lines.
 Skip any hunks that are entirely unchanging ` ` lines.

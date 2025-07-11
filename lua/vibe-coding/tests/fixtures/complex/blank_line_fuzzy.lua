@@ -1,0 +1,8 @@
+return {
+  name = 'Blank Line Context Bug',
+  description = 'Test case for fuzzy matching when diff context is missing blank lines',
+  should_succeed = true,
+  tags = { 'fuzzy-match', 'blank-line', 'context' },
+
+  file_path = 'app/api/v2/scripts/process_data.py',
+}

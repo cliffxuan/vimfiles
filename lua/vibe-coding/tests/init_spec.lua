@@ -3,6 +3,8 @@
 -- Note: The plugin code needs to be accessible.
 -- For a single-file plugin, you might need to load it manually in your test setup.
 
+---@diagnostic disable: undefined-global
+
 describe('Vibe-Coding Plugin Unit Tests', function()
   local mock = require 'luassert.mock'
   local vibe -- Will be loaded after mocking
@@ -258,6 +260,9 @@ describe('Vibe-Coding Plugin Unit Tests', function()
           .. 'Hunk content:\n'
           .. table.concat(hunk_lines, '\n')
           .. '\n\n'
+          .. 'Searching for pattern:\n'
+          .. 'nonexistent line'
+          .. '\n\n'
           .. 'Could not find this context in the file.'
 
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
@@ -287,6 +292,236 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal('Skipped file deletion for file_to_delete.txt', msg)
         assert.spy(write_spy).was.not_called()
       end)
+
+      it('should handle context lines before and after changes correctly', function()
+        local original_content = [[@allocation_router.put(
+    "/{cluster}/{name}",
+    response_model=Allocation,
+    dependencies=[Depends(check_operator_permission)],
+)
+def update_allocation(cluster: str, name: str, allocation: Allocation):
+    key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
+    data: str | None = redis_client.get(key)  # type: ignore]]
+
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        -- This represents the problematic diff from the original issue
+        local parsed_diff = {
+          old_path = 'app/api/v2/routes.py',
+          new_path = 'app/api/v2/routes.py',
+          hunks = {
+            {
+              lines = {
+                ' @allocation_router.put(',
+                '     "/{cluster}/{name}",',
+                '     response_model=Allocation,',
+                '     dependencies=[Depends(check_operator_permission)],',
+                ' )',
+                '-def update_allocation(cluster: str, name: str, allocation: Allocation):',
+                '+def update_allocation(cluster: str, name: str, allocation: str):',
+                '     key = f"{REDIS_PREFIX}:share:{cluster}:{name}"',
+                '     data: str | None = redis_client.get(key)  # type: ignore',
+              },
+            },
+          },
+        }
+
+        local expected_content_lines = {
+          '@allocation_router.put(',
+          '    "/{cluster}/{name}",',
+          '    response_model=Allocation,',
+          '    dependencies=[Depends(check_operator_permission)],',
+          ')',
+          'def update_allocation(cluster: str, name: str, allocation: str):',
+          '    key = f"{REDIS_PREFIX}:share:{cluster}:{name}"',
+          '    data: str | None = redis_client.get(key)  # type: ignore',
+        }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success, 'Expected apply_diff to succeed with context lines')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to app/api/v2/routes.py')
+        assert.spy(write_spy).was.called(1)
+        assert.spy(write_spy).was.called_with('app/api/v2/routes.py', expected_content_lines)
+      end)
+
+      it('should handle multiple context sections in a single hunk', function()
+        -- Test case with context before changes, changes, and context after changes
+        local original_content = 'line1\nline2\nold_line\nline4\nline5'
+
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local parsed_diff = {
+          old_path = 'test.txt',
+          new_path = 'test.txt',
+          hunks = {
+            {
+              lines = {
+                ' line1',
+                ' line2',
+                '-old_line',
+                '+new_line',
+                ' line4',
+                ' line5',
+              },
+            },
+          },
+        }
+
+        local expected_content = { 'line1', 'line2', 'new_line', 'line4', 'line5' }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success, 'Expected apply_diff to succeed with context before and after')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
+        assert.spy(write_spy).was.called(1)
+        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+      end)
+
+      it('should handle hunks with only context before changes', function()
+        local original_content = 'context1\ncontext2\nold_line'
+
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local parsed_diff = {
+          old_path = 'test.txt',
+          new_path = 'test.txt',
+          hunks = {
+            {
+              lines = {
+                ' context1',
+                ' context2',
+                '-old_line',
+                '+new_line',
+              },
+            },
+          },
+        }
+
+        local expected_content = { 'context1', 'context2', 'new_line' }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success, 'Expected apply_diff to succeed with context before only')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
+        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+      end)
+
+      it('should handle hunks with only context after changes', function()
+        local original_content = 'old_line\ncontext1\ncontext2'
+
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        local parsed_diff = {
+          old_path = 'test.txt',
+          new_path = 'test.txt',
+          hunks = {
+            {
+              lines = {
+                '-old_line',
+                '+new_line',
+                ' context1',
+                ' context2',
+              },
+            },
+          },
+        }
+
+        local expected_content = { 'new_line', 'context1', 'context2' }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        assert.is_true(success, 'Expected apply_diff to succeed with context after only')
+        assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
+        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+      end)
+
+      it('should fail properly when hunk cannot be applied instead of falsely claiming success', function()
+        -- This test verifies the bug fix where hunks that couldn't be applied
+        -- would still report success
+        local original_content = 'unrelated_line1\nunrelated_line2\nunrelated_line3'
+
+        mock(vibe.FileCache, 'get_content', function()
+          return original_content, nil
+        end)
+
+        local write_spy = spy.new(function()
+          return true, nil
+        end)
+        mock(vibe.Utils, 'write_file', write_spy)
+
+        -- This diff has lines to add AND remove, but the pattern won't match the file
+        local parsed_diff = {
+          old_path = 'test.txt',
+          new_path = 'test.txt',
+          hunks = {
+            {
+              lines = {
+                '-def update_allocation(cluster: str, name: str, allocation: Allocation):',
+                '+def update_allocation(cluster: str, name: str, allocation: str):',
+              },
+            },
+          },
+        }
+
+        local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
+
+        -- Should fail instead of falsely claiming success
+        assert.is_false(success, 'Expected apply_diff to fail when hunk cannot be found')
+        local expected_error_msg = 'Failed to apply hunk #1 to test.txt.\n'
+          .. 'Hunk content:\n'
+          .. '-def update_allocation(cluster: str, name: str, allocation: Allocation):\n'
+          .. '+def update_allocation(cluster: str, name: str, allocation: str):\n'
+          .. '\n'
+          .. 'Searching for pattern:\n'
+          .. 'def update_allocation(cluster: str, name: str, allocation: Allocation):\n'
+          .. '\n'
+          .. 'Could not find this context in the file.'
+        assert.are.equal(expected_error_msg, msg)
+        assert.spy(write_spy).was.not_called()
+      end)
+    end)
+
+    -- =============================================================================
+    --  VibePatcher Fixture-Based Tests
+    -- =============================================================================
+    describe('Fixture-based tests', function()
+      local fixtures = require('tests.fixtures.fixture_loader')
+      
+      -- Load all fixtures and create tests
+      local all_fixtures = fixtures.load_all()
+      
+      for _, fixture in ipairs(all_fixtures) do
+        it(fixture.name, fixtures.create_test_case(fixture))
+      end
     end)
   end)
 

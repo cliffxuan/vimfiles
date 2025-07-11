@@ -1,0 +1,89 @@
+return {
+  name = 'API Parameter Refactor',
+  description = 'Test refactoring API function parameter type and related changes',
+  should_succeed = true,
+  tags = { 'complex', 'api', 'refactor', 'parameter-change' },
+
+  original_content = [[
+@allocation_router.put(
+    "/{cluster}/{name}",
+    response_model=Allocation,
+    dependencies=[Depends(check_operator_permission)],
+)
+def update_allocation(cluster: str, name: str, allocation: Allocation):
+    key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
+    data: str | None = redis_client.get(key)  # type: ignore
+    if not data:
+        raise HTTPException(status_code=404, detail="Allocation not found")
+
+    # Get existing share data and update the quota
+    share_data = json.loads(data)
+    share_data["quota_hard_threshold"] = allocation.allocation
+
+    # Save updated share back to Redis
+    redis_client.set(key, json.dumps(share_data))
+
+    return allocation
+]],
+
+  diff_content = [[
+--- app/api/v2/routes.py
++++ app/api/v2/routes.py
+@@ -4,7 +4,7 @@
+     response_model=Allocation,
+     dependencies=[Depends(check_operator_permission)],
+ )
+-def update_allocation(cluster: str, name: str, allocation: Allocation):
++def update_allocation(cluster: str, name: str, allocation: str):
+     key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
+     data: str | None = redis_client.get(key)  # type: ignore
+     if not data:
+@@ -12,7 +12,7 @@
+ 
+     # Get existing share data and update the quota
+     share_data = json.loads(data)
+-    share_data["quota_hard_threshold"] = allocation.allocation
++    share_data["quota_hard_threshold"] = allocation
+ 
+     # Save updated share back to Redis
+     redis_client.set(key, json.dumps(share_data))
+@@ -17,4 +17,8 @@
+     # Save updated share back to Redis
+     redis_client.set(key, json.dumps(share_data))
+ 
+-    return allocation
++    return Allocation(
++        name=name,
++        cluster=cluster,
++        allocation=allocation,
++    )
+]],
+
+  expected_content = [[
+@allocation_router.put(
+    "/{cluster}/{name}",
+    response_model=Allocation,
+    dependencies=[Depends(check_operator_permission)],
+)
+def update_allocation(cluster: str, name: str, allocation: str):
+    key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
+    data: str | None = redis_client.get(key)  # type: ignore
+    if not data:
+        raise HTTPException(status_code=404, detail="Allocation not found")
+
+    # Get existing share data and update the quota
+    share_data = json.loads(data)
+    share_data["quota_hard_threshold"] = allocation
+
+    # Save updated share back to Redis
+    redis_client.set(key, json.dumps(share_data))
+
+    return Allocation(
+        name=name,
+        cluster=cluster,
+        allocation=allocation,
+    )
+]],
+
+  file_path = 'app/api/v2/routes.py',
+}

@@ -1,0 +1,8 @@
+--- a/process.js
++++ b/process.js
+@@ -1,4 +1,4 @@
+ // Example with [[brackets]] that would break Lua syntax
+ function process(data) {
+-    console.log("Processing [[data]] with special characters");
++    console.log("Processing [[enhanced data]] with special characters");
+     return data.map(item => item.value);

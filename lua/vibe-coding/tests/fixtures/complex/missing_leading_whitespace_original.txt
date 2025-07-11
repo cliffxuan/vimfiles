@@ -1,0 +1,5 @@
+# Check if directory exists
+if [[ ! -d "$directory" ]]; then
+    echo "Error: Directory '$directory' does not exist." >&2
+    exit 1
+fi
