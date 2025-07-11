@@ -5,10 +5,10 @@
 -- Configuration Constants
 -- =============================================================================
 local CONFIG = {
-  -- API Configuration
-  api_key = os.getenv 'OPENAI_API_KEY',
-  api_url = os.getenv 'OPENAI_API_BASE_URL' or 'https://api.openai.com/v1',
-  model = os.getenv 'OPENAI_CHAT_MODEL_ID' or 'gpt-4.1-mini',
+  -- API Configuration (placeholders, will be overridden)
+  api_key = nil,
+  api_url = nil,
+  model = nil,
 
   -- UI Configuration
   sidebar_width = 80,
@@ -22,9 +22,29 @@ local CONFIG = {
   max_cache_entries = 100,
 
   -- Debug Settings
-  -- debug_mode = true,
   debug_mode = false,
 }
+
+-- Function to load external config file (expects Lua file returning a table with keys)
+local function load_external_config()
+  local config_path = vim.fn.expand '$HOME/.config/vibe-coding/config.lua'
+  if vim.fn.filereadable(config_path) ~= 1 then
+    return nil
+  end
+  local ok, conf = pcall(dofile, config_path)
+  if ok and type(conf) == 'table' then
+    return conf
+  end
+  return nil
+end
+
+do
+  local ext_conf = load_external_config() or {}
+
+  CONFIG.api_key = ext_conf.API_KEY or os.getenv 'OPENAI_API_KEY' or nil
+  CONFIG.api_url = ext_conf.API_URL or os.getenv 'OPENAI_BASE_URL' or 'https://api.openai.com/v1'
+  CONFIG.model = ext_conf.MODEL or os.getenv 'OPENAI_CHAT_MODEL_ID' or 'gpt-4.1-mini'
+end
 
 -- =============================================================================
 -- Utility Functions
@@ -180,9 +200,9 @@ do
           local function handle_selection()
             local picker = action_state.get_current_picker(prompt_bufnr)
 
-            -- Handle multi-selection if callback is provided
+            -- Handle multi-selection if callback is provided and not disabled
             local multi_selection = picker:get_multi_selection()
-            if #multi_selection > 0 and opts.on_multi_selection then
+            if #multi_selection > 0 and opts.on_multi_selection and not opts.disable_multi_selection then
               local selections = {}
               for _, entry in ipairs(multi_selection) do
                 table.insert(selections, entry.value)
@@ -201,6 +221,12 @@ do
           end
 
           actions.select_default:replace(handle_selection)
+          
+          -- Disable multi-selection keybinding if requested
+          if opts.disable_multi_selection then
+            actions.toggle_selection:replace(function() end)
+          end
+          
           return true
         end,
       })
@@ -292,6 +318,30 @@ local VibeAPI = {}
 do
   local plenary_job = require 'plenary.job'
 
+  -- Helper function to build curl arguments
+  local function build_curl_args(json_file_path, headers_file_path)
+    local args = {
+      '-s',
+      '-N',
+      '-X',
+      'POST',
+      CONFIG.api_url .. '/chat/completions',
+      '-H',
+      'Content-Type: application/json',
+      '-H',
+      'Authorization: Bearer ' .. CONFIG.api_key,
+      '-d',
+      '@' .. json_file_path,
+    }
+
+    if headers_file_path then
+      table.insert(args, 3, '-D')
+      table.insert(args, 4, headers_file_path)
+    end
+
+    return args
+  end
+
   -- Function to write debug curl script
   function VibeAPI.write_debug_script(messages)
     local data = {
@@ -323,8 +373,23 @@ do
       return
     end
 
-    -- Create the curl command script
+    -- Create the curl command script using shared function
     local endpoint = CONFIG.api_url .. '/chat/completions'
+    local headers_file = debug_dir .. '/vibe_headers_' .. timestamp .. '.txt'
+    local curl_args = build_curl_args(json_path, headers_file)
+
+    -- Build curl command string for script
+    local curl_command = 'curl'
+    for _, arg in ipairs(curl_args) do
+      if arg:match '^-[A-Za-z]$' then
+        curl_command = curl_command .. ' ' .. arg
+      elseif arg == CONFIG.api_key then
+        curl_command = curl_command .. ' "$OPENAI_API_KEY"'
+      else
+        curl_command = curl_command .. ' "' .. arg .. '"'
+      end
+    end
+
     local script_content = {
       '#!/bin/bash',
       '# Vibe AI API Debug Script - Generated at ' .. os.date '%Y-%m-%d %H:%M:%S',
@@ -334,16 +399,14 @@ do
       'echo "Making API call to ' .. endpoint .. '"',
       'echo "Using model: ' .. CONFIG.model .. '"',
       'echo "Request payload saved to: ' .. json_path .. '"',
+      'echo "Response headers will be saved to: ' .. headers_file .. '"',
       'echo ""',
       '',
-      'curl -s -N -X POST \\',
-      '  "' .. endpoint .. '" \\',
-      '  -H "Content-Type: application/json" \\',
-      '  -H "Authorization: Bearer $OPENAI_API_KEY" \\',
-      '  -d @"' .. json_path .. '"',
+      curl_command,
       '',
       'echo ""',
       'echo "Debug script completed"',
+      'echo "Check ' .. headers_file .. ' for HTTP status and headers"',
     }
 
     local script_success, script_write_err = Utils.write_file(script_path, script_content)
@@ -396,24 +459,13 @@ do
 
     local accumulated_content = ''
     local buffer = ''
+    local temp_output_file = vim.fn.tempname()
 
     plenary_job
       ---@diagnostic disable-next-line
       :new({
         command = 'curl',
-        args = {
-          '-s',
-          '-N',
-          '-X',
-          'POST',
-          CONFIG.api_url .. '/chat/completions',
-          '-H',
-          'Content-Type: application/json',
-          '-H',
-          'Authorization: Bearer ' .. CONFIG.api_key,
-          '-d',
-          '@' .. temp_json_path, -- Use the temporary file for the payload
-        },
+        args = build_curl_args(temp_json_path, temp_output_file),
         on_stdout = vim.schedule_wrap(function(_, data_chunk)
           if not data_chunk or data_chunk == '' then
             return
@@ -440,15 +492,67 @@ do
                     stream_callback(delta.content)
                   end
                 end
+              elseif chunk_data and chunk_data.error then
+                -- Handle API error responses
+                local error_msg = chunk_data.error.message or 'API error occurred'
+                if chunk_data.error.code == 'invalid_api_key' then
+                  vim.notify('[Vibe] Authentication failed - API key is invalid or expired', vim.log.levels.ERROR)
+                else
+                  vim.notify('[Vibe] API Error: ' .. error_msg, vim.log.levels.ERROR)
+                end
+                callback(nil, error_msg)
+                return
+              end
+            elseif line:match '^{.*"error".*}$' then
+              -- Handle non-streaming error responses
+              local error_data, _ = Utils.json_decode(line)
+              if error_data and error_data.error then
+                local error_msg = error_data.error.message or 'API error occurred'
+                if error_data.error.code == 'invalid_api_key' then
+                  vim.notify('[Vibe] Authentication failed - API key is invalid or expired', vim.log.levels.ERROR)
+                else
+                  vim.notify('[Vibe] API Error: ' .. error_msg, vim.log.levels.ERROR)
+                end
+                callback(nil, error_msg)
+                return
               end
             end
           end
         end),
         on_exit = vim.schedule_wrap(function(job, return_val)
-          -- Clean up the temporary file
+          -- Clean up the temporary files
           vim.fn.delete(temp_json_path)
 
+          -- Check HTTP status from headers file
+          local headers_content = {}
+          if vim.fn.filereadable(temp_output_file) == 1 then
+            headers_content = vim.fn.readfile(temp_output_file)
+            vim.fn.delete(temp_output_file)
+          end
+
+          -- Parse HTTP status code from first line
+          local http_status = ''
+          if #headers_content > 0 then
+            local status_line = headers_content[1]
+            http_status = status_line:match 'HTTP/[%d%.]+%s+(%d+)'
+          end
+
           if return_val == 0 then
+            -- Check for authentication errors
+            if http_status == '401' then
+              vim.notify('[Vibe] Authentication failed - API key is invalid or expired', vim.log.levels.ERROR)
+              callback(nil, 'Invalid or expired API key')
+              return
+            elseif http_status == '403' then
+              vim.notify('[Vibe] Access forbidden - check API key permissions', vim.log.levels.ERROR)
+              callback(nil, 'API key access forbidden')
+              return
+            elseif http_status and tonumber(http_status) >= 400 then
+              vim.notify('[Vibe] API request failed with HTTP ' .. http_status, vim.log.levels.ERROR)
+              callback(nil, 'HTTP error: ' .. http_status)
+              return
+            end
+
             vim.notify '[Vibe] Done calling API'
             callback(accumulated_content)
           else
@@ -730,10 +834,11 @@ do
       vim.bo[VibeChat.state.output_buf_id].modifiable = true
       vim.api.nvim_buf_set_lines(VibeChat.state.output_buf_id, 0, -1, false, {})
 
-      -- Add welcome header with Model and Prompt name
+      -- Add welcome header with API URL, Model and Prompt name
       local prompt_display_name = PromptManager.selected_prompt_name or 'unknown-prompt'
       local header_lines = {
         'Welcome to Vibe Coding!',
+        'API URL: ' .. CONFIG.api_url,
         'Model: ' .. CONFIG.model,
         'Prompt: ' .. prompt_display_name,
         '',
@@ -925,14 +1030,14 @@ do
 
     return sessions
   end
-  -- Load a session interactively
-  function VibeChat.sessions.load_interactive()
+
+  -- Helper function to load sessions with metadata
+  local function load_sessions_with_data()
     VibeChat.sessions.init()
 
-    local files = vim.fn.glob(VibeChat.sessions.sessions_dir .. '/*.json', false, true)
+    local files = vim.fn.glob(VibeChat.sessions.sessions_dir .. '/*.json', 0, 1)
     if #files == 0 then
-      vim.notify('[Vibe] No saved sessions found.', vim.log.levels.INFO)
-      return
+      return nil
     end
 
     local sessions_with_data = {}
@@ -961,9 +1066,80 @@ do
       return a.time > b.time
     end)
 
+    return sessions_with_data
+  end
+
+  -- Helper function to create session preview
+  local function create_session_preview(session)
+    local lines = {}
+
+    table.insert(lines, '📂 Session: ' .. session.name)
+    table.insert(lines, '📅 Modified: ' .. session.date)
+    table.insert(lines, '')
+
+    if session.data then
+      if session.data.context_files and #session.data.context_files > 0 then
+        table.insert(lines, '📁 Context Files (' .. #session.data.context_files .. '):')
+        for i, file in ipairs(session.data.context_files) do
+          local rel_path = Utils.get_relative_path(file)
+          table.insert(lines, '  ' .. i .. '. ' .. rel_path)
+        end
+        table.insert(lines, '')
+      else
+        table.insert(lines, '📁 Context Files: None')
+        table.insert(lines, '')
+      end
+
+      if session.data.messages and #session.data.messages > 0 then
+        table.insert(lines, '💬 Messages (' .. #session.data.messages .. '):')
+        table.insert(lines, '')
+
+        local start_idx = math.max(1, #session.data.messages - 4)
+        for i = start_idx, #session.data.messages do
+          local msg = session.data.messages[i]
+          if msg.role == 'user' then
+            table.insert(lines, '👤 You:')
+            local content_lines = vim.split(msg.content, '\n')
+            for j = 1, math.min(3, #content_lines) do
+              table.insert(lines, '  ' .. content_lines[j])
+            end
+            if #content_lines > 3 then
+              table.insert(lines, '  ...')
+            end
+          elseif msg.role == 'assistant' then
+            table.insert(lines, '🤖 AI:')
+            local content_lines = vim.split(msg.content, '\n')
+            for j = 1, math.min(3, #content_lines) do
+              table.insert(lines, '  ' .. content_lines[j])
+            end
+            if #content_lines > 3 then
+              table.insert(lines, '  ...')
+            end
+          end
+          table.insert(lines, '')
+        end
+      else
+        table.insert(lines, '💬 Messages: None')
+      end
+    else
+      table.insert(lines, '⚠️  Could not read session data')
+    end
+
+    return lines
+  end
+
+  -- Load a session interactively
+  function VibeChat.sessions.load_interactive()
+    local sessions_with_data = load_sessions_with_data()
+    if not sessions_with_data then
+      vim.notify('[Vibe] No saved sessions found.', vim.log.levels.INFO)
+      return
+    end
+
     Utils.create_telescope_picker {
       prompt_title = 'Select Session to Load',
       items = sessions_with_data,
+      disable_multi_selection = true,
       entry_maker = function(entry)
         return {
           value = entry,
@@ -974,61 +1150,7 @@ do
       previewer = require('telescope.previewers').new_buffer_previewer {
         title = 'Session Preview',
         define_preview = function(self, entry)
-          local session = entry.value
-          local lines = {}
-
-          table.insert(lines, '📂 Session: ' .. session.name)
-          table.insert(lines, '📅 Modified: ' .. session.date)
-          table.insert(lines, '')
-
-          if session.data then
-            if session.data.context_files and #session.data.context_files > 0 then
-              table.insert(lines, '📁 Context Files (' .. #session.data.context_files .. '):')
-              for i, file in ipairs(session.data.context_files) do
-                local rel_path = Utils.get_relative_path(file)
-                table.insert(lines, '  ' .. i .. '. ' .. rel_path)
-              end
-              table.insert(lines, '')
-            else
-              table.insert(lines, '📁 Context Files: None')
-              table.insert(lines, '')
-            end
-
-            if session.data.messages and #session.data.messages > 0 then
-              table.insert(lines, '💬 Messages (' .. #session.data.messages .. '):')
-              table.insert(lines, '')
-
-              local start_idx = math.max(1, #session.data.messages - 4)
-              for i = start_idx, #session.data.messages do
-                local msg = session.data.messages[i]
-                if msg.role == 'user' then
-                  table.insert(lines, '👤 You:')
-                  local content_lines = vim.split(msg.content, '\n')
-                  for j = 1, math.min(3, #content_lines) do
-                    table.insert(lines, '  ' .. content_lines[j])
-                  end
-                  if #content_lines > 3 then
-                    table.insert(lines, '  ...')
-                  end
-                elseif msg.role == 'assistant' then
-                  table.insert(lines, '🤖 AI:')
-                  local content_lines = vim.split(msg.content, '\n')
-                  for j = 1, math.min(3, #content_lines) do
-                    table.insert(lines, '  ' .. content_lines[j])
-                  end
-                  if #content_lines > 3 then
-                    table.insert(lines, '  ...')
-                  end
-                end
-                table.insert(lines, '')
-              end
-            else
-              table.insert(lines, '💬 Messages: None')
-            end
-          else
-            table.insert(lines, '⚠️  Could not read session data')
-          end
-
+          local lines = create_session_preview(entry.value)
           vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
         end,
       },
@@ -1043,35 +1165,93 @@ do
 
   -- Delete a session interactively
   function VibeChat.sessions.delete_interactive()
-    VibeChat.sessions.list(function(sessions)
-      if #sessions == 0 then
-        return
-      end
+    local sessions_with_data = load_sessions_with_data()
+    if not sessions_with_data then
+      vim.notify('[Vibe] No saved sessions found.', vim.log.levels.INFO)
+      return
+    end
 
-      vim.ui.select(sessions, {
-        prompt = 'Select a session to delete:',
-      }, function(choice)
-        if not choice then
-          return
-        end
-
-        local session_file = VibeChat.sessions.sessions_dir .. '/' .. choice .. '.json'
-
+    Utils.create_telescope_picker {
+      prompt_title = 'Select Session to Delete',
+      items = sessions_with_data,
+      entry_maker = function(entry)
+        return {
+          value = entry,
+          display = entry.display,
+          ordinal = entry.name,
+        }
+      end,
+      previewer = require('telescope.previewers').new_buffer_previewer {
+        title = 'Session Preview',
+        define_preview = function(self, entry)
+          local lines = create_session_preview(entry.value)
+          table.insert(lines, 1, '🗑️  DELETE MODE - Review session before deletion')
+          table.insert(lines, 2, '')
+          vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+        end,
+      },
+      on_selection = function(selection)
+        -- Handle single selection
         vim.ui.input({
-          prompt = "Are you sure you want to delete session '" .. choice .. "'? (y/N): ",
+          prompt = "Are you sure you want to delete session '" .. selection.name .. "'? (y/N): ",
         }, function(input)
           if input and input:lower() == 'y' then
-            vim.fn.delete(session_file)
-            vim.notify('[Vibe] Deleted session: ' .. choice, vim.log.levels.INFO)
+            vim.fn.delete(selection.file)
+            vim.notify('[Vibe] Deleted session: ' .. selection.name, vim.log.levels.INFO)
 
             -- If we deleted the current session, clear the session ID
-            if VibeChat.sessions.current_session_id == choice then
+            if VibeChat.sessions.current_session_id == selection.name then
               VibeChat.sessions.current_session_id = nil
             end
           end
         end)
-      end)
-    end)
+      end,
+      on_multi_selection = function(selections)
+        -- Handle multiple selections
+        local session_names = {}
+        for _, session in ipairs(selections) do
+          table.insert(session_names, session.name)
+        end
+
+        local prompt_text = 'Are you sure you want to delete '
+          .. #selections
+          .. ' sessions?\n'
+          .. 'Sessions: '
+          .. table.concat(session_names, ', ')
+          .. '\n(y/N): '
+
+        vim.ui.input({
+          prompt = prompt_text,
+        }, function(input)
+          if input and input:lower() == 'y' then
+            local deleted_count = 0
+            local current_cleared = false
+
+            for _, session in ipairs(selections) do
+              if vim.fn.delete(session.file) == 0 then
+                deleted_count = deleted_count + 1
+
+                -- If we deleted the current session, clear the session ID
+                if VibeChat.sessions.current_session_id == session.name then
+                  VibeChat.sessions.current_session_id = nil
+                  current_cleared = true
+                end
+              else
+                vim.notify('[Vibe] Failed to delete session: ' .. session.name, vim.log.levels.ERROR)
+              end
+            end
+
+            if deleted_count > 0 then
+              local msg = '[Vibe] Deleted ' .. deleted_count .. ' session(s)'
+              if current_cleared then
+                msg = msg .. ' (current session cleared)'
+              end
+              vim.notify(msg, vim.log.levels.INFO)
+            end
+          end
+        end)
+      end,
+    }
   end
 
   function VibeChat.sessions.rename_interactive()
@@ -1360,7 +1540,11 @@ do
       -1,
       false,
       vim.split(
-        'Welcome to Vibe Coding!\nModel: ' .. CONFIG.model .. '\nSubmit with Ctrl+s (Insert) or Enter (Normal).',
+        'Welcome to Vibe Coding!\nAPI URL: '
+          .. CONFIG.api_url
+          .. '\nModel: '
+          .. CONFIG.model
+          .. '\nSubmit with Ctrl+s (Insert) or Enter (Normal).',
         '\n'
       )
     )
@@ -1490,6 +1674,7 @@ do
       { role = 'system', content = prompt_content },
     }
 
+    -- Add file context
     for _, file_path in ipairs(VibeChat.state.context_files) do
       local content, err = FileCache.get_content(file_path)
       if content then
@@ -1504,6 +1689,14 @@ do
       end
     end
 
+    -- Add conversation history (excluding the current user input)
+    for _, msg in ipairs(messages_for_display) do
+      if msg.role == 'user' or msg.role == 'assistant' then
+        table.insert(messages_for_api, { role = msg.role, content = msg.content })
+      end
+    end
+
+    -- Add current user input
     table.insert(messages_for_api, { role = 'user', content = user_input })
     return messages_for_api
   end
@@ -1783,9 +1976,11 @@ do
           vim.bo[VibeChat.state.output_buf_id].modifiable = true
           local lines = vim.api.nvim_buf_get_lines(VibeChat.state.output_buf_id, 0, -1, false)
 
-          -- Find and update model and prompt lines
+          -- Find and update API URL, model and prompt lines
           for i, line in ipairs(lines) do
-            if line:match '^Model:' then
+            if line:match '^API URL:' then
+              lines[i] = 'API URL: ' .. CONFIG.api_url
+            elseif line:match '^Model:' then
               lines[i] = 'Model: ' .. CONFIG.model
             elseif line:match '^Prompt:' then
               lines[i] = 'Prompt: ' .. new_prompt_name
@@ -2241,7 +2436,7 @@ do
           table.insert(diff.hunks, current_hunk)
         end
         current_hunk = { header = line, lines = {} }
-      elseif current_hunk and (line:match '^[-+%s]') then -- Include context lines for better error reporting
+      elseif current_hunk and (line:match '^[-+]' or line:match '^%s' or line == ' ') then -- Include context lines for better error reporting
         table.insert(current_hunk.lines, line)
       elseif current_hunk and #current_hunk.lines > 0 then
         -- End of hunk, maybe some trailing text from LLM.
@@ -2335,83 +2530,302 @@ do
     local offset = 0
 
     for hunk_idx, hunk in ipairs(parsed_diff.hunks) do
-      local context_lines = {}
+      local context_before = {}
+      local context_after = {}
       local to_remove = {}
       local to_add = {}
+      local in_changes = false
 
+      -- Build search pattern preserving original line order
+      -- This fixes the bug where removed lines were reordered incorrectly
+      local search_lines = {}
+      local replacement_lines = {}
+      
+      -- First pass: build search pattern (context + removals only)
       for _, line in ipairs(hunk.lines) do
         local op = line:sub(1, 1)
-        local text = line:sub(2)
-        if op == ' ' or op == '-' then
-          table.insert(context_lines, text)
+        local text
+        
+        -- Handle empty context lines correctly
+        if #line == 1 and op == ' ' then
+          -- Empty context line (just a single space)
+          text = ""
+        else
+          text = line:sub(2)
         end
-        if op == '-' then
+
+        if op == ' ' then
+          -- Context lines go in both search and replacement
+          table.insert(search_lines, text)
+          table.insert(replacement_lines, text)
+        elseif op == '-' then
+          -- Removed lines only go in search pattern
+          table.insert(search_lines, text)
+        elseif op == '+' then
+          -- Added lines only go in replacement
+          table.insert(replacement_lines, text)
+        end
+      end
+      
+      -- Separate traditional arrays for backward compatibility
+      for _, line in ipairs(hunk.lines) do
+        local op = line:sub(1, 1)
+        local text
+        
+        -- Handle empty context lines correctly
+        if #line == 1 and op == ' ' then
+          text = ""
+        else
+          text = line:sub(2)
+        end
+
+        if op == ' ' then
+          if in_changes then
+            table.insert(context_after, text)
+          else
+            table.insert(context_before, text)
+          end
+        elseif op == '-' then
+          in_changes = true
           table.insert(to_remove, text)
         elseif op == '+' then
+          in_changes = true
           table.insert(to_add, text)
         end
       end
 
-      local search_lines = (#context_lines > 0) and context_lines or to_remove
-      if #search_lines == 0 and #to_add > 0 then -- Pure addition
+      local hunk_processed = false
+
+      if #search_lines == 0 and #to_add > 0 and #to_remove == 0 then -- Pure addition with no removals
         -- For pure additions, we can insert at the end. This is a simplification.
         -- A more robust solution would use the line numbers from `@@ -l,c +l,c @@`
         for _, line in ipairs(to_add) do
           table.insert(modified_lines, line)
         end
         offset = offset + #to_add
-        goto continue -- luacheck: no max line length
+        hunk_processed = true
       end
 
-      local found_at = -1
-      for i = 1, #modified_lines - #search_lines + 1 do
-        local match = true
-        for j = 1, #search_lines do
-          if modified_lines[i + j - 1] ~= search_lines[j] then
-            match = false
+      if not hunk_processed then
+        local found_at = -1
+        
+        -- First try exact matching
+        for i = 1, #modified_lines - #search_lines + 1 do
+          local match = true
+          for j = 1, #search_lines do
+            if modified_lines[i + j - 1] ~= search_lines[j] then
+              match = false
+              break
+            end
+          end
+          if match then
+            found_at = i
             break
           end
         end
-        if match then
-          found_at = i
-          break
-        end
-      end
-
-      if found_at > -1 then
-        -- Apply the changes for this hunk
-        local new_hunk_lines = {}
-        for _, line in ipairs(hunk.lines) do
-          local op = line:sub(1, 1)
-          local text = line:sub(2)
-          if op == ' ' or op == '+' then
-            table.insert(new_hunk_lines, text)
+        
+        -- If exact match fails, try fuzzy matching that skips blank lines
+        if found_at == -1 then
+          -- Create non-blank line patterns for fuzzy matching
+          local search_non_blank = {}
+          local search_non_blank_indices = {}
+          for i, line in ipairs(search_lines) do
+            if line ~= "" then
+              table.insert(search_non_blank, line)
+              table.insert(search_non_blank_indices, i)
+            end
+          end
+          
+          -- Only try fuzzy matching if we have non-blank lines to match
+          if #search_non_blank > 0 then
+            for start_pos = 1, #modified_lines do
+              local file_non_blank = {}
+              local file_non_blank_indices = {}
+              local end_pos = start_pos
+              
+              -- Collect non-blank lines from file starting at start_pos
+              for i = start_pos, #modified_lines do
+                if modified_lines[i] ~= "" then
+                  table.insert(file_non_blank, modified_lines[i])
+                  table.insert(file_non_blank_indices, i)
+                  if #file_non_blank == #search_non_blank then
+                    end_pos = i
+                    break
+                  end
+                end
+                -- Stop if we've gone too far without finding enough non-blank lines
+                if i - start_pos > #search_lines + 10 then
+                  break
+                end
+              end
+              
+              -- Check if non-blank lines match
+              if #file_non_blank == #search_non_blank then
+                local fuzzy_match = true
+                for j = 1, #search_non_blank do
+                  if file_non_blank[j] ~= search_non_blank[j] then
+                    fuzzy_match = false
+                    break
+                  end
+                end
+                
+                if fuzzy_match then
+                  found_at = start_pos
+                  
+                  -- Adjust search_lines to match the actual span we found
+                  search_lines = {}
+                  for i = start_pos, end_pos do
+                    table.insert(search_lines, modified_lines[i])
+                  end
+                  
+                  -- For fuzzy matching, rebuild replacement_lines by taking the original file content
+                  -- and applying just the additions from the diff
+                  replacement_lines = {}
+                  
+                  -- Start with the original matched content
+                  for i = start_pos, end_pos do
+                    table.insert(replacement_lines, modified_lines[i])
+                  end
+                  
+                  -- Now apply additions - find where to insert them
+                  -- Look for the pattern in the diff to determine insertion point
+                  local additions = {}
+                  for _, line in ipairs(hunk.lines) do
+                    local op = line:sub(1, 1)
+                    if op == '+' then
+                      local text = (#line == 1) and "" or line:sub(2)
+                      table.insert(additions, text)
+                    end
+                  end
+                  
+                  -- Find insertion point by matching the context before additions
+                  if #additions > 0 then
+                    -- Find the context line that comes immediately before the addition in the diff
+                    local insertion_after_line = nil
+                    for i = 1, #hunk.lines - 1 do
+                      local current_line = hunk.lines[i]
+                      local next_line = hunk.lines[i + 1]
+                      local current_op = current_line:sub(1, 1)
+                      local next_op = next_line:sub(1, 1)
+                      
+                      -- If current line is context and next line is addition
+                      if current_op == ' ' and next_op == '+' then
+                        insertion_after_line = (#current_line == 1) and "" or current_line:sub(2)
+                        break
+                      end
+                    end
+                    
+                    -- Find this line in our replacement and insert additions after it
+                    if insertion_after_line then
+                      for i, line in ipairs(replacement_lines) do
+                        if line == insertion_after_line then
+                          -- Insert additions after this line, but after any blank lines
+                          local insert_pos = i + 1
+                          -- Skip over blank lines to find the right insertion point
+                          while insert_pos <= #replacement_lines and replacement_lines[insert_pos] == "" do
+                            insert_pos = insert_pos + 1
+                          end
+                          for j, addition in ipairs(additions) do
+                            table.insert(replacement_lines, insert_pos + j - 1, addition)
+                          end
+                          break
+                        end
+                      end
+                    end
+                  end
+                  
+                  break
+                end
+              end
+            end
           end
         end
 
-        for _ = 1, #search_lines do
-          table.remove(modified_lines, found_at)
-        end
+        if found_at > -1 then
+          -- Use the pre-built replacement lines that preserve order
+          -- Remove the old lines
+          for _ = 1, #search_lines do
+            table.remove(modified_lines, found_at)
+          end
 
-        for i, line in ipairs(new_hunk_lines) do
-          table.insert(modified_lines, found_at + i - 1, line)
-        end
+          -- Insert the new lines (replacement_lines already built in correct order)
+          for i, line in ipairs(replacement_lines) do
+            table.insert(modified_lines, found_at + i - 1, line)
+          end
 
-        offset = offset + (#new_hunk_lines - #search_lines)
-      else
-        local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
-        error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
-        error_msg = error_msg .. 'Could not find this context in the file.'
-        return false, error_msg
+          offset = offset + (#replacement_lines - #search_lines)
+          hunk_processed = true
+        else
+          local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
+          error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
+          error_msg = error_msg .. 'Searching for pattern:\n' .. table.concat(search_lines, '\n') .. '\n\n'
+          error_msg = error_msg .. 'Could not find this context in the file.'
+          return false, error_msg
+        end
       end
-      ::continue::
+
+      if not hunk_processed then
+        return false, 'Hunk #' .. hunk_idx .. ' was not processed successfully.'
+      end
     end
 
     local success, write_err = Utils.write_file(target_file, modified_lines)
     if not success then
       return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or 'Unknown Error')
     end
+
+    -- Refresh any open buffers for this file
+    VibePatcher.refresh_buffer_for_file(target_file)
+
     return true, 'Successfully applied ' .. #parsed_diff.hunks .. ' hunks to ' .. target_file
+  end
+
+  --- Refreshes any open buffer that corresponds to the given file path.
+  -- @param filepath The absolute path to the file that was modified.
+  function VibePatcher.refresh_buffer_for_file(filepath)
+    -- Get the absolute path to ensure proper matching
+    local abs_filepath = vim.fn.fnamemodify(filepath, ':p')
+    -- Find all buffers that match this file
+    for _, buf_id in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(buf_id) and vim.api.nvim_buf_is_loaded(buf_id) then
+        local buf_name = vim.api.nvim_buf_get_name(buf_id)
+        if buf_name ~= '' then
+          local abs_buf_name = vim.fn.fnamemodify(buf_name, ':p')
+          if abs_buf_name == abs_filepath then
+            -- Check if buffer has been modified
+            local modified = vim.bo[buf_id].modified
+            if modified then
+              -- Ask user what to do with modified buffer
+              local choice = vim.fn.confirm(
+                'Buffer for "'
+                  .. vim.fn.fnamemodify(filepath, ':t')
+                  .. '" has unsaved changes.\nReload with patch changes?',
+                '&Reload\n&Keep current\n&Cancel',
+                1
+              )
+              if choice == 1 then -- Reload
+                vim.api.nvim_buf_call(buf_id, function()
+                  vim.cmd 'edit!'
+                end)
+                vim.notify('[Vibe] Reloaded buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
+              elseif choice == 2 then -- Keep current
+                vim.notify(
+                  '[Vibe] Kept current buffer changes: ' .. vim.fn.fnamemodify(filepath, ':t'),
+                  vim.log.levels.INFO
+                )
+              end
+              -- choice == 3 (Cancel) does nothing
+            else
+              -- Buffer is not modified, safe to reload
+              vim.api.nvim_buf_call(buf_id, function()
+                vim.cmd 'edit!'
+              end)
+              vim.notify('[Vibe] Refreshed buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
+            end
+          end
+        end
+      end
+    end
   end
   --- Finds the last AI response, extracts diffs, and applies them.
   function VibePatcher.apply_last_response()
