@@ -221,12 +221,12 @@ do
           end
 
           actions.select_default:replace(handle_selection)
-          
+
           -- Disable multi-selection keybinding if requested
           if opts.disable_multi_selection then
             actions.toggle_selection:replace(function() end)
           end
-          
+
           return true
         end,
       })
@@ -2438,7 +2438,13 @@ do
         current_hunk = { header = line, lines = {} }
       elseif current_hunk and (line:match '^[-+]' or line:match '^%s' or line == ' ') then -- Include context lines for better error reporting
         table.insert(current_hunk.lines, line)
-      elseif current_hunk and line ~= '' and not line:match '^@@' and not line:match '^---' and not line:match '^%+%+%+' then
+      elseif
+        current_hunk
+        and line ~= ''
+        and not line:match '^@@'
+        and not line:match '^---'
+        and not line:match '^%+%+%+'
+      then
         -- This is likely a context line missing the leading space, mark it specially
         table.insert(current_hunk.lines, '~' .. line)
       elseif current_hunk and #current_hunk.lines > 0 then
@@ -2543,16 +2549,16 @@ do
       -- This fixes the bug where removed lines were reordered incorrectly
       local search_lines = {}
       local replacement_lines = {}
-      
+
       -- First pass: build search pattern (context + removals only)
       for _, line in ipairs(hunk.lines) do
         local op = line:sub(1, 1)
         local text
-        
+
         -- Handle empty context lines correctly
         if #line == 1 and op == ' ' then
           -- Empty context line (just a single space)
-          text = ""
+          text = ''
         elseif op == '~' then
           -- This was a context line missing the leading space
           text = line:sub(2)
@@ -2573,15 +2579,15 @@ do
           table.insert(replacement_lines, text)
         end
       end
-      
+
       -- Separate traditional arrays for backward compatibility
       for _, line in ipairs(hunk.lines) do
         local op = line:sub(1, 1)
         local text
-        
+
         -- Handle empty context lines correctly
         if #line == 1 and op == ' ' then
-          text = ""
+          text = ''
         elseif op == '~' then
           -- This was a context line missing the leading space
           text = line:sub(2)
@@ -2619,7 +2625,7 @@ do
 
       if not hunk_processed then
         local found_at = -1
-        
+
         -- First try exact matching
         for i = 1, #modified_lines - #search_lines + 1 do
           local match = true
@@ -2634,29 +2640,29 @@ do
             break
           end
         end
-        
+
         -- If exact match fails, try fuzzy matching that skips blank lines
         if found_at == -1 then
           -- Create non-blank line patterns for fuzzy matching
           local search_non_blank = {}
           local search_non_blank_indices = {}
           for i, line in ipairs(search_lines) do
-            if line ~= "" then
+            if line ~= '' then
               table.insert(search_non_blank, line)
               table.insert(search_non_blank_indices, i)
             end
           end
-          
+
           -- Only try fuzzy matching if we have non-blank lines to match
           if #search_non_blank > 0 then
             for start_pos = 1, #modified_lines do
               local file_non_blank = {}
               local file_non_blank_indices = {}
               local end_pos = start_pos
-              
+
               -- Collect non-blank lines from file starting at start_pos
               for i = start_pos, #modified_lines do
-                if modified_lines[i] ~= "" then
+                if modified_lines[i] ~= '' then
                   table.insert(file_non_blank, modified_lines[i])
                   table.insert(file_non_blank_indices, i)
                   if #file_non_blank == #search_non_blank then
@@ -2669,7 +2675,7 @@ do
                   break
                 end
               end
-              
+
               -- Check if non-blank lines match
               if #file_non_blank == #search_non_blank then
                 local fuzzy_match = true
@@ -2679,36 +2685,36 @@ do
                     break
                   end
                 end
-                
+
                 if fuzzy_match then
                   found_at = start_pos
-                  
+
                   -- Adjust search_lines to match the actual span we found
                   search_lines = {}
                   for i = start_pos, end_pos do
                     table.insert(search_lines, modified_lines[i])
                   end
-                  
+
                   -- For fuzzy matching, rebuild replacement_lines by taking the original file content
                   -- and applying just the additions from the diff
                   replacement_lines = {}
-                  
+
                   -- Start with the original matched content
                   for i = start_pos, end_pos do
                     table.insert(replacement_lines, modified_lines[i])
                   end
-                  
+
                   -- Now apply additions - find where to insert them
                   -- Look for the pattern in the diff to determine insertion point
                   local additions = {}
                   for _, line in ipairs(hunk.lines) do
                     local op = line:sub(1, 1)
                     if op == '+' then
-                      local text = (#line == 1) and "" or line:sub(2)
+                      local text = (#line == 1) and '' or line:sub(2)
                       table.insert(additions, text)
                     end
                   end
-                  
+
                   -- Find insertion point by matching the context before additions
                   if #additions > 0 then
                     -- Find the context line that comes immediately before the addition in the diff
@@ -2718,14 +2724,14 @@ do
                       local next_line = hunk.lines[i + 1]
                       local current_op = current_line:sub(1, 1)
                       local next_op = next_line:sub(1, 1)
-                      
+
                       -- If current line is context and next line is addition
                       if current_op == ' ' and next_op == '+' then
-                        insertion_after_line = (#current_line == 1) and "" or current_line:sub(2)
+                        insertion_after_line = (#current_line == 1) and '' or current_line:sub(2)
                         break
                       end
                     end
-                    
+
                     -- Find this line in our replacement and insert additions after it
                     if insertion_after_line then
                       for i, line in ipairs(replacement_lines) do
@@ -2733,7 +2739,7 @@ do
                           -- Insert additions after this line, but after any blank lines
                           local insert_pos = i + 1
                           -- Skip over blank lines to find the right insertion point
-                          while insert_pos <= #replacement_lines and replacement_lines[insert_pos] == "" do
+                          while insert_pos <= #replacement_lines and replacement_lines[insert_pos] == '' do
                             insert_pos = insert_pos + 1
                           end
                           for j, addition in ipairs(additions) do
@@ -2744,7 +2750,6 @@ do
                       end
                     end
                   end
-                  
                   break
                 end
               end
