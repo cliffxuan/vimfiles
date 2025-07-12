@@ -16,7 +16,7 @@ test:
 test-verbose:
 	@echo "Running vibe-coding plugin tests (verbose)..."
 	@echo "========================================"
-	nvim --headless -u tests/minimal_init.lua -c "lua require('plenary.test_harness').test_directory('tests')" -c "qa!"
+	nvim --headless -c "lua require('plenary.test_harness').test_directory('tests')" -c "qa!"
 
 # Clean up any test artifacts
 clean:
@@ -32,4 +32,4 @@ test-filter:
 		exit 1; \
 	fi
 	@echo "Running tests matching: $(FILTER)"
-	nvim --headless -u tests/minimal_init.lua -c "lua require('plenary.test_harness').test_directory('tests', { minimal_init = 'tests/minimal_init.lua' })" -c "qa!" | grep -i "$(FILTER)" || echo "No tests matched filter: $(FILTER)"
+	nvim --headless -c "lua require('plenary.test_harness').test_directory('tests', { minimal_init = 'tests/minimal_init.lua' })" -c "qa!" | grep -i "$(FILTER)" || echo "No tests matched filter: $(FILTER)"
