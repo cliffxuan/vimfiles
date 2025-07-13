@@ -529,7 +529,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
     describe('extract_code_blocks', function()
       it('should extract a single code block', function()
         local content = 'Some text\n```lua\nlocal a = 1\n```\nmore text'
-        local blocks = vibe.VibeDiff.extract_code_blocks(content)
+        local blocks = vibe.VibePatcher.extract_code_blocks(content)
         assert.are.equal(1, #blocks)
         assert.are.equal('lua', blocks[1].language)
         assert.are.equal('local a = 1', blocks[1].content_str)
@@ -537,7 +537,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
       it('should extract multiple code blocks', function()
         local content = '```python\nprint("hi")\n```\n\n```\nraw text\n```'
-        local blocks = vibe.VibeDiff.extract_code_blocks(content)
+        local blocks = vibe.VibePatcher.extract_code_blocks(content)
         assert.are.equal(2, #blocks)
         assert.are.equal('python', blocks[1].language)
         assert.is_nil(blocks[2].language)
@@ -546,7 +546,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
       it('should handle incomplete code blocks gracefully', function()
         local content = 'Here is some code:\n```javascript\nconst x = 10;'
-        local blocks = vibe.VibeDiff.extract_code_blocks(content)
+        local blocks = vibe.VibePatcher.extract_code_blocks(content)
         assert.are.equal(1, #blocks)
         local expected_lines = {
           'const x = 10;',

@@ -1,5 +1,8 @@
 -- vibe-coding.lua
--- A single-file OpenAI coding assistant for Neovim
+local Utils = require 'vibe-coding.utils'
+local VibeDiff = require 'vibe-coding.diff'
+local VibePatcher = require 'vibe-coding.patcher'
+
 
 -- =============================================================================
 -- Configuration Constants
@@ -41,21 +44,6 @@ do
   CONFIG.api_url = ext_conf.API_URL or os.getenv 'OPENAI_BASE_URL' or 'https://api.openai.com/v1'
   CONFIG.model = ext_conf.MODEL or os.getenv 'OPENAI_CHAT_MODEL_ID' or 'gpt-4.1-mini'
 end
-
--- =============================================================================
--- Utility Functions
--- =============================================================================
-local Utils = require 'vibe-coding.utils'
-
--- =============================================================================
--- Vibe Diff: Shows diff between AI response and main editor window
--- =============================================================================
-local VibeDiff = require 'vibe-coding.diff'
-
--- =============================================================================
--- Vibe Patcher: Applies unified diffs from AI responses
--- =============================================================================
-local VibePatcher = require 'vibe-coding.patcher'
 
 -- =============================================================================
 -- Vibe API: Handles communication with the OpenAI API
@@ -1999,7 +1987,7 @@ do
       return nil, 'No AI response found'
     end
 
-    local code_blocks = VibeDiff.extract_code_blocks(last_ai_message)
+    local code_blocks = VibePatcher.extract_code_blocks(last_ai_message)
     if #code_blocks == 0 then
       return nil, 'No code blocks found in AI response'
     end

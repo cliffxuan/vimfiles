@@ -5,47 +5,6 @@ local VibeDiff = {}
 
 VibeDiff.active_diffs = {}
 
-function VibeDiff.extract_code_blocks(content)
-  local code_blocks = {}
-  local lines = vim.split(content, '\n')
-  local i = 1
-
-  while i <= #lines do
-    local line = lines[i]
-    local fence_start = string.match(line, '^```(%w*)')
-
-    if fence_start then
-      local block = {
-        language = fence_start ~= '' and fence_start or nil,
-        content = {},
-        start_line = i,
-      }
-
-      i = i + 1
-      while i <= #lines do
-        local current_line = lines[i]
-        if string.match(current_line, '^```%s*$') then
-          block.end_line = i
-          break
-        end
-        table.insert(block.content, current_line)
-        i = i + 1
-      end
-
-      if block.end_line then
-        block.content_str = table.concat(block.content, '\n')
-        table.insert(code_blocks, block)
-      else
-        table.insert(block.content, '-- [INCOMPLETE CODE BLOCK]')
-        block.content_str = table.concat(block.content, '\n')
-        table.insert(code_blocks, block)
-      end
-    end
-    i = i + 1
-  end
-
-  return code_blocks
-end
 
 function VibeDiff.cleanup_diff_buffers()
   for buf_id, _ in pairs(VibeDiff.active_diffs) do
