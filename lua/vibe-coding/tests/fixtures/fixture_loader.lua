@@ -269,25 +269,43 @@ function M.validate_fixture(fixture, fixture_path)
   end
 end
 
+-- Helper function to setup manual mocking
+local function setup_file_mocks(read_content, write_result)
+  local vibe = require 'vibe-coding'
+  local read_calls = {}
+  local write_calls = {}
+  
+  local original_read = vibe.Utils.read_file_content
+  local original_write = vibe.Utils.write_file
+  
+  vibe.Utils.read_file_content = function(filepath)
+    table.insert(read_calls, filepath)
+    return read_content, nil
+  end
+  
+  vibe.Utils.write_file = function(filepath, content)
+    table.insert(write_calls, {filepath = filepath, content = content})
+    return write_result or true, nil
+  end
+  
+  return {
+    read_calls = read_calls,
+    write_calls = write_calls,
+    restore = function()
+      vibe.Utils.read_file_content = original_read
+      vibe.Utils.write_file = original_write
+    end
+  }
+end
+
 --- Create a test case from a fixture
 -- @param fixture table: The fixture data
 -- @return function: A test function that can be used with testing frameworks
 function M.create_test_case(fixture)
   return function()
     local vibe = require 'vibe-coding'
-    local mock = require 'luassert.mock'
-    local spy = require 'luassert.spy'
 
-    -- Mock file reading
-    mock(vibe.FileCache, 'get_content', function()
-      return fixture.original_content, nil
-    end)
-
-    -- Mock file writing
-    local write_spy = spy.new(function()
-      return true, nil
-    end)
-    mock(vibe.Utils, 'write_file', write_spy)
+    local mocks = setup_file_mocks(fixture.original_content)
 
     -- Parse and apply the diff
     local parsed_diff, parse_err = vibe.VibePatcher.parse_diff(fixture.diff_content)
@@ -304,15 +322,16 @@ function M.create_test_case(fixture)
       -- Handle special case for file deletion (message is in expected_content)
       if fixture.expected_content:match '^Skipped file deletion' then
         assert.are.equal(fixture.expected_content, msg)
-        assert.spy(write_spy).was.not_called()
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
       else
         assert.is_true(msg:find 'Successfully applied' ~= nil, 'Message should contain "Successfully applied"')
         assert.is_true(msg:find 'hunks to' ~= nil, 'Message should contain "hunks to"')
 
         -- Verify file was written with expected content
-        assert.spy(write_spy).was.called(1)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         local expected_lines = vim.split(fixture.expected_content, '\n', { plain = true, trimempty = false })
-        assert.spy(write_spy).was.called_with(fixture.file_path or parsed_diff.new_path, expected_lines)
+        assert.are.equal(fixture.file_path or parsed_diff.new_path, mocks.write_calls[1].filepath)
+        assert.are.same(expected_lines, mocks.write_calls[1].content)
       end
     else
       -- Test should fail
@@ -323,7 +342,7 @@ function M.create_test_case(fixture)
           (msg or ''):find(fixture.expected_error_pattern) ~= nil,
           'Error message should contain expected pattern'
         )
-        assert.spy(write_spy).was.not_called()
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
       else
         -- Parse error is also acceptable for error cases
         assert.is_true(
@@ -332,6 +351,8 @@ function M.create_test_case(fixture)
         )
       end
     end
+    
+    mocks.restore()
   end
 end
 

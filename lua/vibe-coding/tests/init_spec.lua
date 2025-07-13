@@ -125,6 +125,33 @@ describe('Vibe-Coding Plugin Unit Tests', function()
   --  VibePatcher Module Tests
   -- =============================================================================
   describe('VibePatcher Module', function()
+    -- Helper function to setup manual mocking
+    local function setup_file_mocks(read_content, write_result)
+      local read_calls = {}
+      local write_calls = {}
+      
+      local original_read = vibe.Utils.read_file_content
+      local original_write = vibe.Utils.write_file
+      
+      vibe.Utils.read_file_content = function(filepath)
+        table.insert(read_calls, filepath)
+        return read_content, nil
+      end
+      
+      vibe.Utils.write_file = function(filepath, content)
+        table.insert(write_calls, {filepath = filepath, content = content})
+        return write_result or true, nil
+      end
+      
+      return {
+        read_calls = read_calls,
+        write_calls = write_calls,
+        restore = function()
+          vibe.Utils.read_file_content = original_read
+          vibe.Utils.write_file = original_write
+        end
+      }
+    end
     local spy = require 'luassert.spy'
 
     describe('parse_diff function', function()
@@ -160,13 +187,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
       -- and helps verify the patching logic more accurately.
       it('should apply a modification hunk to a file', function()
         local original_content = 'line1\nline2_to_remove\nline3'
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         -- Test Data
         local expected_content = { 'line1', 'line2_to_add', 'line3' }
@@ -184,15 +205,15 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         -- Assertions
         assert.is_true(success, 'Expected apply_diff to succeed')
         assert.string.matches(msg, 'Successfully applied 1 hunks to file.txt')
-        assert.spy(write_spy).was.called(1)
-        assert.spy(write_spy).was.called_with('file.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('file.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       it('should create a new file when old_path is /dev/null', function()
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks()
 
         local parsed_diff = {
           old_path = '/dev/null',
@@ -208,19 +229,16 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         local success, msg = vibe.VibePatcher.apply_diff(parsed_diff)
         assert.is_true(success)
         assert.string.matches(msg, 'Successfully applied 1 hunks to new_file.txt')
-        assert.spy(write_spy).was.called(1)
-        assert.spy(write_spy).was.called_with('new_file.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('new_file.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       -- This test now correctly expects the output after applying both hunks in sequence.
       it('should apply a patch with multiple hunks correctly', function()
-        mock(vibe.FileCache, 'get_content', function()
-          return 'a\nb\nc\nd\ne', nil
-        end)
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks('a\nb\nc\nd\ne')
 
         local parsed_diff = {
           old_path = 'test.txt',
@@ -236,19 +254,16 @@ describe('Vibe-Coding Plugin Unit Tests', function()
 
         assert.is_true(success, 'Expected multi-hunk apply to succeed')
         assert.string.matches(msg, 'Successfully applied 2 hunks to test.txt')
-        assert.spy(write_spy).was.called(1)
-        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('test.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       -- This test now asserts the exact, detailed error message for better diagnostics.
       it('should return a detailed error if a hunk context cannot be found', function()
-        mock(vibe.FileCache, 'get_content', function()
-          return 'line1\nline2\nline3', nil
-        end)
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks('line1\nline2\nline3')
 
         local hunk_lines = { '-nonexistent line', '+a new line' }
         local parsed_diff = {
@@ -269,14 +284,13 @@ describe('Vibe-Coding Plugin Unit Tests', function()
 
         assert.is_false(success, 'Expected apply_diff to fail')
         assert.are.equal(expected_error_msg, msg)
-        assert.spy(write_spy).was.not_called()
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
+        
+        mocks.restore()
       end)
 
       it('should skip file deletion when new_path is /dev/null', function()
-        local write_spy = spy.new(function()
-          return true
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks()
 
         local parsed_diff = {
           old_path = 'file_to_delete.txt',
@@ -290,7 +304,9 @@ describe('Vibe-Coding Plugin Unit Tests', function()
 
         assert.is_true(success)
         assert.are.equal('Skipped file deletion for file_to_delete.txt', msg)
-        assert.spy(write_spy).was.not_called()
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
+        
+        mocks.restore()
       end)
 
       it('should handle context lines before and after changes correctly', function()
@@ -303,14 +319,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
     key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
     data: str | None = redis_client.get(key)  # type: ignore]]
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         -- This represents the problematic diff from the original issue
         local parsed_diff = {
@@ -348,22 +357,18 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
         assert.is_true(success, 'Expected apply_diff to succeed with context lines')
         assert.string.matches(msg, 'Successfully applied 1 hunks to app/api/v2/routes.py')
-        assert.spy(write_spy).was.called(1)
-        assert.spy(write_spy).was.called_with('app/api/v2/routes.py', expected_content_lines)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('app/api/v2/routes.py', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content_lines, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       it('should handle multiple context sections in a single hunk', function()
         -- Test case with context before changes, changes, and context after changes
         local original_content = 'line1\nline2\nold_line\nline4\nline5'
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         local parsed_diff = {
           old_path = 'test.txt',
@@ -388,21 +393,17 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
         assert.is_true(success, 'Expected apply_diff to succeed with context before and after')
         assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
-        assert.spy(write_spy).was.called(1)
-        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('test.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       it('should handle hunks with only context before changes', function()
         local original_content = 'context1\ncontext2\nold_line'
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         local parsed_diff = {
           old_path = 'test.txt',
@@ -425,20 +426,17 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
         assert.is_true(success, 'Expected apply_diff to succeed with context before only')
         assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
-        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('test.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       it('should handle hunks with only context after changes', function()
         local original_content = 'old_line\ncontext1\ncontext2'
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         local parsed_diff = {
           old_path = 'test.txt',
@@ -461,7 +459,11 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
         assert.is_true(success, 'Expected apply_diff to succeed with context after only')
         assert.string.matches(msg, 'Successfully applied 1 hunks to test.txt')
-        assert.spy(write_spy).was.called_with('test.txt', expected_content)
+        assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
+        assert.are.equal('test.txt', mocks.write_calls[1].filepath)
+        assert.are.same(expected_content, mocks.write_calls[1].content)
+        
+        mocks.restore()
       end)
 
       it('should fail properly when hunk cannot be applied instead of falsely claiming success', function()
@@ -469,14 +471,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
         -- would still report success
         local original_content = 'unrelated_line1\nunrelated_line2\nunrelated_line3'
 
-        mock(vibe.FileCache, 'get_content', function()
-          return original_content, nil
-        end)
-
-        local write_spy = spy.new(function()
-          return true, nil
-        end)
-        mock(vibe.Utils, 'write_file', write_spy)
+        local mocks = setup_file_mocks(original_content)
 
         -- This diff has lines to add AND remove, but the pattern won't match the file
         local parsed_diff = {
@@ -506,7 +501,9 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
           .. '\n'
           .. 'Could not find this context in the file.'
         assert.are.equal(expected_error_msg, msg)
-        assert.spy(write_spy).was.not_called()
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
+        
+        mocks.restore()
       end)
     end)
 

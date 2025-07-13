@@ -17,9 +17,6 @@ local CONFIG = {
   min_input_height = 3,
   min_context_height = 2,
 
-  -- File Cache Settings
-  cache_enabled = true,
-  max_cache_entries = 100,
 
   -- Debug Settings
   debug_mode = false,
@@ -80,6 +77,14 @@ do
     end
 
     return content, nil
+  end
+
+  function Utils.read_file_content(filepath)
+    local content, err = Utils.read_file(filepath)
+    if not content then
+      return nil, err
+    end
+    return table.concat(content, '\n'), nil
   end
 
   function Utils.write_file(filepath, content)
@@ -234,82 +239,6 @@ do
   end
 end
 
--- File content caching system
-local FileCache = {}
-do
-  FileCache.cache = {}
-  FileCache.access_order = {}
-
-  function FileCache.get_content(filepath)
-    if not CONFIG.cache_enabled then
-      local content, err = Utils.read_file(filepath)
-      if not content then
-        return nil, err
-      end
-      return table.concat(content, '\n'), nil
-    end
-
-    local mtime = vim.fn.getftime(filepath)
-    if mtime == -1 then
-      return nil, 'File does not exist: ' .. filepath
-    end
-
-    -- Check cache
-    local cached = FileCache.cache[filepath]
-    if cached and cached.mtime >= mtime then
-      -- Update access order
-      FileCache._update_access(filepath)
-      return cached.content, nil
-    end
-
-    -- Read file and cache
-    local content, err = Utils.read_file(filepath)
-    if not content then
-      return nil, err
-    end
-
-    local content_str = table.concat(content, '\n')
-    FileCache._add_to_cache(filepath, content_str, mtime)
-
-    return content_str, nil
-  end
-
-  function FileCache._add_to_cache(filepath, content, mtime)
-    -- Remove if already exists
-    if FileCache.cache[filepath] then
-      FileCache._remove_from_access_order(filepath)
-    end
-
-    -- Add to cache
-    FileCache.cache[filepath] = {
-      content = content,
-      mtime = mtime,
-    }
-
-    -- Add to access order
-    table.insert(FileCache.access_order, filepath)
-
-    -- Maintain cache size
-    if #FileCache.access_order > CONFIG.max_cache_entries then
-      local oldest = table.remove(FileCache.access_order, 1)
-      FileCache.cache[oldest] = nil
-    end
-  end
-
-  function FileCache._update_access(filepath)
-    FileCache._remove_from_access_order(filepath)
-    table.insert(FileCache.access_order, filepath)
-  end
-
-  function FileCache._remove_from_access_order(filepath)
-    for i, path in ipairs(FileCache.access_order) do
-      if path == filepath then
-        table.remove(FileCache.access_order, i)
-        break
-      end
-    end
-  end
-end
 
 -- =============================================================================
 -- Vibe API: Handles communication with the OpenAI API
@@ -645,7 +574,7 @@ do
             return
           end
 
-          local content, err = FileCache.get_content(filepath)
+          local content, err = Utils.read_file_content(filepath)
           if not content then
             vim.api.nvim_buf_set_lines(
               self.state.bufnr,
@@ -1676,7 +1605,7 @@ do
 
     -- Add file context
     for _, file_path in ipairs(VibeChat.state.context_files) do
-      local content, err = FileCache.get_content(file_path)
+      local content, err = Utils.read_file_content(file_path)
       if content then
         local context_msg = 'CONTEXT from file `'
           .. vim.fn.fnamemodify(file_path, ':p')
@@ -2402,7 +2331,7 @@ end
 -- =============================================================================
 -- Vibe Patcher: Applies unified diffs from AI responses
 -- =============================================================================
-local VibePatcher = require 'vibe-coding.patcher'(Utils, FileCache, VibeDiff)
+local VibePatcher = require 'vibe-coding.patcher'(Utils, VibeDiff)
 
 -- =============================================================================
 -- User Commands
@@ -2584,6 +2513,5 @@ return {
   CONFIG = CONFIG,
   VibeDiff = VibeDiff,
   Utils = Utils,
-  FileCache = FileCache,
   VibePatcher = VibePatcher,
 }

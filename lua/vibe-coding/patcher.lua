@@ -1,5 +1,5 @@
 -- vibe-coding/patcher.lua
-return function(Utils, FileCache, VibeDiff)
+return function(Utils, VibeDiff)
   local VibePatcher = {}
 
   --- Parses a single unified diff block.
@@ -127,7 +127,7 @@ return function(Utils, FileCache, VibeDiff)
     if is_new_file then
       original_lines = {}
     else
-      local content, err = FileCache.get_content(parsed_diff.old_path)
+      local content, err = Utils.read_file_content(parsed_diff.old_path)
       if not content then
         return false, 'Failed to read file ' .. parsed_diff.old_path .. ': ' .. (err or 'Unknown Error')
       end
