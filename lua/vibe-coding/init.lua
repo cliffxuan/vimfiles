@@ -2402,7 +2402,7 @@ end
 -- =============================================================================
 -- Vibe Patcher: Applies unified diffs from AI responses
 -- =============================================================================
-local VibePatcher = require 'vibe-coding.patcher'(Utils, FileCache, VibeChat, VibeDiff)
+local VibePatcher = require 'vibe-coding.patcher'(Utils, FileCache, VibeDiff)
 
 -- =============================================================================
 -- User Commands
@@ -2436,11 +2436,9 @@ vim.api.nvim_create_user_command(
   { desc = 'Diff the last AI code block with the main editor buffer' }
 )
 
-vim.api.nvim_create_user_command(
-  'VibeApplyPatch',
-  VibePatcher.apply_last_response,
-  { desc = 'Apply diff from the last AI response to the corresponding file(s)' }
-)
+vim.api.nvim_create_user_command('VibeApplyPatch', function()
+  VibePatcher.apply_last_response(VibeChat.get_messages())
+end, { desc = 'Apply diff from the last AI response to the corresponding file(s)' })
 
 vim.api.nvim_create_user_command('VibeSessionStart', function(opts)
   local session_name = opts.args ~= '' and opts.args or nil

@@ -1,5 +1,5 @@
 -- vibe-coding/patcher.lua
-return function(Utils, FileCache, VibeChat, VibeDiff)
+return function(Utils, FileCache, VibeDiff)
   local VibePatcher = {}
 
   --- Parses a single unified diff block.
@@ -443,8 +443,7 @@ return function(Utils, FileCache, VibeChat, VibeDiff)
     end
   end
   --- Finds the last AI response, extracts diffs, and applies them.
-  function VibePatcher.apply_last_response()
-    local messages = VibeChat.get_messages()
+  function VibePatcher.apply_last_response(messages)
     local last_ai_message = nil
     for i = #messages, 1, -1 do
       if messages[i].role == 'assistant' then
