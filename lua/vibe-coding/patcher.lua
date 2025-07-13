@@ -499,8 +499,7 @@ function VibePatcher.validate_and_fix_diff(diff_content)
   -- Track state for validation
   local has_header = false
   local in_hunk = false
-  local hunk_line_count = { old = 0, new = 0 }
-  local expected_counts = { old = 0, new = 0 }
+  -- Note: We don't strictly track line counts since we use search-and-replace approach
 
   for i, line in ipairs(lines) do
     local fixed_line = line
@@ -519,13 +518,13 @@ function VibePatcher.validate_and_fix_diff(diff_content)
     -- Check for hunk headers
     elseif line:match '^@@' then
       in_hunk = true
-      local old_start, old_count, new_start, new_count = line:match '^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@'
+      local old_start, _, new_start, _ = line:match '^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@'
 
       if not old_start then
         -- Try simpler format without counts
         old_start, new_start = line:match '^@@ %-(%d+) %+(%d+) @@'
         if old_start then
-          old_count, new_count = '1', '1'
+          -- old_count, new_count = '1', '1' -- unused in line-number-agnostic approach
           fixed_line = string.format('@@ -%s,1 +%s,1 @@', old_start, new_start)
           table.insert(issues, { line = i, type = 'hunk_header', message = 'Added missing line counts' })
         else
@@ -552,9 +551,7 @@ function VibePatcher.validate_and_fix_diff(diff_content)
 
       -- Parse expected counts (but don't rely on them for validation)
       -- We use search-and-replace approach rather than line-number-based patching
-      expected_counts.old = tonumber(old_count) or 0
-      expected_counts.new = tonumber(new_count) or 0
-      hunk_line_count = { old = 0, new = 0 }
+      -- Note: Ignoring line counts as they're unreliable for LLM-generated diffs
 
     -- Check context and change lines
     elseif in_hunk then
@@ -562,8 +559,6 @@ function VibePatcher.validate_and_fix_diff(diff_content)
 
       if op == ' ' or op == '' then
         -- Context line
-        hunk_line_count.old = hunk_line_count.old + 1
-        hunk_line_count.new = hunk_line_count.new + 1
         -- Fix missing space prefix for context lines
         if op == '' and line ~= '' then
           fixed_line = ' ' .. line
@@ -571,10 +566,8 @@ function VibePatcher.validate_and_fix_diff(diff_content)
         end
       elseif op == '-' then
         -- Removed line
-        hunk_line_count.old = hunk_line_count.old + 1
       elseif op == '+' then
         -- Added line
-        hunk_line_count.new = hunk_line_count.new + 1
       else
         -- Invalid line in hunk
         if line ~= '' then
@@ -928,7 +921,6 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
   table.insert(annotated_lines, '# ===== DIFF CONTENT BELOW =====')
 
   -- Add the actual diff content with line numbers for issue reference
-  local diff_start_line = #annotated_lines + 1
   for i, line in ipairs(lines) do
     -- Check if this line has issues
     local line_issues = {}
@@ -1012,7 +1004,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     end
 
     local current_diff = table.concat(diff_lines, '\n')
-    local fixed_diff, new_issues = VibePatcher.validate_and_fix_diff(current_diff)
+    local _, new_issues = VibePatcher.validate_and_fix_diff(current_diff)
 
     if #new_issues == 0 then
       vim.notify('[Vibe] Diff validation passed!', vim.log.levels.INFO)
