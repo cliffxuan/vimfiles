@@ -3,7 +3,6 @@ local Utils = require 'vibe-coding.utils'
 local VibeDiff = require 'vibe-coding.diff'
 local VibePatcher = require 'vibe-coding.patcher'
 
-
 -- =============================================================================
 -- Configuration Constants
 -- =============================================================================
@@ -20,6 +19,8 @@ local CONFIG = {
   min_input_height = 3,
   min_context_height = 2,
 
+  -- Timeout for API requests in milliseconds (default 5 minutes)
+  request_timeout_ms = 300000,
   -- Debug Settings
   debug_mode = false,
 }
@@ -1451,7 +1452,8 @@ do
           break
         end
       end
-      VibeChat.append_to_output '❌ Request timed out after 2 minutes'
+      local timeout_secs = CONFIG.request_timeout_ms / 1000
+      VibeChat.append_to_output('❌ Request timed out after ' .. timeout_secs .. ' seconds')
     end
   end
 
@@ -1549,7 +1551,7 @@ do
     VibeChat.append_to_output '🤔 AI is thinking...'
 
     local messages_for_api = build_api_payload(user_input)
-    local timeout_timer = vim.fn.timer_start(120000, handle_timeout)
+    local timeout_timer = vim.fn.timer_start(CONFIG.request_timeout_ms, handle_timeout)
     local streaming_started = false
 
     VibeAPI.get_completion(messages_for_api, function(response_text, err)
