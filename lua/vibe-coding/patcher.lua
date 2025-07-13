@@ -1,8 +1,8 @@
 -- vibe-coding/patcher.lua
 local Utils = require 'vibe-coding.utils'
+local VibeDiff = require 'vibe-coding.diff'
 
-return function(VibeDiff)
-  local VibePatcher = {}
+local VibePatcher = {}
 
   --- Parses a single unified diff block.
   -- @param diff_content The string content of the diff.
@@ -507,5 +507,4 @@ return function(VibeDiff)
     )
   end
 
-  return VibePatcher
-end
+return VibePatcher

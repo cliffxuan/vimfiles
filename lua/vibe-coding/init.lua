@@ -55,7 +55,7 @@ local VibeDiff = require 'vibe-coding.diff'
 -- =============================================================================
 -- Vibe Patcher: Applies unified diffs from AI responses
 -- =============================================================================
-local VibePatcher = require 'vibe-coding.patcher'(VibeDiff)
+local VibePatcher = require 'vibe-coding.patcher'
 
 -- =============================================================================
 -- Vibe API: Handles communication with the OpenAI API
