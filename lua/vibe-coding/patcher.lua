@@ -488,6 +488,481 @@ function VibePatcher.extract_code_blocks(content)
   return code_blocks
 end
 
+--- Validates and fixes common issues in diff content.
+-- @param diff_content The raw diff content to validate.
+-- @return string, table: The cleaned diff content and a table of issues found.
+function VibePatcher.validate_and_fix_diff(diff_content)
+  local lines = vim.split(diff_content, '\n', { plain = true })
+  local issues = {}
+  local fixed_lines = {}
+
+  -- Track state for validation
+  local has_header = false
+  local in_hunk = false
+  local hunk_line_count = { old = 0, new = 0 }
+  local expected_counts = { old = 0, new = 0 }
+
+  for i, line in ipairs(lines) do
+    local fixed_line = line
+
+    -- Check for diff headers
+    if line:match '^---' or line:match '^%+%+%+' then
+      has_header = true
+      -- Fix common header issues
+      if line:match '^---%s*$' then
+        fixed_line = '--- /dev/null'
+        table.insert(issues, { line = i, type = 'header', message = 'Fixed empty old file header' })
+      elseif line:match '^%+%+%+%s*$' then
+        fixed_line = '+++ /dev/null'
+        table.insert(issues, { line = i, type = 'header', message = 'Fixed empty new file header' })
+      end
+    -- Check for hunk headers
+    elseif line:match '^@@' then
+      in_hunk = true
+      local old_start, old_count, new_start, new_count = line:match '^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@'
+
+      if not old_start then
+        -- Try simpler format without counts
+        old_start, new_start = line:match '^@@ %-(%d+) %+(%d+) @@'
+        if old_start then
+          old_count, new_count = '1', '1'
+          fixed_line = string.format('@@ -%s,1 +%s,1 @@', old_start, new_start)
+          table.insert(issues, { line = i, type = 'hunk_header', message = 'Added missing line counts' })
+        else
+          table.insert(
+            issues,
+            { line = i, type = 'hunk_header', message = 'Malformed hunk header', severity = 'error' }
+          )
+        end
+      end
+
+      -- Parse expected counts
+      expected_counts.old = tonumber(old_count) or 0
+      expected_counts.new = tonumber(new_count) or 0
+      hunk_line_count = { old = 0, new = 0 }
+
+    -- Check context and change lines
+    elseif in_hunk then
+      local op = line:sub(1, 1)
+
+      if op == ' ' or op == '' then
+        -- Context line
+        hunk_line_count.old = hunk_line_count.old + 1
+        hunk_line_count.new = hunk_line_count.new + 1
+        -- Fix missing space prefix for context lines
+        if op == '' and line ~= '' then
+          fixed_line = ' ' .. line
+          table.insert(issues, { line = i, type = 'context', message = 'Added missing space prefix for context line' })
+        end
+      elseif op == '-' then
+        -- Removed line
+        hunk_line_count.old = hunk_line_count.old + 1
+      elseif op == '+' then
+        -- Added line
+        hunk_line_count.new = hunk_line_count.new + 1
+      else
+        -- Invalid line in hunk
+        if line ~= '' then
+          table.insert(
+            issues,
+            { line = i, type = 'invalid_line', message = 'Invalid line in hunk: ' .. line, severity = 'warning' }
+          )
+        end
+      end
+    end
+
+    table.insert(fixed_lines, fixed_line)
+  end
+
+  -- Final validation
+  if not has_header then
+    table.insert(
+      issues,
+      { line = 1, type = 'missing_header', message = 'Diff missing file headers', severity = 'error' }
+    )
+  end
+
+  return table.concat(fixed_lines, '\n'), issues
+end
+
+--- Formats diff content for better readability and standards compliance.
+-- @param diff_content The diff content to format.
+-- @return string: The formatted diff content.
+function VibePatcher.format_diff(diff_content)
+  local lines = vim.split(diff_content, '\n', { plain = true })
+  local formatted_lines = {}
+
+  for _, line in ipairs(lines) do
+    -- Ensure proper spacing in headers
+    if line:match '^---' then
+      local file_path = line:match '^---%s*(.*)$'
+      if file_path and file_path ~= '' then
+        table.insert(formatted_lines, '--- ' .. file_path)
+      else
+        table.insert(formatted_lines, '--- /dev/null')
+      end
+    elseif line:match '^%+%+%+' then
+      local file_path = line:match '^%+%+%+%s*(.*)$'
+      if file_path and file_path ~= '' then
+        table.insert(formatted_lines, '+++ ' .. file_path)
+      else
+        table.insert(formatted_lines, '+++ /dev/null')
+      end
+    else
+      table.insert(formatted_lines, line)
+    end
+  end
+
+  return table.concat(formatted_lines, '\n')
+end
+
+--- Tests if a diff can be applied using external tools.
+-- @param diff_content The diff content to test.
+-- @param target_file The file to test against.
+-- @return boolean, string: Success status and any error message.
+function VibePatcher.test_diff_with_external_tool(diff_content, target_file)
+  -- Create temporary diff file
+  local temp_diff = vim.fn.tempname() .. '.diff'
+  local success, write_err = Utils.write_file(temp_diff, vim.split(diff_content, '\n'))
+  if not success then
+    return false, 'Failed to create temporary diff file: ' .. (write_err or '')
+  end
+
+  -- Test with git apply --check (if in git repo)
+  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match 'true'
+  if is_git_repo then
+    local git_result = vim.fn.system(string.format('git apply --check %s 2>&1', vim.fn.shellescape(temp_diff)))
+    local git_exit_code = vim.v.shell_error
+
+    vim.fn.delete(temp_diff)
+
+    if git_exit_code == 0 then
+      return true, 'Git apply validation passed'
+    else
+      return false, 'Git apply validation failed: ' .. git_result
+    end
+  end
+
+  -- Fallback to patch command dry run
+  local patch_result = vim.fn.system(
+    string.format('patch --dry-run %s < %s 2>&1', vim.fn.shellescape(target_file), vim.fn.shellescape(temp_diff))
+  )
+  local patch_exit_code = vim.v.shell_error
+
+  vim.fn.delete(temp_diff)
+
+  if patch_exit_code == 0 then
+    return true, 'Patch command validation passed'
+  else
+    return false, 'Patch command validation failed: ' .. patch_result
+  end
+end
+
+--- Opens an interactive diff review window for user editing and validation.
+-- @param diff_content The diff content to review.
+-- @param issues A table of validation issues found.
+-- @param callback Function to call with the final diff content (or nil if cancelled).
+function VibePatcher.review_diff_interactive(diff_content, issues, callback)
+  -- Create a new buffer for diff editing
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_name(buf, 'Vibe Diff Review')
+
+  -- Set up the diff content with issue annotations
+  local lines = vim.split(diff_content, '\n')
+  local annotated_lines = {}
+
+  -- Add header with instructions
+  table.insert(annotated_lines, '# Vibe Diff Review - Edit and validate the diff below')
+  table.insert(annotated_lines, '# Issues found: ' .. #issues)
+  table.insert(annotated_lines, '# Commands: :VibeApplyDiff (apply), :q (cancel)')
+  table.insert(annotated_lines, '# External validation will be run before applying')
+  table.insert(annotated_lines, '')
+
+  -- Add issue summary
+  if #issues > 0 then
+    table.insert(annotated_lines, '# Issues found:')
+    for _, issue in ipairs(issues) do
+      local severity = issue.severity or 'info'
+      local prefix = severity == 'error' and 'ERROR' or (severity == 'warning' and 'WARN' or 'INFO')
+      table.insert(annotated_lines, string.format('# Line %d [%s]: %s', issue.line, prefix, issue.message))
+    end
+    table.insert(annotated_lines, '')
+  end
+
+  table.insert(annotated_lines, '# ===== DIFF CONTENT BELOW =====')
+
+  -- Add the actual diff content with line numbers for issue reference
+  local diff_start_line = #annotated_lines + 1
+  for i, line in ipairs(lines) do
+    -- Check if this line has issues
+    local line_issues = {}
+    for _, issue in ipairs(issues) do
+      if issue.line == i then
+        table.insert(line_issues, issue)
+      end
+    end
+
+    -- Add issue comments above problematic lines
+    for _, issue in ipairs(line_issues) do
+      local severity = issue.severity or 'info'
+      local prefix = severity == 'error' and 'ERROR' or (severity == 'warning' and 'WARN' or 'INFO')
+      table.insert(annotated_lines, string.format('# [%s] %s', prefix, issue.message))
+    end
+
+    table.insert(annotated_lines, line)
+  end
+
+  -- Set buffer content
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, annotated_lines)
+  vim.bo[buf].filetype = 'diff'
+  vim.bo[buf].modifiable = true
+
+  -- Open in a new tab
+  vim.cmd 'tabnew'
+  vim.api.nvim_win_set_buf(0, buf)
+
+  -- Set up keymaps for the review buffer
+  local function create_review_keymap_opts()
+    return { noremap = true, silent = true, buffer = buf }
+  end
+
+  -- Create apply command for this buffer
+  vim.api.nvim_buf_create_user_command(buf, 'VibeApplyDiff', function()
+    -- Extract diff content (everything after the header)
+    local all_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local diff_lines = {}
+    local in_diff = false
+
+    for _, line in ipairs(all_lines) do
+      if line == '# ===== DIFF CONTENT BELOW =====' then
+        in_diff = true
+      elseif in_diff and not line:match '^#' then
+        table.insert(diff_lines, line)
+      end
+    end
+
+    local final_diff = table.concat(diff_lines, '\n')
+
+    -- Close the review tab
+    vim.cmd 'tabclose'
+
+    -- Call the callback with the edited diff
+    if callback then
+      callback(final_diff)
+    end
+  end, { desc = 'Apply the reviewed diff' })
+
+  -- Cancel keymap
+  vim.keymap.set('n', 'q', function()
+    vim.cmd 'tabclose'
+    if callback then
+      callback(nil) -- nil indicates cancellation
+    end
+  end, create_review_keymap_opts())
+
+  -- Validate keymap
+  vim.keymap.set('n', '<leader>v', function()
+    -- Extract current diff content and validate
+    local all_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local diff_lines = {}
+    local in_diff = false
+
+    for _, line in ipairs(all_lines) do
+      if line == '# ===== DIFF CONTENT BELOW =====' then
+        in_diff = true
+      elseif in_diff and not line:match '^#' then
+        table.insert(diff_lines, line)
+      end
+    end
+
+    local current_diff = table.concat(diff_lines, '\n')
+    local fixed_diff, new_issues = VibePatcher.validate_and_fix_diff(current_diff)
+
+    if #new_issues == 0 then
+      vim.notify('[Vibe] Diff validation passed!', vim.log.levels.INFO)
+    else
+      local error_count = 0
+      local warning_count = 0
+      for _, issue in ipairs(new_issues) do
+        if issue.severity == 'error' then
+          error_count = error_count + 1
+        else
+          warning_count = warning_count + 1
+        end
+      end
+      vim.notify(
+        string.format('[Vibe] Validation found %d errors, %d warnings', error_count, warning_count),
+        vim.log.levels.WARN
+      )
+    end
+  end, create_review_keymap_opts())
+
+  vim.notify('[Vibe] Diff review opened. Edit as needed, then :VibeApplyDiff or q to cancel', vim.log.levels.INFO)
+end
+
+--- Applies a diff using external tools when possible.
+-- @param diff_content The diff content to apply.
+-- @param target_file The file to apply the diff to.
+-- @return boolean, string: Success status and message.
+function VibePatcher.apply_with_external_tool(diff_content, target_file)
+  -- Create temporary diff file
+  local temp_diff = vim.fn.tempname() .. '.diff'
+  local success, write_err = Utils.write_file(temp_diff, vim.split(diff_content, '\n'))
+  if not success then
+    return false, 'Failed to create temporary diff file: ' .. (write_err or '')
+  end
+
+  -- Try git apply first (if in git repo)
+  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match 'true'
+  if is_git_repo then
+    local git_result = vim.fn.system(string.format('git apply %s 2>&1', vim.fn.shellescape(temp_diff)))
+    local git_exit_code = vim.v.shell_error
+
+    if git_exit_code == 0 then
+      vim.fn.delete(temp_diff)
+      return true, 'Applied successfully with git apply'
+    else
+      -- Git apply failed, fall through to patch command
+      vim.notify('[Vibe] Git apply failed, trying patch command: ' .. git_result, vim.log.levels.WARN)
+    end
+  end
+
+  -- Try patch command
+  local patch_result =
+    vim.fn.system(string.format('patch %s < %s 2>&1', vim.fn.shellescape(target_file), vim.fn.shellescape(temp_diff)))
+  local patch_exit_code = vim.v.shell_error
+
+  vim.fn.delete(temp_diff)
+
+  if patch_exit_code == 0 then
+    return true, 'Applied successfully with patch command'
+  else
+    return false, 'External tool application failed: ' .. patch_result
+  end
+end
+
+--- Reviews and applies diffs from the last AI response with validation.
+function VibePatcher.review_and_apply_last_response(messages)
+  local last_ai_message = nil
+  for i = #messages, 1, -1 do
+    if messages[i].role == 'assistant' then
+      last_ai_message = messages[i].content
+      break
+    end
+  end
+
+  if not last_ai_message then
+    vim.notify('[Vibe] No AI response found to review.', vim.log.levels.WARN)
+    return
+  end
+
+  local code_blocks = VibePatcher.extract_code_blocks(last_ai_message)
+  local diff_blocks = {}
+
+  -- First, look for explicit diff code blocks
+  for _, block in ipairs(code_blocks) do
+    if block.language == 'diff' then
+      table.insert(diff_blocks, block.content_str)
+    end
+  end
+
+  -- If no explicit diff blocks found, look for diff patterns in the raw message
+  if #diff_blocks == 0 then
+    local diff_content = VibePatcher.extract_diff_from_text(last_ai_message)
+    if diff_content then
+      table.insert(diff_blocks, diff_content)
+    end
+  end
+
+  if #diff_blocks == 0 then
+    vim.notify('[Vibe] No diff blocks found in the last AI response.', vim.log.levels.WARN)
+    return
+  end
+
+  -- Process each diff block with validation
+  for i, diff_content in ipairs(diff_blocks) do
+    -- Validate and fix the diff
+    local fixed_diff, issues = VibePatcher.validate_and_fix_diff(diff_content)
+    local formatted_diff = VibePatcher.format_diff(fixed_diff)
+
+    -- Show issues summary
+    if #issues > 0 then
+      local error_count = 0
+      local warning_count = 0
+      for _, issue in ipairs(issues) do
+        if issue.severity == 'error' then
+          error_count = error_count + 1
+        else
+          warning_count = warning_count + 1
+        end
+      end
+      vim.notify(
+        string.format('[Vibe] Diff %d/%d: Found %d errors, %d warnings', i, #diff_blocks, error_count, warning_count),
+        vim.log.levels.INFO
+      )
+    end
+
+    -- Open interactive review
+    VibePatcher.review_diff_interactive(formatted_diff, issues, function(final_diff)
+      if not final_diff then
+        vim.notify('[Vibe] Diff review cancelled', vim.log.levels.INFO)
+        return
+      end
+
+      -- Parse and apply the final diff
+      local parsed_diff, parse_err = VibePatcher.parse_diff(final_diff)
+      if not parsed_diff then
+        vim.notify('[Vibe] Failed to parse reviewed diff: ' .. (parse_err or ''), vim.log.levels.ERROR)
+        return
+      end
+
+      -- Test with external tool first
+      local can_apply_external, external_msg =
+        VibePatcher.test_diff_with_external_tool(final_diff, parsed_diff.new_path)
+
+      if can_apply_external then
+        -- Ask user to choose application method
+        vim.ui.select(
+          { 'External Tool (git apply/patch)', 'Built-in Engine' },
+          { prompt = 'Choose diff application method:' },
+          function(choice)
+            if choice == 'External Tool (git apply/patch)' then
+              local success, msg = VibePatcher.apply_with_external_tool(final_diff, parsed_diff.new_path)
+              if success then
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
+                -- Refresh buffer
+                VibePatcher.refresh_buffer_for_file(parsed_diff.new_path)
+              else
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.ERROR)
+              end
+            elseif choice == 'Built-in Engine' then
+              local success, msg = VibePatcher.apply_diff(parsed_diff)
+              if success then
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
+              else
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.ERROR)
+              end
+            end
+          end
+        )
+      else
+        vim.notify('[Vibe] External validation failed: ' .. external_msg, vim.log.levels.WARN)
+        vim.notify('[Vibe] Falling back to built-in engine', vim.log.levels.INFO)
+
+        local success, msg = VibePatcher.apply_diff(parsed_diff)
+        if success then
+          vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
+        else
+          vim.notify('[Vibe] ' .. msg, vim.log.levels.ERROR)
+        end
+      end
+    end)
+
+    -- Only process one diff at a time for now
+    break
+  end
+end
+
 --- Finds the last AI response, extracts diffs, and applies them.
 function VibePatcher.apply_last_response(messages)
   local last_ai_message = nil
