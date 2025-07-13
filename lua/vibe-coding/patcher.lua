@@ -1,5 +1,7 @@
 -- vibe-coding/patcher.lua
-return function(Utils, VibeDiff)
+local Utils = require 'vibe-coding.utils'
+
+return function(VibeDiff)
   local VibePatcher = {}
 
   --- Parses a single unified diff block.

@@ -17,7 +17,6 @@ local CONFIG = {
   min_input_height = 3,
   min_context_height = 2,
 
-
   -- Debug Settings
   debug_mode = false,
 }
@@ -2139,7 +2138,7 @@ end
 -- =============================================================================
 -- Vibe Patcher: Applies unified diffs from AI responses
 -- =============================================================================
-local VibePatcher = require 'vibe-coding.patcher'(Utils, VibeDiff)
+local VibePatcher = require 'vibe-coding.patcher'(VibeDiff)
 
 -- =============================================================================
 -- User Commands
