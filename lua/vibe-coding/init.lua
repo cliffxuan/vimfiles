@@ -770,7 +770,7 @@ do
   local function load_sessions_with_data()
     VibeChat.sessions.init()
 
-    local files = vim.fn.glob(VibeChat.sessions.sessions_dir .. '/*.json', 0, 1)
+    local files = vim.fn.glob(VibeChat.sessions.sessions_dir .. '/*.json', false, 1)
     if #files == 0 then
       return nil
     end

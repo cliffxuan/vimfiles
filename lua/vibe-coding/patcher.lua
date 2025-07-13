@@ -529,14 +529,29 @@ function VibePatcher.validate_and_fix_diff(diff_content)
           fixed_line = string.format('@@ -%s,1 +%s,1 @@', old_start, new_start)
           table.insert(issues, { line = i, type = 'hunk_header', message = 'Added missing line counts' })
         else
-          table.insert(
-            issues,
-            { line = i, type = 'hunk_header', message = 'Malformed hunk header', severity = 'error' }
-          )
+          -- Check for malformed headers like "@@ ... @@" - normalize them
+          if line:match '^@@ ' then
+            -- Any line starting with @@ is acceptable as a hunk marker
+            -- Line numbers are often wrong anyway, so we'll ignore them
+            -- and treat this as a search-and-replace operation
+            fixed_line = '@@ -1,1 +1,1 @@'
+            table.insert(issues, {
+              line = i,
+              type = 'hunk_header',
+              message = 'Normalized malformed hunk header (line numbers ignored for search-and-replace)',
+              severity = 'info',
+            })
+          else
+            table.insert(
+              issues,
+              { line = i, type = 'hunk_header', message = 'Invalid hunk header format', severity = 'error' }
+            )
+          end
         end
       end
 
-      -- Parse expected counts
+      -- Parse expected counts (but don't rely on them for validation)
+      -- We use search-and-replace approach rather than line-number-based patching
       expected_counts.old = tonumber(old_count) or 0
       expected_counts.new = tonumber(new_count) or 0
       hunk_line_count = { old = 0, new = 0 }
@@ -616,7 +631,227 @@ function VibePatcher.format_diff(diff_content)
   return table.concat(formatted_lines, '\n')
 end
 
+--- Intelligently resolves file paths in diff headers by searching the filesystem.
+-- @param diff_content The diff content to fix.
+-- @return string, table: The fixed diff content and a table of fixes applied.
+function VibePatcher.fix_file_paths(diff_content)
+  local lines = vim.split(diff_content, '\n', { plain = true })
+  local fixed_lines = {}
+  local fixes = {}
+
+  --- Finds the actual file path by searching the filesystem intelligently.
+  -- @param original_path The path from the diff header.
+  -- @return string|nil: The resolved path or nil if not found.
+  local function resolve_file_path(original_path)
+    -- Clean up the path first
+    local cleaned_path = original_path
+
+    -- Remove git-style prefixes
+    cleaned_path = cleaned_path:gsub('^a/', '')
+    cleaned_path = cleaned_path:gsub('^b/', '')
+
+    -- Remove leading slash if present
+    cleaned_path = cleaned_path:gsub('^/', '')
+
+    -- Strategy 1: Try the path as-is (relative to cwd)
+    if vim.fn.filereadable(cleaned_path) == 1 then
+      return cleaned_path
+    end
+
+    -- Strategy 2: If it's an absolute path, check if it exists
+    if original_path:match '^/' and vim.fn.filereadable(original_path) == 1 then
+      -- Convert absolute path to relative path from cwd
+      local cwd = vim.fn.getcwd()
+      if original_path:find(cwd, 1, true) == 1 then
+        local relative = original_path:sub(#cwd + 2) -- +2 to skip the trailing slash
+        return relative
+      end
+      return original_path
+    end
+
+    -- Strategy 3: Extract just the filename and search for it
+    local filename = cleaned_path:match '([^/]+)$'
+    if filename then
+      -- Use find command to search for the file (faster than glob)
+      local find_result =
+        vim.fn.system(string.format('find . -name %s -type f 2>/dev/null', vim.fn.shellescape(filename)))
+
+      if vim.v.shell_error == 0 and find_result ~= '' then
+        local candidates = vim.split(find_result, '\n', { plain = true })
+
+        -- Filter out empty lines
+        local valid_candidates = {}
+        for _, candidate in ipairs(candidates) do
+          if candidate ~= '' then
+            -- Remove leading './'
+            local clean_candidate = candidate:gsub('^%./', '')
+            table.insert(valid_candidates, clean_candidate)
+          end
+        end
+
+        if #valid_candidates == 1 then
+          -- Exactly one match found
+          return valid_candidates[1]
+        elseif #valid_candidates > 1 then
+          -- Multiple matches - try to find the best one
+
+          -- Prefer files that contain parts of the original path
+          local path_parts = {}
+          for part in cleaned_path:gmatch '[^/]+' do
+            table.insert(path_parts, part)
+          end
+
+          local best_match = nil
+          local best_score = 0
+
+          for _, candidate in ipairs(valid_candidates) do
+            local score = 0
+
+            -- Score based on how many path components match
+            for _, part in ipairs(path_parts) do
+              if candidate:find(part, 1, true) then
+                score = score + 1
+              end
+            end
+
+            -- Bonus for matching directory structure
+            if cleaned_path:find '/' and candidate:find '/' then
+              local original_dirs = vim.split(cleaned_path, '/', { plain = true })
+              local candidate_dirs = vim.split(candidate, '/', { plain = true })
+
+              -- Check if the directory structure is similar
+              local dir_matches = 0
+              for i = 1, math.min(#original_dirs - 1, #candidate_dirs - 1) do
+                if original_dirs[#original_dirs - i] == candidate_dirs[#candidate_dirs - i] then
+                  dir_matches = dir_matches + 1
+                else
+                  break
+                end
+              end
+              score = score + dir_matches * 2 -- Weight directory matches more
+            end
+
+            if score > best_score then
+              best_score = score
+              best_match = candidate
+            end
+          end
+
+          if best_match then
+            return best_match
+          end
+
+          -- If no clear best match, return the first one
+          return valid_candidates[1]
+        end
+      end
+    end
+
+    -- Strategy 4: Try common directory patterns if it looks like a specific file type
+    if cleaned_path:match '%.lua$' then
+      -- Look in lua/ directory
+      local lua_path = 'lua/' .. cleaned_path
+      if vim.fn.filereadable(lua_path) == 1 then
+        return lua_path
+      end
+
+      -- Try just in lua/ with filename
+      if filename then
+        lua_path = 'lua/' .. filename
+        if vim.fn.filereadable(lua_path) == 1 then
+          return lua_path
+        end
+      end
+    end
+
+    -- Try other common directories
+    local common_dirs = { 'src', 'lib', 'app', 'components', 'modules', 'packages' }
+    for _, dir in ipairs(common_dirs) do
+      if vim.fn.isdirectory(dir) == 1 then
+        local dir_path = dir .. '/' .. cleaned_path
+        if vim.fn.filereadable(dir_path) == 1 then
+          return dir_path
+        end
+
+        -- Try with just filename
+        if filename then
+          dir_path = dir .. '/' .. filename
+          if vim.fn.filereadable(dir_path) == 1 then
+            return dir_path
+          end
+        end
+      end
+    end
+
+    -- Strategy 5: Try removing directory components from the front
+    local path_components = vim.split(cleaned_path, '/', { plain = true })
+    if #path_components > 1 then
+      for i = 2, #path_components do
+        local shorter_path = table.concat(path_components, '/', i)
+        if vim.fn.filereadable(shorter_path) == 1 then
+          return shorter_path
+        end
+      end
+    end
+
+    -- Not found
+    return nil
+  end
+
+  for i, line in ipairs(lines) do
+    local fixed_line = line
+
+    if line:match '^---' then
+      local file_path = line:match '^---%s*(.*)$'
+      if file_path and file_path ~= '' and file_path ~= '/dev/null' then
+        local resolved_path = resolve_file_path(file_path)
+        if resolved_path and resolved_path ~= file_path then
+          fixed_line = '--- ' .. resolved_path
+          table.insert(fixes, {
+            line = i,
+            type = 'path_resolution',
+            message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
+          })
+        elseif not resolved_path then
+          table.insert(fixes, {
+            line = i,
+            type = 'path_not_found',
+            message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
+            severity = 'warning',
+          })
+        end
+      end
+    elseif line:match '^%+%+%+' then
+      local file_path = line:match '^%+%+%+%s*(.*)$'
+      if file_path and file_path ~= '' and file_path ~= '/dev/null' then
+        local resolved_path = resolve_file_path(file_path)
+        if resolved_path and resolved_path ~= file_path then
+          fixed_line = '+++ ' .. resolved_path
+          table.insert(fixes, {
+            line = i,
+            type = 'path_resolution',
+            message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
+          })
+        elseif not resolved_path then
+          table.insert(fixes, {
+            line = i,
+            type = 'path_not_found',
+            message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
+            severity = 'warning',
+          })
+        end
+      end
+    end
+
+    table.insert(fixed_lines, fixed_line)
+  end
+
+  return table.concat(fixed_lines, '\n'), fixes
+end
+
 --- Tests if a diff can be applied using external tools.
+-- Note: External tools may still fail if line numbers are wrong, but our built-in
+-- engine uses search-and-replace approach that's more forgiving.
 -- @param diff_content The diff content to test.
 -- @param target_file The file to test against.
 -- @return boolean, string: Success status and any error message.
@@ -674,8 +909,9 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
   -- Add header with instructions
   table.insert(annotated_lines, '# Vibe Diff Review - Edit and validate the diff below')
   table.insert(annotated_lines, '# Issues found: ' .. #issues)
-  table.insert(annotated_lines, '# Commands: :VibeApplyDiff (apply), :q (cancel)')
-  table.insert(annotated_lines, '# External validation will be run before applying')
+  table.insert(annotated_lines, '# Commands: :VibeApplyDiff (apply), :q (cancel), <leader>v (validate)')
+  table.insert(annotated_lines, '# Note: Line numbers in @@ headers are ignored - diffs work as search-and-replace')
+  table.insert(annotated_lines, '# Focus on context lines (-), removals (-), and additions (+)')
   table.insert(annotated_lines, '')
 
   -- Add issue summary
@@ -881,9 +1117,17 @@ function VibePatcher.review_and_apply_last_response(messages)
 
   -- Process each diff block with validation
   for i, diff_content in ipairs(diff_blocks) do
-    -- Validate and fix the diff
-    local fixed_diff, issues = VibePatcher.validate_and_fix_diff(diff_content)
+    -- Fix file paths first
+    local path_fixed_diff, path_fixes = VibePatcher.fix_file_paths(diff_content)
+
+    -- Then validate and fix the diff
+    local fixed_diff, issues = VibePatcher.validate_and_fix_diff(path_fixed_diff)
     local formatted_diff = VibePatcher.format_diff(fixed_diff)
+
+    -- Combine path fixes with validation issues
+    for _, fix in ipairs(path_fixes) do
+      table.insert(issues, fix)
+    end
 
     -- Show issues summary
     if #issues > 0 then
