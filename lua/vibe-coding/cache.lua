@@ -113,7 +113,8 @@ function Cache.cached_file_search(filename)
     local valid_candidates = {}
     for _, candidate in ipairs(candidates) do
       if candidate ~= '' then
-        table.insert(valid_candidates, candidate:gsub('^%./', ''))
+        local clean_candidate = candidate:gsub('^%./', '')
+        table.insert(valid_candidates, clean_candidate)
       end
     end
     candidates = valid_candidates
