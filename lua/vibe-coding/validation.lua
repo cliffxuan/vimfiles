@@ -52,11 +52,13 @@ function Validation.fix_file_paths(diff_content)
     if line:match '^@@' then
       in_hunk = true
     elseif line_count <= 2 and line:match '^---%s' and not in_hunk then
+      local fix
       fixed_line, fix = Validation._process_old_file_header(line, i)
       if fix then
         table.insert(fixes, fix)
       end
     elseif line_count <= 3 and line:match '^%+%+%+%s' and not in_hunk then
+      local fix
       fixed_line, fix = Validation._process_new_file_header(line, i)
       if fix then
         table.insert(fixes, fix)
@@ -149,6 +151,7 @@ function Validation.validate_and_fix_diff(diff_content)
     -- Check for diff headers
     if line:match '^---' or line:match '^%+%+%+' then
       has_header = true
+      local issue
       fixed_line, issue = Validation._fix_header_line(line, i)
       if issue then
         table.insert(issues, issue)
@@ -156,12 +159,14 @@ function Validation.validate_and_fix_diff(diff_content)
     -- Check for hunk headers
     elseif line:match '^@@' then
       in_hunk = true
+      local issue
       fixed_line, issue = Validation._fix_hunk_header(line, i)
       if issue then
         table.insert(issues, issue)
       end
     -- Check context and change lines
     elseif in_hunk then
+      local issue
       fixed_line, issue = Validation._fix_hunk_content_line(line, i)
       if issue then
         table.insert(issues, issue)
