@@ -1,5 +1,7 @@
 -- vibe-coding/patcher.lua
-local Utils = require 'vibe-coding.utils'
+local Utils = require('vibe-coding.utils')
+local HunkMatcher = require('vibe-coding.hunk_matcher')
+local Validation = require('vibe-coding.validation')
 
 local VibePatcher = {}
 
@@ -15,19 +17,19 @@ function VibePatcher.parse_diff(diff_content)
   end
 
   -- More robust path parsing - handle malformed headers with extra dashes
-  local old_path_raw = lines[1]:match '^---%s+(.*)$'
-  local new_path_raw = lines[2]:match '^%+%+%+%s+(.*)$'
+  local old_path_raw = lines[1]:match('^---%s+(.*)$')
+  local new_path_raw = lines[2]:match('^%+%+%+%s+(.*)$')
 
   if old_path_raw then
     -- Clean up malformed paths (remove extra leading dashes and spaces)
     old_path_raw = old_path_raw:gsub('^%-+%s*', '')
     -- Handle git-style prefixes
-    diff.old_path = old_path_raw:match '^a/(.*)$' or old_path_raw
+    diff.old_path = old_path_raw:match('^a/(.*)$') or old_path_raw
   end
 
   if new_path_raw then
     -- Handle git-style prefixes
-    diff.new_path = new_path_raw:match '^b/(.*)$' or new_path_raw
+    diff.new_path = new_path_raw:match('^b/(.*)$') or new_path_raw
   end
 
   if not diff.old_path or not diff.new_path then
@@ -42,19 +44,19 @@ function VibePatcher.parse_diff(diff_content)
   local line_num = 3
   while line_num <= #lines do
     local line = lines[line_num]
-    if line:match '^@@' then
+    if line:match('^@@') then
       if current_hunk then
         table.insert(diff.hunks, current_hunk)
       end
       current_hunk = { header = line, lines = {} }
-    elseif current_hunk and (line:match '^[-+]' or line:match '^%s' or line == ' ') then -- Include context lines for better error reporting
+    elseif current_hunk and (line:match('^[-+]') or line:match('^%s') or line == ' ') then -- Include context lines for better error reporting
       table.insert(current_hunk.lines, line)
     elseif
       current_hunk
       and line ~= ''
-      and not line:match '^@@'
-      and not line:match '^---'
-      and not line:match '^%+%+%+'
+      and not line:match('^@@')
+      and not line:match('^---')
+      and not line:match('^%+%+%+')
     then
       -- This is likely a context line missing the leading space, mark it specially
       table.insert(current_hunk.lines, '~' .. line)
@@ -88,7 +90,7 @@ function VibePatcher.extract_diff_from_text(text)
 
   for _, line in ipairs(lines) do
     -- Look for diff header patterns
-    if line:match '^---%s+' or line:match '^%+%+%+%s+' then
+    if line:match('^---%s+') or line:match('^%+%+%+%s+') then
       if not in_diff then
         in_diff = true
         found_diff_header = true
@@ -98,9 +100,9 @@ function VibePatcher.extract_diff_from_text(text)
       end
     elseif in_diff then
       -- Continue collecting diff lines
-      if line:match '^@@' or line:match '^[-+]' or line:match '^%s' then
+      if line:match('^@@') or line:match('^[-+]') or line:match('^%s') then
         table.insert(diff_lines, line)
-      elseif line:match '^$' then
+      elseif line:match('^$') then
         -- Empty lines are okay in diffs
         table.insert(diff_lines, line)
       else
@@ -129,331 +131,8 @@ end
 -- @param options Optional table with apply options (split_hunks: boolean).
 -- @return boolean, string: success status and a message.
 function VibePatcher.apply_diff(parsed_diff, options)
-  options = options or {}
-  local split_hunks = options.split_hunks or false
-
-  local target_file = parsed_diff.new_path
-  if target_file == '/dev/null' then
-    -- TODO: Handle file deletion
-    return true, 'Skipped file deletion for ' .. parsed_diff.old_path
-  end
-
-  local original_lines
-  local is_new_file = (parsed_diff.old_path == '/dev/null')
-
-  if is_new_file then
-    original_lines = {}
-  else
-    local content, err = Utils.read_file_content(parsed_diff.old_path)
-    if not content then
-      return false, 'Failed to read file ' .. parsed_diff.old_path .. ': ' .. (err or 'Unknown Error')
-    end
-    original_lines = vim.split(content, '\n', { plain = true, trimempty = false })
-  end
-
-  local modified_lines = vim.deepcopy(original_lines)
-  local offset = 0
-  local applied_hunks = 0
-  local failed_hunks = {}
-
-  for hunk_idx, hunk in ipairs(parsed_diff.hunks) do
-    local context_before = {}
-    local context_after = {}
-    local to_remove = {}
-    local to_add = {}
-    local in_changes = false
-
-    -- Build search pattern preserving original line order
-    -- This fixes the bug where removed lines were reordered incorrectly
-    local search_lines = {}
-    local replacement_lines = {}
-
-    -- First pass: build search pattern (context + removals only)
-    for _, line in ipairs(hunk.lines) do
-      local op = line:sub(1, 1)
-      local text
-
-      -- Handle empty context lines correctly
-      if #line == 1 and op == ' ' then
-        -- Empty context line (just a single space)
-        text = ''
-      elseif op == '~' then
-        -- This was a context line missing the leading space
-        text = line:sub(2)
-        op = ' ' -- Treat as context line
-      else
-        text = line:sub(2)
-      end
-
-      if op == ' ' then
-        -- Context lines go in both search and replacement
-        table.insert(search_lines, text)
-        table.insert(replacement_lines, text)
-      elseif op == '-' then
-        -- Removed lines only go in search pattern
-        table.insert(search_lines, text)
-      elseif op == '+' then
-        -- Added lines only go in replacement
-        table.insert(replacement_lines, text)
-      end
-    end
-
-    -- Separate traditional arrays for backward compatibility
-    for _, line in ipairs(hunk.lines) do
-      local op = line:sub(1, 1)
-      local text
-
-      -- Handle empty context lines correctly
-      if #line == 1 and op == ' ' then
-        text = ''
-      elseif op == '~' then
-        -- This was a context line missing the leading space
-        text = line:sub(2)
-        op = ' ' -- Treat as context line
-      else
-        text = line:sub(2)
-      end
-
-      if op == ' ' then
-        if in_changes then
-          table.insert(context_after, text)
-        else
-          table.insert(context_before, text)
-        end
-      elseif op == '-' then
-        in_changes = true
-        table.insert(to_remove, text)
-      elseif op == '+' then
-        in_changes = true
-        table.insert(to_add, text)
-      end
-    end
-
-    local hunk_processed = false
-
-    if #search_lines == 0 and #to_add > 0 and #to_remove == 0 then -- Pure addition with no removals
-      -- For pure additions, we can insert at the end. This is a simplification.
-      -- A more robust solution would use the line numbers from `@@ -l,c +l,c @@`
-      for _, line in ipairs(to_add) do
-        table.insert(modified_lines, line)
-      end
-      offset = offset + #to_add
-      hunk_processed = true
-    end
-
-    if not hunk_processed then
-      local found_at = -1
-
-      -- First try exact matching
-      for i = 1, #modified_lines - #search_lines + 1 do
-        local match = true
-        for j = 1, #search_lines do
-          if modified_lines[i + j - 1] ~= search_lines[j] then
-            match = false
-            break
-          end
-        end
-        if match then
-          found_at = i
-          break
-        end
-      end
-
-      -- If exact match fails, try fuzzy matching that skips blank lines
-      if found_at == -1 then
-        -- Create non-blank line patterns for fuzzy matching
-        local search_non_blank = {}
-        local search_non_blank_indices = {}
-        for i, line in ipairs(search_lines) do
-          if line ~= '' then
-            table.insert(search_non_blank, line)
-            table.insert(search_non_blank_indices, i)
-          end
-        end
-
-        -- Only try fuzzy matching if we have non-blank lines to match
-        if #search_non_blank > 0 then
-          for start_pos = 1, #modified_lines do
-            local file_non_blank = {}
-            local file_non_blank_indices = {}
-            local end_pos = start_pos
-
-            -- Collect non-blank lines from file starting at start_pos
-            for i = start_pos, #modified_lines do
-              if modified_lines[i] ~= '' then
-                table.insert(file_non_blank, modified_lines[i])
-                table.insert(file_non_blank_indices, i)
-                if #file_non_blank == #search_non_blank then
-                  end_pos = i
-                  break
-                end
-              end
-              -- Stop if we've gone too far without finding enough non-blank lines
-              if i - start_pos > #search_lines + 10 then
-                break
-              end
-            end
-
-            -- Check if non-blank lines match
-            if #file_non_blank == #search_non_blank then
-              local fuzzy_match = true
-              for j = 1, #search_non_blank do
-                if file_non_blank[j] ~= search_non_blank[j] then
-                  fuzzy_match = false
-                  break
-                end
-              end
-
-              if fuzzy_match then
-                found_at = start_pos
-
-                -- Adjust search_lines to match the actual span we found
-                search_lines = {}
-                for i = start_pos, end_pos do
-                  table.insert(search_lines, modified_lines[i])
-                end
-
-                -- For fuzzy matching, rebuild replacement_lines by taking the original file content
-                -- and applying just the additions from the diff
-                replacement_lines = {}
-
-                -- Start with the original matched content
-                for i = start_pos, end_pos do
-                  table.insert(replacement_lines, modified_lines[i])
-                end
-
-                -- Now apply additions - find where to insert them
-                -- Look for the pattern in the diff to determine insertion point
-                local additions = {}
-                for _, line in ipairs(hunk.lines) do
-                  local op = line:sub(1, 1)
-                  if op == '+' then
-                    local text = (#line == 1) and '' or line:sub(2)
-                    table.insert(additions, text)
-                  end
-                end
-
-                -- Find insertion point by matching the context before additions
-                if #additions > 0 then
-                  -- Find the context line that comes immediately before the addition in the diff
-                  local insertion_after_line = nil
-                  for i = 1, #hunk.lines - 1 do
-                    local current_line = hunk.lines[i]
-                    local next_line = hunk.lines[i + 1]
-                    local current_op = current_line:sub(1, 1)
-                    local next_op = next_line:sub(1, 1)
-
-                    -- If current line is context and next line is addition
-                    if current_op == ' ' and next_op == '+' then
-                      insertion_after_line = (#current_line == 1) and '' or current_line:sub(2)
-                      break
-                    end
-                  end
-
-                  -- Find this line in our replacement and insert additions after it
-                  if insertion_after_line then
-                    for i, line in ipairs(replacement_lines) do
-                      if line == insertion_after_line then
-                        -- Insert additions after this line, but after any blank lines
-                        local insert_pos = i + 1
-                        -- Skip over blank lines to find the right insertion point
-                        while insert_pos <= #replacement_lines and replacement_lines[insert_pos] == '' do
-                          insert_pos = insert_pos + 1
-                        end
-                        for j, addition in ipairs(additions) do
-                          table.insert(replacement_lines, insert_pos + j - 1, addition)
-                        end
-                        break
-                      end
-                    end
-                  end
-                end
-                break
-              end
-            end
-          end
-        end
-      end
-
-      if found_at > -1 then
-        -- Use the pre-built replacement lines that preserve order
-        -- Remove the old lines
-        for _ = 1, #search_lines do
-          table.remove(modified_lines, found_at)
-        end
-
-        -- Insert the new lines (replacement_lines already built in correct order)
-        for i, line in ipairs(replacement_lines) do
-          table.insert(modified_lines, found_at + i - 1, line)
-        end
-
-        offset = offset + (#replacement_lines - #search_lines)
-        hunk_processed = true
-        applied_hunks = applied_hunks + 1
-      else
-        local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
-        error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
-        error_msg = error_msg .. 'Searching for pattern:\n' .. table.concat(search_lines, '\n') .. '\n\n'
-        error_msg = error_msg .. 'Could not find this context in the file.'
-
-        table.insert(failed_hunks, { index = hunk_idx, error = error_msg })
-
-        if not split_hunks then
-          return false, error_msg
-        end
-      end
-    end
-
-    if not hunk_processed then
-      local error_msg = 'Hunk #' .. hunk_idx .. ' was not processed successfully.'
-      table.insert(failed_hunks, { index = hunk_idx, error = error_msg })
-
-      if not split_hunks then
-        return false, error_msg
-      end
-    else
-      applied_hunks = applied_hunks + 1
-    end
-  end
-
-  -- Only write file if at least one hunk was applied successfully
-  if applied_hunks > 0 then
-    local success, write_err = Utils.write_file(target_file, modified_lines)
-    if not success then
-      return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or 'Unknown Error')
-    end
-
-    -- Refresh any open buffers for this file
-    VibePatcher.refresh_buffer_for_file(target_file)
-  end
-
-  -- Generate appropriate return message
-  local total_hunks = #parsed_diff.hunks
-  local failed_count = #failed_hunks
-
-  if failed_count == 0 then
-    return true, 'Successfully applied ' .. total_hunks .. ' hunks to ' .. target_file
-  elseif applied_hunks > 0 then
-    local success_msg = string.format('Partially applied %d/%d hunks to %s', applied_hunks, total_hunks, target_file)
-    if split_hunks then
-      success_msg = success_msg
-        .. '\nFailed hunks: '
-        .. table.concat(
-          vim.tbl_map(function(f)
-            return '#' .. f.index
-          end, failed_hunks),
-          ', '
-        )
-    end
-    return true, success_msg
-  else
-    -- All hunks failed
-    local error_msg = 'Failed to apply any hunks to ' .. target_file
-    if #failed_hunks > 0 then
-      error_msg = error_msg .. '\nFirst error: ' .. failed_hunks[1].error
-    end
-    return false, error_msg
-  end
+  local matcher = HunkMatcher.new(parsed_diff, options)
+  return matcher:apply_all_hunks()
 end
 
 --- Refreshes any open buffer that corresponds to the given file path.
@@ -481,7 +160,7 @@ function VibePatcher.refresh_buffer_for_file(filepath)
             )
             if choice == 1 then -- Reload
               vim.api.nvim_buf_call(buf_id, function()
-                vim.cmd 'edit!'
+                vim.cmd('edit!')
               end)
               vim.notify('[Vibe] Reloaded buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
             elseif choice == 2 then -- Keep current
@@ -494,7 +173,7 @@ function VibePatcher.refresh_buffer_for_file(filepath)
           else
             -- Buffer is not modified, safe to reload
             vim.api.nvim_buf_call(buf_id, function()
-              vim.cmd 'edit!'
+              vim.cmd('edit!')
             end)
             vim.notify('[Vibe] Refreshed buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
           end
@@ -503,6 +182,7 @@ function VibePatcher.refresh_buffer_for_file(filepath)
     end
   end
 end
+
 --- Extracts code blocks from markdown text content.
 -- @param content The text content to search for code blocks.
 -- @return A table of code blocks with their metadata.
@@ -548,410 +228,29 @@ function VibePatcher.extract_code_blocks(content)
   return code_blocks
 end
 
---- Validates and fixes common issues in diff content.
+--- Validates and fixes common issues in diff content using the validation pipeline.
 -- @param diff_content The raw diff content to validate.
 -- @return string, table: The cleaned diff content and a table of issues found.
 function VibePatcher.validate_and_fix_diff(diff_content)
-  local lines = vim.split(diff_content, '\n', { plain = true })
-  local issues = {}
-  local fixed_lines = {}
-
-  -- Track state for validation
-  local has_header = false
-  local in_hunk = false
-  -- Note: We don't strictly track line counts since we use search-and-replace approach
-
-  for i, line in ipairs(lines) do
-    local fixed_line = line
-
-    -- Check for diff headers
-    if line:match '^---' or line:match '^%+%+%+' then
-      has_header = true
-      -- Fix common header issues
-      if line:match '^---%s*$' then
-        fixed_line = '--- /dev/null'
-        table.insert(issues, { line = i, type = 'header', message = 'Fixed empty old file header' })
-      elseif line:match '^%+%+%+%s*$' then
-        fixed_line = '+++ /dev/null'
-        table.insert(issues, { line = i, type = 'header', message = 'Fixed empty new file header' })
-      end
-    -- Check for hunk headers
-    elseif line:match '^@@' then
-      in_hunk = true
-      local old_start, _, new_start, _ = line:match '^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@'
-
-      if not old_start then
-        -- Try simpler format without counts
-        old_start, new_start = line:match '^@@ %-(%d+) %+(%d+) @@'
-        if old_start then
-          -- old_count, new_count = '1', '1' -- unused in line-number-agnostic approach
-          fixed_line = string.format('@@ -%s,1 +%s,1 @@', old_start, new_start)
-          table.insert(issues, { line = i, type = 'hunk_header', message = 'Added missing line counts' })
-        else
-          -- Check for malformed headers like "@@ ... @@" - normalize them
-          if line:match '^@@ ' then
-            -- Any line starting with @@ is acceptable as a hunk marker
-            -- Line numbers are often wrong anyway, so we'll ignore them
-            -- and treat this as a search-and-replace operation
-            fixed_line = '@@ -1,1 +1,1 @@'
-            table.insert(issues, {
-              line = i,
-              type = 'hunk_header',
-              message = 'Normalized malformed hunk header (line numbers ignored for search-and-replace)',
-              severity = 'info',
-            })
-          else
-            table.insert(
-              issues,
-              { line = i, type = 'hunk_header', message = 'Invalid hunk header format', severity = 'error' }
-            )
-          end
-        end
-      end
-
-      -- Parse expected counts (but don't rely on them for validation)
-      -- We use search-and-replace approach rather than line-number-based patching
-      -- Note: Ignoring line counts as they're unreliable for LLM-generated diffs
-
-      -- Check context and change lines
-    elseif in_hunk then
-      local op = line:sub(1, 1)
-
-      if op == ' ' or op == '' then
-        -- Context line
-        -- Fix missing space prefix for context lines
-        if op == '' and line ~= '' then
-          fixed_line = ' ' .. line
-          table.insert(issues, { line = i, type = 'context', message = 'Added missing space prefix for context line' })
-        end
-      elseif op == '-' then
-        -- Removed line
-      elseif op == '+' then
-        -- Added line
-      else
-        -- Invalid line in hunk
-        if line ~= '' then
-          table.insert(
-            issues,
-            { line = i, type = 'invalid_line', message = 'Invalid line in hunk: ' .. line, severity = 'warning' }
-          )
-        end
-      end
-    end
-
-    table.insert(fixed_lines, fixed_line)
-  end
-
-  -- Final validation
-  if not has_header then
-    table.insert(
-      issues,
-      { line = 1, type = 'missing_header', message = 'Diff missing file headers', severity = 'error' }
-    )
-  end
-
-  return table.concat(fixed_lines, '\n'), issues
+  return Validation.validate_and_fix_diff(diff_content)
 end
 
 --- Formats diff content for better readability and standards compliance.
 -- @param diff_content The diff content to format.
 -- @return string: The formatted diff content.
 function VibePatcher.format_diff(diff_content)
-  local lines = vim.split(diff_content, '\n', { plain = true })
-  local formatted_lines = {}
-
-  local in_hunk = false
-  local line_count = 0
-
-  for _, line in ipairs(lines) do
-    line_count = line_count + 1
-
-    -- Track if we're in a hunk to avoid processing hunk content as headers
-    if line:match '^@@' then
-      in_hunk = true
-      table.insert(formatted_lines, line)
-    elseif line_count <= 2 and line:match '^---' and not in_hunk then
-      -- Only format --- lines that are actual file headers
-      local file_path = line:match '^---%s*(.*)$'
-      if file_path and file_path ~= '' then
-        -- Clean up malformed paths (remove extra dashes and spaces)
-        file_path = file_path:gsub('^[-%s]*', '')
-        if file_path ~= '' then
-          table.insert(formatted_lines, '--- ' .. file_path)
-        else
-          table.insert(formatted_lines, '--- /dev/null')
-        end
-      else
-        table.insert(formatted_lines, '--- /dev/null')
-      end
-    elseif line_count <= 3 and line:match '^%+%+%+' and not in_hunk then
-      -- Only format +++ lines that are actual file headers
-      local file_path = line:match '^%+%+%+%s*(.*)$'
-      if file_path and file_path ~= '' then
-        table.insert(formatted_lines, '+++ ' .. file_path)
-      else
-        table.insert(formatted_lines, '+++ /dev/null')
-      end
-    else
-      -- For all other lines (including hunk content that might look like headers), pass through as-is
-      table.insert(formatted_lines, line)
-    end
-  end
-
-  return table.concat(formatted_lines, '\n')
+  local formatted, _ = Validation.format_diff(diff_content)
+  return formatted
 end
 
 --- Intelligently resolves file paths in diff headers by searching the filesystem.
 -- @param diff_content The diff content to fix.
 -- @return string, table: The fixed diff content and a table of fixes applied.
 function VibePatcher.fix_file_paths(diff_content)
-  local lines = vim.split(diff_content, '\n', { plain = true })
-  local fixed_lines = {}
-  local fixes = {}
-
-  --- Finds the actual file path by searching the filesystem intelligently.
-  -- @param original_path The path from the diff header.
-  -- @return string|nil: The resolved path or nil if not found.
-  local function resolve_file_path(original_path)
-    -- Clean up the path first
-    local cleaned_path = original_path
-
-    -- Remove git-style prefixes
-    cleaned_path = cleaned_path:gsub('^a/', '')
-    cleaned_path = cleaned_path:gsub('^b/', '')
-
-    -- Remove leading slash if present
-    cleaned_path = cleaned_path:gsub('^/', '')
-
-    -- Strategy 1: Try the path as-is (relative to cwd)
-    if vim.fn.filereadable(cleaned_path) == 1 then
-      return cleaned_path
-    end
-
-    -- Strategy 2: If it's an absolute path, check if it exists
-    if original_path:match '^/' and vim.fn.filereadable(original_path) == 1 then
-      -- Convert absolute path to relative path from cwd
-      local cwd = vim.fn.getcwd()
-      if original_path:find(cwd, 1, true) == 1 then
-        local relative = original_path:sub(#cwd + 2) -- +2 to skip the trailing slash
-        return relative
-      end
-      return original_path
-    end
-
-    -- Strategy 3: Extract just the filename and search for it
-    local filename = cleaned_path:match '([^/]+)$'
-    if filename then
-      -- Use find command to search for the file (faster than glob)
-      local find_result =
-        vim.fn.system(string.format('find . -name %s -type f 2>/dev/null', vim.fn.shellescape(filename)))
-
-      if vim.v.shell_error == 0 and find_result ~= '' then
-        local candidates = vim.split(find_result, '\n', { plain = true })
-
-        -- Filter out empty lines
-        local valid_candidates = {}
-        for _, candidate in ipairs(candidates) do
-          if candidate ~= '' then
-            -- Remove leading './'
-            local clean_candidate = candidate:gsub('^%./', '')
-            table.insert(valid_candidates, clean_candidate)
-          end
-        end
-
-        if #valid_candidates == 1 then
-          -- Exactly one match found
-          return valid_candidates[1]
-        elseif #valid_candidates > 1 then
-          -- Multiple matches - try to find the best one
-
-          -- Prefer files that contain parts of the original path
-          local path_parts = {}
-          for part in cleaned_path:gmatch '[^/]+' do
-            table.insert(path_parts, part)
-          end
-
-          local best_match = nil
-          local best_score = 0
-
-          for _, candidate in ipairs(valid_candidates) do
-            local score = 0
-
-            -- Score based on how many path components match
-            for _, part in ipairs(path_parts) do
-              if candidate:find(part, 1, true) then
-                score = score + 1
-              end
-            end
-
-            -- Bonus for matching directory structure
-            if cleaned_path:find '/' and candidate:find '/' then
-              local original_dirs = vim.split(cleaned_path, '/', { plain = true })
-              local candidate_dirs = vim.split(candidate, '/', { plain = true })
-
-              -- Check if the directory structure is similar
-              local dir_matches = 0
-              for i = 1, math.min(#original_dirs - 1, #candidate_dirs - 1) do
-                if original_dirs[#original_dirs - i] == candidate_dirs[#candidate_dirs - i] then
-                  dir_matches = dir_matches + 1
-                else
-                  break
-                end
-              end
-              score = score + dir_matches * 2 -- Weight directory matches more
-            end
-
-            if score > best_score then
-              best_score = score
-              best_match = candidate
-            end
-          end
-
-          if best_match then
-            return best_match
-          end
-
-          -- If no clear best match, return the first one
-          return valid_candidates[1]
-        end
-      end
-    end
-
-    -- Strategy 4: Try common directory patterns if it looks like a specific file type
-    if cleaned_path:match '%.lua$' then
-      -- Look in lua/ directory
-      local lua_path = 'lua/' .. cleaned_path
-      if vim.fn.filereadable(lua_path) == 1 then
-        return lua_path
-      end
-
-      -- Try just in lua/ with filename
-      if filename then
-        lua_path = 'lua/' .. filename
-        if vim.fn.filereadable(lua_path) == 1 then
-          return lua_path
-        end
-      end
-    end
-
-    -- Try other common directories
-    local common_dirs = { 'src', 'lib', 'app', 'components', 'modules', 'packages' }
-    for _, dir in ipairs(common_dirs) do
-      if vim.fn.isdirectory(dir) == 1 then
-        local dir_path = dir .. '/' .. cleaned_path
-        if vim.fn.filereadable(dir_path) == 1 then
-          return dir_path
-        end
-
-        -- Try with just filename
-        if filename then
-          dir_path = dir .. '/' .. filename
-          if vim.fn.filereadable(dir_path) == 1 then
-            return dir_path
-          end
-        end
-      end
-    end
-
-    -- Strategy 5: Try removing directory components from the front
-    local path_components = vim.split(cleaned_path, '/', { plain = true })
-    if #path_components > 1 then
-      for i = 2, #path_components do
-        local shorter_path = table.concat(path_components, '/', i)
-        if vim.fn.filereadable(shorter_path) == 1 then
-          return shorter_path
-        end
-      end
-    end
-
-    -- Not found
-    return nil
-  end
-
-  local in_hunk = false
-  local line_count = 0
-
-  for i, line in ipairs(lines) do
-    local fixed_line = line
-    line_count = line_count + 1
-
-    -- Track if we're in a hunk to avoid processing hunk content as headers
-    if line:match '^@@' then
-      in_hunk = true
-    elseif line_count <= 2 and line:match '^---%s' and not in_hunk then
-      -- Only process --- lines that are at the beginning (file headers) with space after ---
-      local file_path = line:match '^---%s+(.*)$'
-      if file_path and file_path ~= '' and file_path ~= '/dev/null' then
-        -- Clean up malformed paths (remove extra dashes and spaces)
-        file_path = file_path:gsub('^[-%s]*', '')
-
-        -- Only try to resolve if it looks like a reasonable file path
-        local looks_like_file = file_path:match '[%w_%-%.]+[/%w_%-%.]*%.[%w]+$' -- Must have file extension
-          and not file_path:match '[{},="]' -- Exclude JSON-like content
-          and not file_path:match '^%s*$' -- Not just whitespace
-          and not file_path:match '%(' -- No function calls
-          and not file_path:match 'Bearer'
-
-        if looks_like_file then
-          local resolved_path = resolve_file_path(file_path)
-          if resolved_path and resolved_path ~= file_path then
-            fixed_line = '--- ' .. resolved_path
-            table.insert(fixes, {
-              line = i,
-              type = 'path_resolution',
-              message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
-            })
-          elseif not resolved_path then
-            table.insert(fixes, {
-              line = i,
-              type = 'path_not_found',
-              message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
-              severity = 'warning',
-            })
-          end
-        end
-      end
-    elseif line_count <= 3 and line:match '^%+%+%+%s' and not in_hunk then
-      -- Only process +++ lines that are at the beginning (file headers) with space after +++
-      local file_path = line:match '^%+%+%+%s+(.*)$'
-      if file_path and file_path ~= '' and file_path ~= '/dev/null' then
-        -- Only try to resolve if it looks like a reasonable file path
-        local looks_like_file = file_path:match '[%w_%-%.]+[/%w_%-%.]*%.[%w]+$' -- Must have file extension
-          and not file_path:match '[{},="]' -- Exclude JSON-like content
-          and not file_path:match '^%s*$' -- Not just whitespace
-          and not file_path:match '%(' -- No function calls
-          and not file_path:match 'Bearer'
-
-        if looks_like_file then
-          local resolved_path = resolve_file_path(file_path)
-          if resolved_path and resolved_path ~= file_path then
-            fixed_line = '+++ ' .. resolved_path
-            table.insert(fixes, {
-              line = i,
-              type = 'path_resolution',
-              message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
-            })
-          elseif not resolved_path then
-            table.insert(fixes, {
-              line = i,
-              type = 'path_not_found',
-              message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
-              severity = 'warning',
-            })
-          end
-        end
-      end
-    end
-
-    table.insert(fixed_lines, fixed_line)
-  end
-
-  return table.concat(fixed_lines, '\n'), fixes
+  return Validation.fix_file_paths(diff_content)
 end
 
 --- Tests if a diff can be applied using external tools.
--- Note: External tools may still fail if line numbers are wrong, but our built-in
--- engine uses search-and-replace approach that's more forgiving.
 -- @param diff_content The diff content to test.
 -- @param target_file The file to test against.
 -- @return boolean, string: Success status and any error message.
@@ -964,7 +263,7 @@ function VibePatcher.test_diff_with_external_tool(diff_content, target_file)
   end
 
   -- Test with git apply --check (if in git repo)
-  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match 'true'
+  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match('true')
   if is_git_repo then
     local git_result = vim.fn.system(string.format('git apply --check %s 2>&1', vim.fn.shellescape(temp_diff)))
     local git_exit_code = vim.v.shell_error
@@ -1053,7 +352,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
   vim.bo[buf].modifiable = true
 
   -- Open in a new tab
-  vim.cmd 'tabnew'
+  vim.cmd('tabnew')
   vim.api.nvim_win_set_buf(0, buf)
 
   -- Set up keymaps for the review buffer
@@ -1071,7 +370,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     for _, line in ipairs(all_lines) do
       if line == '# ===== DIFF CONTENT BELOW =====' then
         in_diff = true
-      elseif in_diff and not line:match '^#' then
+      elseif in_diff and not line:match('^#') then
         table.insert(diff_lines, line)
       end
     end
@@ -1079,7 +378,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     local final_diff = table.concat(diff_lines, '\n')
 
     -- Close the review tab
-    vim.cmd 'tabclose'
+    vim.cmd('tabclose')
 
     -- Call the callback with the edited diff
     if callback then
@@ -1089,7 +388,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
 
   -- Cancel keymap
   vim.keymap.set('n', 'q', function()
-    vim.cmd 'tabclose'
+    vim.cmd('tabclose')
     if callback then
       callback(nil) -- nil indicates cancellation
     end
@@ -1105,7 +404,7 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     for _, line in ipairs(all_lines) do
       if line == '# ===== DIFF CONTENT BELOW =====' then
         in_diff = true
-      elseif in_diff and not line:match '^#' then
+      elseif in_diff and not line:match('^#') then
         table.insert(diff_lines, line)
       end
     end
@@ -1148,7 +447,7 @@ function VibePatcher.apply_with_external_tool(diff_content, target_file)
   end
 
   -- Try git apply first (if in git repo)
-  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match 'true'
+  local is_git_repo = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null'):match('true')
   if is_git_repo then
     local git_result = vim.fn.system(string.format('git apply %s 2>&1', vim.fn.shellescape(temp_diff)))
     local git_exit_code = vim.v.shell_error
@@ -1163,8 +462,9 @@ function VibePatcher.apply_with_external_tool(diff_content, target_file)
   end
 
   -- Try patch command
-  local patch_result =
-    vim.fn.system(string.format('patch %s < %s 2>&1', vim.fn.shellescape(target_file), vim.fn.shellescape(temp_diff)))
+  local patch_result = vim.fn.system(
+    string.format('patch %s < %s 2>&1', vim.fn.shellescape(target_file), vim.fn.shellescape(temp_diff))
+  )
   local patch_exit_code = vim.v.shell_error
 
   vim.fn.delete(temp_diff)
@@ -1216,17 +516,8 @@ function VibePatcher.review_and_apply_last_response(messages)
 
   -- Process each diff block with validation
   for i, diff_content in ipairs(diff_blocks) do
-    -- Fix file paths first
-    local path_fixed_diff, path_fixes = VibePatcher.fix_file_paths(diff_content)
-
-    -- Then validate and fix the diff
-    local fixed_diff, issues = VibePatcher.validate_and_fix_diff(path_fixed_diff)
-    local formatted_diff = VibePatcher.format_diff(fixed_diff)
-
-    -- Combine path fixes with validation issues
-    for _, fix in ipairs(path_fixes) do
-      table.insert(issues, fix)
-    end
+    -- Process through validation pipeline
+    local final_diff, issues = Validation.process_diff(diff_content)
 
     -- Show issues summary
     if #issues > 0 then
@@ -1246,22 +537,21 @@ function VibePatcher.review_and_apply_last_response(messages)
     end
 
     -- Open interactive review
-    VibePatcher.review_diff_interactive(formatted_diff, issues, function(final_diff)
-      if not final_diff then
+    VibePatcher.review_diff_interactive(final_diff, issues, function(reviewed_diff)
+      if not reviewed_diff then
         vim.notify('[Vibe] Diff review cancelled', vim.log.levels.INFO)
         return
       end
 
       -- Parse and apply the final diff
-      local parsed_diff, parse_err = VibePatcher.parse_diff(final_diff)
+      local parsed_diff, parse_err = VibePatcher.parse_diff(reviewed_diff)
       if not parsed_diff then
         vim.notify('[Vibe] Failed to parse reviewed diff: ' .. (parse_err or ''), vim.log.levels.ERROR)
         return
       end
 
       -- Test with external tool first
-      local can_apply_external, external_msg =
-        VibePatcher.test_diff_with_external_tool(final_diff, parsed_diff.new_path)
+      local can_apply_external, external_msg = VibePatcher.test_diff_with_external_tool(reviewed_diff, parsed_diff.new_path)
 
       if can_apply_external then
         -- Ask user to choose application method
@@ -1270,7 +560,7 @@ function VibePatcher.review_and_apply_last_response(messages)
           { prompt = 'Choose diff application method:' },
           function(choice)
             if choice == 'External Tool (git apply/patch)' then
-              local success, msg = VibePatcher.apply_with_external_tool(final_diff, parsed_diff.new_path)
+              local success, msg = VibePatcher.apply_with_external_tool(reviewed_diff, parsed_diff.new_path)
               if success then
                 vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
                 -- Refresh buffer
