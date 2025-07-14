@@ -14,9 +14,21 @@ function VibePatcher.parse_diff(diff_content)
     return nil, 'Diff content is too short to be valid.'
   end
 
-  -- More robust path parsing
-  diff.old_path = lines[1]:match '^---%s+a/(.*)$' or lines[1]:match '^---%s+(.*)$'
-  diff.new_path = lines[2]:match '^%+%+%+%s+b/(.*)$' or lines[2]:match '^%+%+%+%s+(.*)$'
+  -- More robust path parsing - handle malformed headers with extra dashes
+  local old_path_raw = lines[1]:match '^---%s+(.*)$'
+  local new_path_raw = lines[2]:match '^%+%+%+%s+(.*)$'
+
+  if old_path_raw then
+    -- Clean up malformed paths (remove extra leading dashes and spaces)
+    old_path_raw = old_path_raw:gsub('^%-+%s*', '')
+    -- Handle git-style prefixes
+    diff.old_path = old_path_raw:match '^a/(.*)$' or old_path_raw
+  end
+
+  if new_path_raw then
+    -- Handle git-style prefixes
+    diff.new_path = new_path_raw:match '^b/(.*)$' or new_path_raw
+  end
 
   if not diff.old_path or not diff.new_path then
     return nil, 'Could not parse file paths from diff header.\nHeader was:\n' .. lines[1] .. '\n' .. lines[2]
@@ -114,8 +126,12 @@ end
 
 --- Applies a single parsed diff to the corresponding file.
 -- @param parsed_diff The diff table from parse_diff.
+-- @param options Optional table with apply options (split_hunks: boolean).
 -- @return boolean, string: success status and a message.
-function VibePatcher.apply_diff(parsed_diff)
+function VibePatcher.apply_diff(parsed_diff, options)
+  options = options or {}
+  local split_hunks = options.split_hunks or false
+
   local target_file = parsed_diff.new_path
   if target_file == '/dev/null' then
     -- TODO: Handle file deletion
@@ -137,6 +153,8 @@ function VibePatcher.apply_diff(parsed_diff)
 
   local modified_lines = vim.deepcopy(original_lines)
   local offset = 0
+  local applied_hunks = 0
+  local failed_hunks = {}
 
   for hunk_idx, hunk in ipairs(parsed_diff.hunks) do
     local context_before = {}
@@ -371,29 +389,71 @@ function VibePatcher.apply_diff(parsed_diff)
 
         offset = offset + (#replacement_lines - #search_lines)
         hunk_processed = true
+        applied_hunks = applied_hunks + 1
       else
         local error_msg = 'Failed to apply hunk #' .. hunk_idx .. ' to ' .. target_file .. '.\n'
         error_msg = error_msg .. 'Hunk content:\n' .. table.concat(hunk.lines, '\n') .. '\n\n'
         error_msg = error_msg .. 'Searching for pattern:\n' .. table.concat(search_lines, '\n') .. '\n\n'
         error_msg = error_msg .. 'Could not find this context in the file.'
-        return false, error_msg
+
+        table.insert(failed_hunks, { index = hunk_idx, error = error_msg })
+
+        if not split_hunks then
+          return false, error_msg
+        end
       end
     end
 
     if not hunk_processed then
-      return false, 'Hunk #' .. hunk_idx .. ' was not processed successfully.'
+      local error_msg = 'Hunk #' .. hunk_idx .. ' was not processed successfully.'
+      table.insert(failed_hunks, { index = hunk_idx, error = error_msg })
+
+      if not split_hunks then
+        return false, error_msg
+      end
+    else
+      applied_hunks = applied_hunks + 1
     end
   end
 
-  local success, write_err = Utils.write_file(target_file, modified_lines)
-  if not success then
-    return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or 'Unknown Error')
+  -- Only write file if at least one hunk was applied successfully
+  if applied_hunks > 0 then
+    local success, write_err = Utils.write_file(target_file, modified_lines)
+    if not success then
+      return false, 'Failed to write changes to ' .. target_file .. ': ' .. (write_err or 'Unknown Error')
+    end
+
+    -- Refresh any open buffers for this file
+    VibePatcher.refresh_buffer_for_file(target_file)
   end
 
-  -- Refresh any open buffers for this file
-  VibePatcher.refresh_buffer_for_file(target_file)
+  -- Generate appropriate return message
+  local total_hunks = #parsed_diff.hunks
+  local failed_count = #failed_hunks
 
-  return true, 'Successfully applied ' .. #parsed_diff.hunks .. ' hunks to ' .. target_file
+  if failed_count == 0 then
+    return true, 'Successfully applied ' .. total_hunks .. ' hunks to ' .. target_file
+  elseif applied_hunks > 0 then
+    local success_msg = string.format('Partially applied %d/%d hunks to %s', applied_hunks, total_hunks, target_file)
+    if split_hunks then
+      success_msg = success_msg
+        .. '\nFailed hunks: '
+        .. table.concat(
+          vim.tbl_map(function(f)
+            return '#' .. f.index
+          end, failed_hunks),
+          ', '
+        )
+    end
+    return true, success_msg
+  else
+    -- All hunks failed
+    local error_msg = 'Failed to apply any hunks to ' .. target_file
+    if #failed_hunks > 0 then
+      error_msg = error_msg .. '\nFirst error: ' .. failed_hunks[1].error
+    end
+    return false, error_msg
+  end
 end
 
 --- Refreshes any open buffer that corresponds to the given file path.
@@ -553,7 +613,7 @@ function VibePatcher.validate_and_fix_diff(diff_content)
       -- We use search-and-replace approach rather than line-number-based patching
       -- Note: Ignoring line counts as they're unreliable for LLM-generated diffs
 
-    -- Check context and change lines
+      -- Check context and change lines
     elseif in_hunk then
       local op = line:sub(1, 1)
 
@@ -600,16 +660,32 @@ function VibePatcher.format_diff(diff_content)
   local lines = vim.split(diff_content, '\n', { plain = true })
   local formatted_lines = {}
 
+  local in_hunk = false
+  local line_count = 0
+
   for _, line in ipairs(lines) do
-    -- Ensure proper spacing in headers
-    if line:match '^---' then
+    line_count = line_count + 1
+
+    -- Track if we're in a hunk to avoid processing hunk content as headers
+    if line:match '^@@' then
+      in_hunk = true
+      table.insert(formatted_lines, line)
+    elseif line_count <= 2 and line:match '^---' and not in_hunk then
+      -- Only format --- lines that are actual file headers
       local file_path = line:match '^---%s*(.*)$'
       if file_path and file_path ~= '' then
-        table.insert(formatted_lines, '--- ' .. file_path)
+        -- Clean up malformed paths (remove extra dashes and spaces)
+        file_path = file_path:gsub('^[-%s]*', '')
+        if file_path ~= '' then
+          table.insert(formatted_lines, '--- ' .. file_path)
+        else
+          table.insert(formatted_lines, '--- /dev/null')
+        end
       else
         table.insert(formatted_lines, '--- /dev/null')
       end
-    elseif line:match '^%+%+%+' then
+    elseif line_count <= 3 and line:match '^%+%+%+' and not in_hunk then
+      -- Only format +++ lines that are actual file headers
       local file_path = line:match '^%+%+%+%s*(.*)$'
       if file_path and file_path ~= '' then
         table.insert(formatted_lines, '+++ ' .. file_path)
@@ -617,6 +693,7 @@ function VibePatcher.format_diff(diff_content)
         table.insert(formatted_lines, '+++ /dev/null')
       end
     else
+      -- For all other lines (including hunk content that might look like headers), pass through as-is
       table.insert(formatted_lines, line)
     end
   end
@@ -791,47 +868,77 @@ function VibePatcher.fix_file_paths(diff_content)
     return nil
   end
 
+  local in_hunk = false
+  local line_count = 0
+
   for i, line in ipairs(lines) do
     local fixed_line = line
+    line_count = line_count + 1
 
-    if line:match '^---' then
-      local file_path = line:match '^---%s*(.*)$'
+    -- Track if we're in a hunk to avoid processing hunk content as headers
+    if line:match '^@@' then
+      in_hunk = true
+    elseif line_count <= 2 and line:match '^---%s' and not in_hunk then
+      -- Only process --- lines that are at the beginning (file headers) with space after ---
+      local file_path = line:match '^---%s+(.*)$'
       if file_path and file_path ~= '' and file_path ~= '/dev/null' then
-        local resolved_path = resolve_file_path(file_path)
-        if resolved_path and resolved_path ~= file_path then
-          fixed_line = '--- ' .. resolved_path
-          table.insert(fixes, {
-            line = i,
-            type = 'path_resolution',
-            message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
-          })
-        elseif not resolved_path then
-          table.insert(fixes, {
-            line = i,
-            type = 'path_not_found',
-            message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
-            severity = 'warning',
-          })
+        -- Clean up malformed paths (remove extra dashes and spaces)
+        file_path = file_path:gsub('^[-%s]*', '')
+
+        -- Only try to resolve if it looks like a reasonable file path
+        local looks_like_file = file_path:match '[%w_%-%.]+[/%w_%-%.]*%.[%w]+$' -- Must have file extension
+          and not file_path:match '[{},="]' -- Exclude JSON-like content
+          and not file_path:match '^%s*$' -- Not just whitespace
+          and not file_path:match '%(' -- No function calls
+          and not file_path:match 'Bearer'
+
+        if looks_like_file then
+          local resolved_path = resolve_file_path(file_path)
+          if resolved_path and resolved_path ~= file_path then
+            fixed_line = '--- ' .. resolved_path
+            table.insert(fixes, {
+              line = i,
+              type = 'path_resolution',
+              message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
+            })
+          elseif not resolved_path then
+            table.insert(fixes, {
+              line = i,
+              type = 'path_not_found',
+              message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
+              severity = 'warning',
+            })
+          end
         end
       end
-    elseif line:match '^%+%+%+' then
-      local file_path = line:match '^%+%+%+%s*(.*)$'
+    elseif line_count <= 3 and line:match '^%+%+%+%s' and not in_hunk then
+      -- Only process +++ lines that are at the beginning (file headers) with space after +++
+      local file_path = line:match '^%+%+%+%s+(.*)$'
       if file_path and file_path ~= '' and file_path ~= '/dev/null' then
-        local resolved_path = resolve_file_path(file_path)
-        if resolved_path and resolved_path ~= file_path then
-          fixed_line = '+++ ' .. resolved_path
-          table.insert(fixes, {
-            line = i,
-            type = 'path_resolution',
-            message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
-          })
-        elseif not resolved_path then
-          table.insert(fixes, {
-            line = i,
-            type = 'path_not_found',
-            message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
-            severity = 'warning',
-          })
+        -- Only try to resolve if it looks like a reasonable file path
+        local looks_like_file = file_path:match '[%w_%-%.]+[/%w_%-%.]*%.[%w]+$' -- Must have file extension
+          and not file_path:match '[{},="]' -- Exclude JSON-like content
+          and not file_path:match '^%s*$' -- Not just whitespace
+          and not file_path:match '%(' -- No function calls
+          and not file_path:match 'Bearer'
+
+        if looks_like_file then
+          local resolved_path = resolve_file_path(file_path)
+          if resolved_path and resolved_path ~= file_path then
+            fixed_line = '+++ ' .. resolved_path
+            table.insert(fixes, {
+              line = i,
+              type = 'path_resolution',
+              message = string.format('Resolved file path: %s → %s', file_path, resolved_path),
+            })
+          elseif not resolved_path then
+            table.insert(fixes, {
+              line = i,
+              type = 'path_not_found',
+              message = string.format('Could not locate file: %s (you may need to fix this manually)', file_path),
+              severity = 'warning',
+            })
+          end
         end
       end
     end
@@ -1159,7 +1266,7 @@ function VibePatcher.review_and_apply_last_response(messages)
       if can_apply_external then
         -- Ask user to choose application method
         vim.ui.select(
-          { 'External Tool (git apply/patch)', 'Built-in Engine' },
+          { 'External Tool (git apply/patch)', 'Built-in Engine', 'Built-in Engine (Split Hunks)' },
           { prompt = 'Choose diff application method:' },
           function(choice)
             if choice == 'External Tool (git apply/patch)' then
@@ -1178,14 +1285,21 @@ function VibePatcher.review_and_apply_last_response(messages)
               else
                 vim.notify('[Vibe] ' .. msg, vim.log.levels.ERROR)
               end
+            elseif choice == 'Built-in Engine (Split Hunks)' then
+              local success, msg = VibePatcher.apply_diff(parsed_diff, { split_hunks = true })
+              if success then
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
+              else
+                vim.notify('[Vibe] ' .. msg, vim.log.levels.ERROR)
+              end
             end
           end
         )
       else
         vim.notify('[Vibe] External validation failed: ' .. external_msg, vim.log.levels.WARN)
-        vim.notify('[Vibe] Falling back to built-in engine', vim.log.levels.INFO)
+        vim.notify('[Vibe] Falling back to built-in engine with split hunks', vim.log.levels.INFO)
 
-        local success, msg = VibePatcher.apply_diff(parsed_diff)
+        local success, msg = VibePatcher.apply_diff(parsed_diff, { split_hunks = true })
         if success then
           vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
         else
@@ -1242,7 +1356,7 @@ function VibePatcher.apply_last_response(messages)
   for _, diff_content in ipairs(diff_blocks) do
     local parsed_diff, parse_err = VibePatcher.parse_diff(diff_content)
     if parsed_diff then
-      local success, apply_msg = VibePatcher.apply_diff(parsed_diff)
+      local success, apply_msg = VibePatcher.apply_diff(parsed_diff, { split_hunks = true })
       if success then
         vim.notify('[Vibe] ' .. apply_msg, vim.log.levels.INFO)
         applied_count = applied_count + 1
@@ -1260,6 +1374,64 @@ function VibePatcher.apply_last_response(messages)
     '[Vibe] Patch complete. Applied: ' .. applied_count .. '. Failed: ' .. failed_count .. '.',
     vim.log.levels.INFO
   )
+end
+
+--- Applies a diff with hunk splitting capability and detailed failure reporting.
+-- @param parsed_diff The diff table from parse_diff.
+-- @param options Optional table with apply options.
+-- @return boolean, string, table: success status, message, and failed hunks details.
+function VibePatcher.apply_diff_with_details(parsed_diff, options)
+  options = options or { split_hunks = true }
+
+  local target_file = parsed_diff.new_path
+  if target_file == '/dev/null' then
+    return true, 'Skipped file deletion for ' .. parsed_diff.old_path, {}
+  end
+
+  -- Check if file exists (for new files, we don't need to read content)
+  local is_new_file = (parsed_diff.old_path == '/dev/null')
+  if not is_new_file then
+    local content, err = Utils.read_file_content(parsed_diff.old_path)
+    if not content then
+      return false, 'Failed to read file ' .. parsed_diff.old_path .. ': ' .. (err or 'Unknown Error'), {}
+    end
+  end
+  local applied_hunks = 0
+  local failed_hunks = {}
+
+  -- Apply each hunk individually with detailed error tracking
+  for hunk_idx, hunk in ipairs(parsed_diff.hunks) do
+    local single_hunk_diff = {
+      old_path = parsed_diff.old_path,
+      new_path = parsed_diff.new_path,
+      hunks = { hunk },
+    }
+
+    local success, msg = VibePatcher.apply_diff(single_hunk_diff, { split_hunks = false })
+    if success then
+      applied_hunks = applied_hunks + 1
+    else
+      table.insert(failed_hunks, {
+        index = hunk_idx,
+        header = hunk.header,
+        lines = hunk.lines,
+        error = msg,
+      })
+    end
+  end
+
+  local total_hunks = #parsed_diff.hunks
+  local failed_count = #failed_hunks
+
+  if failed_count == 0 then
+    return true, 'Successfully applied ' .. total_hunks .. ' hunks to ' .. target_file, {}
+  elseif applied_hunks > 0 then
+    local success_msg = string.format('Partially applied %d/%d hunks to %s', applied_hunks, total_hunks, target_file)
+    return true, success_msg, failed_hunks
+  else
+    local error_msg = 'Failed to apply any hunks to ' .. target_file
+    return false, error_msg, failed_hunks
+  end
 end
 
 return VibePatcher

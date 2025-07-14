@@ -40,7 +40,7 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
 
   vim.api.nvim_create_user_command('VibeApplyPatch', function()
     VibePatcher.apply_last_response(VibeChat.get_messages())
-  end, { desc = 'Apply diff from the last AI response to the corresponding file(s)' })
+  end, { desc = 'Apply diff from the last AI response with split hunks (individual hunk application)' })
 
   vim.api.nvim_create_user_command('VibeReviewPatch', function()
     VibePatcher.review_and_apply_last_response(VibeChat.get_messages())
