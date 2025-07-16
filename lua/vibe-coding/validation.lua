@@ -81,6 +81,12 @@ function Validation._process_old_file_header(line, line_num)
     file_path = PathUtils.clean_path(file_path)
 
     if PathUtils.looks_like_file(file_path) then
+      -- Check if it's already a valid absolute path
+      if file_path:match '^/' and vim.fn.filereadable(file_path) == 1 then
+        -- Valid absolute path - no issue to report
+        return line, nil
+      end
+
       local resolved_path = PathUtils.resolve_file_path(file_path)
       if resolved_path and resolved_path ~= file_path then
         return '--- ' .. resolved_path,
@@ -111,6 +117,12 @@ function Validation._process_new_file_header(line, line_num)
   local file_path = line:match '^%+%+%+%s+(.*)$'
   if file_path and file_path ~= '' and file_path ~= '/dev/null' then
     if PathUtils.looks_like_file(file_path) then
+      -- Check if it's already a valid absolute path
+      if file_path:match '^/' and vim.fn.filereadable(file_path) == 1 then
+        -- Valid absolute path - no issue to report
+        return line, nil
+      end
+
       local resolved_path = PathUtils.resolve_file_path(file_path)
       if resolved_path and resolved_path ~= file_path then
         return '+++ ' .. resolved_path,

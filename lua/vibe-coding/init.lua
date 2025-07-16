@@ -354,6 +354,53 @@ do
     end)
   end
 
+  -- Add buffer context picker
+  function VibeContext.add_buffers_to_context(callback)
+    local telescope = require 'telescope.builtin'
+    local actions = require 'telescope.actions'
+    local action_state = require 'telescope.actions.state'
+
+    telescope.buffers {
+      prompt_title = 'Select buffers for context (Tab to multi-select)',
+      attach_mappings = function(prompt_bufnr)
+        actions.select_default:replace(function()
+          local selections = {}
+          local picker = action_state.get_current_picker(prompt_bufnr)
+
+          -- Get multi-selected buffers
+          local multi_selection = picker:get_multi_selection()
+          if #multi_selection > 0 then
+            for _, entry in ipairs(multi_selection) do
+              local bufnr = entry.bufnr
+              local name = vim.api.nvim_buf_get_name(bufnr)
+              if name and name ~= '' then
+                table.insert(selections, name)
+              end
+            end
+          else
+            -- Get single selection if no multi-selection
+            local entry = action_state.get_selected_entry()
+            if entry then
+              local bufnr = entry.bufnr
+              local name = vim.api.nvim_buf_get_name(bufnr)
+              if name and name ~= '' then
+                table.insert(selections, name)
+              end
+            end
+          end
+
+          actions.close(prompt_bufnr)
+
+          if #selections > 0 then
+            callback(selections)
+          end
+        end)
+
+        return true
+      end,
+    }
+  end
+
   function VibeContext.remove_file_from_context(context_files, callback)
     if #context_files == 0 then
       vim.notify('[Vibe] No context files to remove', vim.log.levels.WARN)
@@ -1365,6 +1412,21 @@ do
     end
 
     vim.api.nvim_clear_autocmds { group = VIBE_AUGROUP }
+
+    -- Check if we're about to close the last window(s)
+    local total_wins = vim.fn.winnr '$'
+    local vibe_wins = 0
+    for _, win_id in ipairs(to_close) do
+      if win_id and vim.api.nvim_win_is_valid(win_id) then
+        vibe_wins = vibe_wins + 1
+      end
+    end
+
+    -- If vibe windows are the only windows, create a new buffer first
+    if total_wins == vibe_wins then
+      vim.cmd 'new'
+    end
+
     for _, win_id in ipairs(to_close) do
       if win_id and vim.api.nvim_win_is_valid(win_id) then
         vim.api.nvim_win_close(win_id, true)
@@ -1566,6 +1628,46 @@ do
       VibeChat.open_chat_window()
     end
     VibeContext.add_files_to_context(function(filepaths)
+      if filepaths and #filepaths > 0 then
+        local added_files = {}
+        local skipped_files = {}
+
+        for _, filepath in ipairs(filepaths) do
+          local already_exists = false
+          for _, existing_path in ipairs(VibeChat.state.context_files) do
+            if existing_path == filepath then
+              already_exists = true
+              table.insert(skipped_files, vim.fn.fnamemodify(filepath, ':t'))
+              break
+            end
+          end
+
+          if not already_exists then
+            table.insert(VibeChat.state.context_files, filepath)
+            table.insert(added_files, vim.fn.fnamemodify(filepath, ':t'))
+          end
+        end
+
+        VibeChat.update_context_buffer()
+
+        if #added_files > 0 then
+          local files_str = table.concat(added_files, '`, `')
+          VibeChat.append_to_output('Added `' .. files_str .. '` to context.')
+        end
+
+        if #skipped_files > 0 then
+          local skipped_str = table.concat(skipped_files, '`, `')
+          vim.notify('[Vibe] Files already in context: `' .. skipped_str .. '`', vim.log.levels.INFO)
+        end
+      end
+    end)
+  end
+
+  function VibeChat.add_buffer_context_to_chat()
+    if not VibeChat.state.layout_active then
+      VibeChat.open_chat_window()
+    end
+    VibeContext.add_buffers_to_context(function(filepaths)
       if filepaths and #filepaths > 0 then
         local added_files = {}
         local skipped_files = {}
@@ -2016,8 +2118,8 @@ end
 -- =============================================================================
 -- Setup Commands and Keymaps
 -- =============================================================================
-require('vibe-coding.commands')(VibeChat, VibeDiff, VibePatcher, CONFIG)
-require('vibe-coding.keymaps')(VibeDiff, Utils)
+require 'vibe-coding.commands'(VibeChat, VibeDiff, VibePatcher, CONFIG)
+require 'vibe-coding.keymaps'(VibeDiff, Utils)
 
 -- Export the VibeDiff module
 return {

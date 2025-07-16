@@ -24,6 +24,11 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
     { desc = 'Add a file to the Vibe chat context using fd' }
   )
   vim.api.nvim_create_user_command(
+    'VibeAddBuffersToContext',
+    VibeChat.add_buffer_context_to_chat,
+    { desc = 'Add opened buffers to the Vibe chat context' }
+  )
+  vim.api.nvim_create_user_command(
     'VibeAddCurrentBuffer',
     VibeChat.add_current_buffer_to_context,
     { desc = 'Add the current buffer to the Vibe chat context' }

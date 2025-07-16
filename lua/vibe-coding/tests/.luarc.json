@@ -1,0 +1,27 @@
+{
+  "diagnostics": {
+    "globals": [
+      "describe",
+      "it",
+      "before_each",
+      "after_each",
+      "setup",
+      "teardown",
+      "pending",
+      "finally",
+      "vim"
+    ],
+    "disable": [
+      "undefined-field"
+    ]
+  },
+  "workspace": {
+    "library": [
+      "${3rd}/busted/library",
+      "${3rd}/luassert/library"
+    ]
+  },
+  "runtime": {
+    "version": "LuaJIT"
+  }
+}
