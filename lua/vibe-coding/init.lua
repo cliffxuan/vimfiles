@@ -469,8 +469,8 @@ do
 
   -- Table to keep prompt info: name -> file path
   PromptManager.prompt_dir = vim.fn.fnamemodify(debug.getinfo(1).source:sub(2), ':p:h') .. '/prompts'
-  -- Set initial prompt on startup to unified-diffs by default
-  PromptManager.selected_prompt_name = 'unified-diffs'
+  -- Set initial prompt on startup to friendly-diffs by default
+  PromptManager.selected_prompt_name = 'friendly-diffs'
 
   local function load_prompts()
     local prompt_files = vim.fn.glob(PromptManager.prompt_dir .. '/*.md', false, true)
