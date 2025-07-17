@@ -279,7 +279,12 @@ function Validation._fix_hunk_content_line(line, line_num)
   local op = line:sub(1, 1)
 
   -- Handle valid diff operators
-  if op == ' ' or op == '-' or op == '+' then
+  if op == '-' or op == '+' then
+    return line, nil
+  end
+  
+  -- Handle valid context lines (exactly one space prefix)
+  if op == ' ' and (line:len() == 1 or line:sub(2, 2) ~= ' ') then
     return line, nil
   end
 
@@ -308,15 +313,25 @@ function Validation._try_fix_missing_context_prefix(line, line_num)
   -- Don't try to fix lines that start with special characters that might be intentional
   local first_char = line:sub(1, 1)
 
-  -- Skip lines that start with characters that are unlikely to be context lines
+  -- Lines that start with characters that are unlikely to be context lines
   if first_char:match '[#@\\/%*]' then
-    return nil, nil
+    return nil, {
+      line = line_num,
+      type = 'invalid_line',
+      message = 'Invalid line in hunk: ' .. line,
+      severity = 'warning',
+    }
   end
 
-  -- Skip lines that look like they might be meant as additions/removals
+  -- Lines that look like they might be meant as additions/removals
   -- (though this is harder to detect definitively)
   if line:match '^%s*[+-]' then
-    return nil, nil
+    return nil, {
+      line = line_num,
+      type = 'invalid_line',
+      message = 'Invalid line in hunk: ' .. line,
+      severity = 'warning',
+    }
   end
 
   -- Check if this looks like a valid code/text line that should be context
@@ -335,17 +350,22 @@ function Validation._try_fix_missing_context_prefix(line, line_num)
   )
 
   if looks_like_context then
+    local truncated_line = line:sub(1, 50) .. (line:len() > 50 and '...' or '')
     return ' ' .. line,
       {
         line = line_num,
         type = 'context_fix',
-        message = 'Added missing space prefix for context line: '
-          .. (line:sub(1, 50) .. (line:len() > 50 and '...' or '')),
+        message = 'Added missing space prefix for context line: ' .. truncated_line,
         severity = 'info',
       }
   end
 
-  return nil, nil
+  return nil, {
+    line = line_num,
+    type = 'invalid_line',
+    message = 'Invalid line in hunk: ' .. line,
+    severity = 'warning',
+  }
 end
 
 --- Formats diff content for better readability and standards compliance.

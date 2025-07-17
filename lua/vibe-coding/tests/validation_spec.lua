@@ -104,7 +104,7 @@ describe('Validation Module Tests', function()
       assert.is_not_nil(issue)
       assert.are.equal('context_fix', issue.type)
       assert.are.equal('info', issue.severity)
-      assert.string.matches(issue.message, 'Added missing space prefix for context line')
+      assert.are.equal(issue.message, 'Added missing space prefix for context line: def test_function():')
     end)
 
     it('should fix indented code lines missing context prefix', function()
@@ -192,7 +192,7 @@ describe('Validation Module Tests', function()
 
       assert.are.equal(' ' .. long_line, line)
       assert.is_not_nil(issue)
-      assert.string.matches(issue.message, '%.%.%.$') -- Should end with ...
+      assert.is_true(string.find(issue.message, '%.%.%.$') ~= nil) -- Should end with ...
       assert.is_true(#issue.message < #long_line + 50) -- Should be significantly shorter
     end)
   end)
@@ -210,14 +210,20 @@ def test_function():
 -    old_line = 2
 +    new_line = 2
     return x]]
-
       local fixed_diff, issues = validation.validate_and_fix_diff(diff_with_missing_spaces)
-
       -- Should have fixed the context lines
-      assert.string.matches(fixed_diff, ' def test_function%(%):')
-      assert.string.matches(fixed_diff, '     """Test docstring%."""')
-      assert.string.matches(fixed_diff, '     x = 1')
-      assert.string.matches(fixed_diff, '     return x')
+      assert.are.equal(
+        fixed_diff,
+        [[--- test.py
++++ test.py
+@@ -1,5 +1,5 @@
+ def test_function():
+     """Test docstring."""
+     x = 1
+-    old_line = 2
++    new_line = 2
+     return x]]
+      )
 
       -- Should have several fix issues
       local context_fixes = 0
@@ -232,7 +238,8 @@ def test_function():
     it('should handle mixed valid and invalid lines correctly', function()
       local validation = require 'vibe-coding.validation'
 
-      local mixed_diff = [[--- test.py
+      local mixed_diff = [[
+--- test.py
 +++ test.py
 @@ -1,3 +1,3 @@
  valid_context_line
@@ -243,11 +250,18 @@ def missing_space_function():
 
       local fixed_diff, issues = validation.validate_and_fix_diff(mixed_diff)
 
-      -- Should fix the function definition
-      assert.string.matches(fixed_diff, ' def missing_space_function%(%):')
-
-      -- Should NOT fix the comment line (starts with #)
-      assert.string.matches(fixed_diff, '#invalid_comment_line')
+      assert.are.equal(
+        fixed_diff,
+        [[
+--- test.py
++++ test.py
+@@ -1,3 +1,3 @@
+ valid_context_line
+ def missing_space_function():
++added_line
+-removed_line
+#invalid_comment_line]]
+      )
 
       -- Check issues
       local has_context_fix = false
