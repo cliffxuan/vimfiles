@@ -1,0 +1,8 @@
+return {
+  name = 'Dictionary Entry Replacement with Empty Line Preservation',
+  description = 'Test replacing dictionary entries with additions while preserving empty lines and ensuring old content is completely removed',
+  should_succeed = true,
+  tags = { 'complex', 'dictionary', 'replacement', 'empty-lines' },
+
+  file_path = 'test.py',
+}

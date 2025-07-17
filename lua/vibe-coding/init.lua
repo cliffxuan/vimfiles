@@ -2,6 +2,7 @@
 local Utils = require 'vibe-coding.utils'
 local VibeDiff = require 'vibe-coding.diff'
 local VibePatcher = require 'vibe-coding.patcher'
+local Validation = require 'vibe-coding.validation'
 
 -- =============================================================================
 -- Configuration Constants
@@ -2127,4 +2128,5 @@ return {
   VibeDiff = VibeDiff,
   Utils = Utils,
   VibePatcher = VibePatcher,
+  Validation = Validation,
 }

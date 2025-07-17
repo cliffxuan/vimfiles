@@ -6,7 +6,6 @@
 ---@diagnostic disable: undefined-global
 
 describe('Vibe-Coding Plugin Unit Tests', function()
-  local mock = require 'luassert.mock'
   local vibe -- Will be loaded after mocking
 
   -- Mock telescope.pickers module to avoid runtime errors in tests due to missing Telescope dependency
@@ -129,27 +128,27 @@ describe('Vibe-Coding Plugin Unit Tests', function()
     local function setup_file_mocks(read_content, write_result)
       local read_calls = {}
       local write_calls = {}
-      
+
       local original_read = vibe.Utils.read_file_content
       local original_write = vibe.Utils.write_file
-      
+
       vibe.Utils.read_file_content = function(filepath)
         table.insert(read_calls, filepath)
         return read_content, nil
       end
-      
+
       vibe.Utils.write_file = function(filepath, content)
-        table.insert(write_calls, {filepath = filepath, content = content})
+        table.insert(write_calls, { filepath = filepath, content = content })
         return write_result or true, nil
       end
-      
+
       return {
         read_calls = read_calls,
         write_calls = write_calls,
         restore = function()
           vibe.Utils.read_file_content = original_read
           vibe.Utils.write_file = original_write
-        end
+        end,
       }
     end
     local spy = require 'luassert.spy'
@@ -172,13 +171,14 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal('file.lua', parsed.old_path)
         assert.are.equal('file.lua', parsed.new_path)
         assert.are.equal(1, #parsed.hunks)
-        assert.are.equal(6, #parsed.hunks[1].lines)
+        assert.are.equal(7, #parsed.hunks[1].lines)
         assert.are.equal(' local a = 1', parsed.hunks[1].lines[1])
         assert.are.equal('-local b = 2 -- remove', parsed.hunks[1].lines[2])
         assert.are.equal('+local b = 3 -- add', parsed.hunks[1].lines[3])
         assert.are.equal(' local c = 4', parsed.hunks[1].lines[4])
         assert.are.equal(' local d = 5', parsed.hunks[1].lines[5])
         assert.are.equal(' local e = 6', parsed.hunks[1].lines[6])
+        assert.are.equal('', parsed.hunks[1].lines[7])
       end)
     end)
 
@@ -208,7 +208,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('file.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
@@ -232,13 +232,13 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('new_file.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
       -- This test now correctly expects the output after applying both hunks in sequence.
       it('should apply a patch with multiple hunks correctly', function()
-        local mocks = setup_file_mocks('a\nb\nc\nd\ne')
+        local mocks = setup_file_mocks 'a\nb\nc\nd\ne'
 
         local parsed_diff = {
           old_path = 'test.txt',
@@ -257,13 +257,13 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('test.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
       -- This test now asserts the exact, detailed error message for better diagnostics.
       it('should return a detailed error if a hunk context cannot be found', function()
-        local mocks = setup_file_mocks('line1\nline2\nline3')
+        local mocks = setup_file_mocks 'line1\nline2\nline3'
 
         local hunk_lines = { '-nonexistent line', '+a new line' }
         local parsed_diff = {
@@ -285,7 +285,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.is_false(success, 'Expected apply_diff to fail')
         assert.are.equal(expected_error_msg, msg)
         assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
-        
+
         mocks.restore()
       end)
 
@@ -305,7 +305,7 @@ describe('Vibe-Coding Plugin Unit Tests', function()
         assert.is_true(success)
         assert.are.equal('Skipped file deletion for file_to_delete.txt', msg)
         assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
-        
+
         mocks.restore()
       end)
 
@@ -360,7 +360,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('app/api/v2/routes.py', mocks.write_calls[1].filepath)
         assert.are.same(expected_content_lines, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
@@ -396,7 +396,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('test.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
@@ -429,7 +429,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('test.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
@@ -462,7 +462,7 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
         assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once')
         assert.are.equal('test.txt', mocks.write_calls[1].filepath)
         assert.are.same(expected_content, mocks.write_calls[1].content)
-        
+
         mocks.restore()
       end)
 
@@ -502,20 +502,22 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
           .. 'Could not find this context in the file.'
         assert.are.equal(expected_error_msg, msg)
         assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
-        
+
         mocks.restore()
       end)
+
+      -- Dictionary replacement test has been moved to fixtures/complex/dictionary_replacement.lua
     end)
 
     -- =============================================================================
     --  VibePatcher Fixture-Based Tests
     -- =============================================================================
     describe('Fixture-based tests', function()
-      local fixtures = require('tests.fixtures.fixture_loader')
-      
+      local fixtures = require 'tests.fixtures.fixture_loader'
+
       -- Load all fixtures and create tests
       local all_fixtures = fixtures.load_all()
-      
+
       for _, fixture in ipairs(all_fixtures) do
         it(fixture.name, fixtures.create_test_case(fixture))
       end
@@ -557,4 +559,6 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
       end)
     end)
   end)
+
+  -- Validation tests have been moved to validation_spec.lua during feature development
 end)

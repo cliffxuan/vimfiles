@@ -44,26 +44,32 @@ function VibePatcher.parse_diff(diff_content)
   local line_num = 3
   while line_num <= #lines do
     local line = lines[line_num]
+
+    -- Handle hunk headers (including simplified @@ ... @@ format)
     if line:match '^@@' then
       if current_hunk then
         table.insert(diff.hunks, current_hunk)
       end
       current_hunk = { header = line, lines = {} }
-    elseif current_hunk and (line:match '^[-+]' or line:match '^%s' or line == ' ') then -- Include context lines for better error reporting
-      table.insert(current_hunk.lines, line)
-    elseif
-      current_hunk
-      and line ~= ''
-      and not line:match '^@@'
-      and not line:match '^---'
-      and not line:match '^%+%+%+'
-    then
-      -- This is likely a context line missing the leading space, mark it specially
-      table.insert(current_hunk.lines, '~' .. line)
-    elseif current_hunk and #current_hunk.lines > 0 then
-      -- End of hunk, maybe some trailing text from LLM.
-      table.insert(diff.hunks, current_hunk)
-      current_hunk = nil -- Stop collecting
+    -- Handle diff content lines when we have a current hunk
+    elseif current_hunk then
+      -- Direct match for addition/removal/context lines
+      if line:match '^[+%-]' or line:match '^%s' or line == ' ' then
+        table.insert(current_hunk.lines, line)
+      -- Handle empty lines in hunks
+      elseif line == '' then
+        table.insert(current_hunk.lines, line)
+      -- Skip header lines
+      elseif line:match '^---' or line:match '^%+%+%+' then
+        -- Skip these
+        -- End hunk on new @@ or end of meaningful content
+      elseif line:match '^@@' then
+        table.insert(diff.hunks, current_hunk)
+        current_hunk = { header = line, lines = {} }
+      -- For any other line that's not empty and not a header, try to include it
+      elseif line ~= '' then
+        table.insert(current_hunk.lines, '~' .. line)
+      end
     end
     line_num = line_num + 1
   end
@@ -232,7 +238,7 @@ end
 -- @param diff_content The raw diff content to validate.
 -- @return string, table: The cleaned diff content and a table of issues found.
 function VibePatcher.validate_and_fix_diff(diff_content)
-  return Validation.validate_and_fix_diff(diff_content)
+  return Validation.process_diff(diff_content)
 end
 
 --- Formats diff content for better readability and standards compliance.
@@ -299,7 +305,20 @@ end
 function VibePatcher.review_diff_interactive(diff_content, issues, callback)
   -- Create a new buffer for diff editing
   local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_name(buf, 'Vibe Diff Review')
+
+  -- Generate a unique buffer name to avoid conflicts
+  local timestamp = os.time()
+  local buffer_name = 'Vibe Diff Review ' .. timestamp
+
+  -- Check if buffer name exists and make it unique if needed
+  local counter = 1
+  local final_name = buffer_name
+  while vim.fn.bufexists(final_name) == 1 do
+    final_name = buffer_name .. ' (' .. counter .. ')'
+    counter = counter + 1
+  end
+
+  vim.api.nvim_buf_set_name(buf, final_name)
 
   -- Set up the diff content with issue annotations
   local lines = vim.split(diff_content, '\n')
@@ -370,7 +389,9 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     for _, line in ipairs(all_lines) do
       if line == '# ===== DIFF CONTENT BELOW =====' then
         in_diff = true
+        print '[Debug] Found diff content marker'
       elseif in_diff and not line:match '^#' then
+        print("[Debug] Extracting line: '" .. line .. "'")
         table.insert(diff_lines, line)
       end
     end
@@ -394,6 +415,56 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     end
   end, create_review_keymap_opts())
 
+  -- Helper function to regenerate buffer content with updated issues
+  local function update_buffer_with_issues(new_issues, current_diff)
+    local lines = vim.split(current_diff, '\n')
+    local annotated_lines = {}
+
+    -- Add header with instructions
+    table.insert(annotated_lines, '# Vibe Diff Review - Edit and validate the diff below')
+    table.insert(annotated_lines, '# Issues found: ' .. #new_issues)
+    table.insert(annotated_lines, '# Commands: :VibeApplyDiff (apply), :q (cancel), <leader>v (validate)')
+    table.insert(annotated_lines, '# Note: Line numbers in @@ headers are ignored - diffs work as search-and-replace')
+    table.insert(annotated_lines, '# Focus on context lines (-), removals (-), and additions (+)')
+    table.insert(annotated_lines, '')
+
+    -- Add issue summary
+    if #new_issues > 0 then
+      table.insert(annotated_lines, '# Issues found:')
+      for _, issue in ipairs(new_issues) do
+        local severity = issue.severity or 'info'
+        local prefix = severity == 'error' and 'ERROR' or (severity == 'warning' and 'WARN' or 'INFO')
+        table.insert(annotated_lines, string.format('# Line %d [%s]: %s', issue.line, prefix, issue.message))
+      end
+      table.insert(annotated_lines, '')
+    end
+
+    table.insert(annotated_lines, '# ===== DIFF CONTENT BELOW =====')
+
+    -- Add the actual diff content with line numbers for issue reference
+    for i, line in ipairs(lines) do
+      -- Check if this line has issues
+      local line_issues = {}
+      for _, issue in ipairs(new_issues) do
+        if issue.line == i then
+          table.insert(line_issues, issue)
+        end
+      end
+
+      -- Add issue comments above problematic lines
+      for _, issue in ipairs(line_issues) do
+        local severity = issue.severity or 'info'
+        local prefix = severity == 'error' and 'ERROR' or (severity == 'warning' and 'WARN' or 'INFO')
+        table.insert(annotated_lines, string.format('# [%s] %s', prefix, issue.message))
+      end
+
+      table.insert(annotated_lines, line)
+    end
+
+    -- Update buffer content
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, annotated_lines)
+  end
+
   -- Validate keymap
   vim.keymap.set('n', '<leader>v', function()
     -- Extract current diff content and validate
@@ -411,6 +482,9 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
 
     local current_diff = table.concat(diff_lines, '\n')
     local _, new_issues = VibePatcher.validate_and_fix_diff(current_diff)
+
+    -- Update the buffer with new validation results
+    update_buffer_with_issues(new_issues, current_diff)
 
     if #new_issues == 0 then
       vim.notify('[Vibe] Diff validation passed!', vim.log.levels.INFO)
@@ -513,10 +587,13 @@ function VibePatcher.review_and_apply_last_response(messages)
     return
   end
 
-  -- Process each diff block without validation
+  -- Process each diff block with validation
   for _, diff_content in ipairs(diff_blocks) do
-    -- Open interactive review with original diff
-    VibePatcher.review_diff_interactive(diff_content, {}, function(reviewed_diff)
+    -- Validate the diff content first to get issues
+    local validated_diff, validation_issues = VibePatcher.validate_and_fix_diff(diff_content)
+
+    -- Open interactive review with validation issues
+    VibePatcher.review_diff_interactive(validated_diff, validation_issues, function(reviewed_diff)
       if not reviewed_diff then
         vim.notify('[Vibe] Diff review cancelled', vim.log.levels.INFO)
         return
