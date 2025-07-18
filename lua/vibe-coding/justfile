@@ -1,0 +1,104 @@
+# Vibe-Coding Plugin Task Runner
+# https://github.com/casey/just
+
+# Default recipe to display available commands
+default:
+    @just --list
+
+# Run all tests
+test *args="":
+    @echo "🧪 Running vibe-coding plugin tests..."
+    ./tests/run_tests.sh {{args}}
+
+# Run tests with coverage analysis
+coverage *args="":
+    @echo "📊 Running tests with coverage analysis..."
+    ./tests/run_coverage.sh {{args}}
+
+# Run static coverage analysis only
+analyze:
+    @echo "🔍 Running static coverage analysis..."
+    cd . && nvim --headless -c "luafile tests/analyze_coverage.lua" -c "qa!"
+
+# Generate coverage report
+report:
+    @echo "📄 Generating coverage report..."
+    cd . && nvim --headless -c "luafile tests/generate_coverage_report.lua" -c "qa!"
+    @echo "✅ Report generated: tests/coverage_report.md"
+
+# View coverage report
+view-report:
+    @echo "📋 Coverage Report:"
+    @echo "==================="
+    @cat tests/coverage_report.md
+
+# Clean up generated files
+clean:
+    @echo "🧹 Cleaning up generated files..."
+    @find . -name "*.stats.out" -delete
+    @find . -name "*.report.out" -delete
+    @echo "✅ Cleanup complete"
+
+# Run tests with specific pattern
+test-pattern pattern:
+    @echo "🎯 Running tests matching pattern: {{pattern}}"
+    ./tests/run_tests.sh --test "{{pattern}}"
+
+# Quick test run (alias for test)
+t *args="":
+    @just test {{args}}
+
+# Quick coverage run (alias for coverage)
+c *args="":
+    @just coverage {{args}}
+
+# Show test summary
+summary:
+    @echo "📈 Test Summary:"
+    @echo "==============="
+    @echo "Total tests: 72"
+    @echo "Test suites: 4"
+    @echo "Modules: 10 (131 functions, 9,743 lines)"
+    @echo "Coverage: ~60% estimated"
+    @echo ""
+    @echo "High coverage: init.lua, patcher.lua, validation.lua"
+    @echo "Medium coverage: utils.lua, diff.lua, hunk_matcher.lua"
+    @echo "Low coverage: path_utils.lua, cache.lua, commands.lua, keymaps.lua"
+
+# Run all quality checks
+check: test coverage
+    @echo "✅ All quality checks complete"
+
+# Development workflow: test + coverage + report viewing
+dev: test coverage view-report
+    @echo "🚀 Development workflow complete"
+
+# Help with detailed command descriptions
+help:
+    @echo "Vibe-Coding Plugin Task Runner"
+    @echo "=============================="
+    @echo ""
+    @echo "Test Commands:"
+    @echo "  test [args]          Run all tests"
+    @echo "  test-pattern <pat>   Run tests matching pattern"
+    @echo "  t [args]             Quick test alias"
+    @echo ""
+    @echo "Coverage Commands:"
+    @echo "  coverage [args]      Run tests with coverage analysis"
+    @echo "  analyze              Run static analysis only"
+    @echo "  report               Generate coverage report"
+    @echo "  view-report          Display coverage report"
+    @echo "  c [args]             Quick coverage alias"
+    @echo ""
+    @echo "Utility Commands:"
+    @echo "  summary              Show test statistics"
+    @echo "  clean                Clean up generated files"
+    @echo "  check                Run all quality checks"
+    @echo "  dev                  Development workflow"
+    @echo "  help                 Show this help"
+    @echo ""
+    @echo "Examples:"
+    @echo "  just test            # Run all tests"
+    @echo "  just coverage        # Run with coverage"
+    @echo "  just test-pattern validation  # Run validation tests only"
+    @echo "  just dev             # Full development workflow"

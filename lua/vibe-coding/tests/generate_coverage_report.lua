@@ -274,8 +274,8 @@ end
 
 -- Main execution
 local report_content = generate_report()
-if write_file('coverage_report.md', report_content) then
-  print 'Coverage report generated: coverage_report.md'
+if write_file('tests/coverage_report.md', report_content) then
+  print 'Coverage report generated: tests/coverage_report.md'
 else
   print 'Failed to generate coverage report'
 end
