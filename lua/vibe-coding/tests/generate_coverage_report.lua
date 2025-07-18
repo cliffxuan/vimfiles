@@ -86,7 +86,7 @@ local function generate_report()
   table.insert(report, '_Generated on: ' .. os.date '%Y-%m-%d %H:%M:%S' .. '_')
   table.insert(report, '')
 
-  -- Source modules to analyze
+  -- Source modules to analyze (relative to parent directory)
   local modules = {
     { name = 'init.lua', coverage = 'High', note = 'Comprehensive unit tests' },
     { name = 'utils.lua', coverage = 'Medium', note = 'Some utility functions tested' },
@@ -256,10 +256,10 @@ local function generate_report()
 
   -- Files section
   table.insert(report, '## Files for Coverage Measurement')
-  table.insert(report, '- `run_coverage.sh`: Coverage test runner')
-  table.insert(report, '- `analyze_coverage.lua`: Static coverage analysis')
-  table.insert(report, '- `generate_coverage_report.lua`: This report generator')
-  table.insert(report, '- `simple_coverage.sh`: Alternative coverage runner')
+  table.insert(report, '- `tests/run_coverage.sh`: Coverage test runner')
+  table.insert(report, '- `tests/analyze_coverage.lua`: Static coverage analysis')
+  table.insert(report, '- `tests/generate_coverage_report.lua`: This report generator')
+  table.insert(report, '- `tests/run_tests.sh`: Test runner')
   table.insert(report, '')
 
   -- Next steps

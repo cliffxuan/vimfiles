@@ -11,16 +11,17 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get the directory where this script is located
+# Get the directory where this script is located (tests directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+# Change to parent directory (main plugin directory)
+cd "$SCRIPT_DIR/.."
 
 echo -e "${YELLOW}Running vibe-coding plugin tests with coverage analysis...${NC}"
 echo "=========================================================="
 
 # Run the regular tests first
 echo "Running tests..."
-./run_tests.sh
+./tests/run_tests.sh
 
 echo ""
 echo "=========================================================="
@@ -29,11 +30,11 @@ echo "=========================================================="
 
 # Run static analysis coverage report
 echo "Running static analysis..."
-nvim --headless -c "luafile analyze_coverage.lua" -c "qa!"
+nvim --headless -c "luafile tests/analyze_coverage.lua" -c "qa!"
 
 echo ""
 echo "Generating detailed coverage report..."
-nvim --headless -c "luafile generate_coverage_report.lua" -c "qa!"
+nvim --headless -c "luafile tests/generate_coverage_report.lua" -c "qa!"
 
 echo ""
 echo "=========================================================="

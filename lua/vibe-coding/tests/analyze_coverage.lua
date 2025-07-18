@@ -43,7 +43,7 @@ local function analyze_module(module_path)
   }
 end
 
--- Source modules to analyze
+-- Source modules to analyze (relative to parent directory)
 local modules = {
   "init.lua",
   "utils.lua",

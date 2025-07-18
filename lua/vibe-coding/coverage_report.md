@@ -1,6 +1,6 @@
 # Vibe-Coding Plugin Test Coverage Report
 
-_Generated on: 2025-07-18 20:51:56_
+_Generated on: 2025-07-18 22:09:07_
 
 ## Summary
 - **Total Tests**: 44 test cases
@@ -64,10 +64,10 @@ _Generated on: 2025-07-18 20:51:56_
    - Set coverage thresholds (e.g., 80% minimum)
 
 ## Files for Coverage Measurement
-- `run_coverage.sh`: Coverage test runner
-- `analyze_coverage.lua`: Static coverage analysis
-- `generate_coverage_report.lua`: This report generator
-- `simple_coverage.sh`: Alternative coverage runner
+- `tests/run_coverage.sh`: Coverage test runner
+- `tests/analyze_coverage.lua`: Static coverage analysis
+- `tests/generate_coverage_report.lua`: This report generator
+- `tests/run_tests.sh`: Test runner
 
 ## Next Steps
 1. Implement missing unit tests for uncovered modules

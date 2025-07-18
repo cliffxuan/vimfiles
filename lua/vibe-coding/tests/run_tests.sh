@@ -38,9 +38,10 @@ done
 echo -e "${YELLOW}Running vibe-coding plugin tests...${NC}"
 echo "========================================"
 
-# Get the directory where this script is located
+# Get the directory where this script is located (tests directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+# Change to parent directory (main plugin directory)
+cd "$SCRIPT_DIR/.."
 
 # Create a temporary file to capture test output
 TEMP_OUTPUT=$(mktemp)
