@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe-Coding Plugin Test Coverage Report</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 40px; background-color: #f6f8fa; color: #24292e; }
+    h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #e1e4e8; padding-bottom: 0.3em; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #dfe2e5; padding: 8px 12px; text-align: left; }
+    th { background-color: #f6f8fa; font-weight: 600; }
+    tr:nth-child(even) { background-color: #f6f8fa; }
+    .high { background-color: #e6ffed; }
+    .medium { background-color: #fff8e1; }
+    .low { background-color: #ffeef0; }
+    code { background-color: #f1f1f1; padding: 2px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+<h1>Vibe-Coding Plugin Test Coverage Report</h1>
+<p><em>Generated on: 2025-07-18 23:35:41</em></p>
+<h2>Summary</h2>
+<ul>
+  <li><strong>Total Tests</strong>: 44 test cases</li>
+  <li><strong>Source Files</strong>: 10 modules (131 functions, 9743 lines)</li>
+  <li><strong>Test Files</strong>: 4 test suites</li>
+  <li><strong>Overall Coverage</strong>: ~60% (estimated based on static analysis)</li>
+</ul>
+<h2>Detailed Coverage by Module</h2>
+<h3>High Coverage (70-90%)</h3>
+<table>
+  <thead>
+    <tr><th>Module</th><th>Functions</th><th>Lines</th><th>Test Coverage</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr class="high"><td><code>init.lua</code></td><td>58</td><td>3965</td><td>High</td><td>Comprehensive unit tests</td></tr>
+    <tr class="high"><td><code>patcher.lua</code></td><td>18</td><td>1625</td><td>High</td><td>Integration tests</td></tr>
+    <tr class="high"><td><code>validation.lua</code></td><td>26</td><td>1633</td><td>High</td><td>Dedicated test suite</td></tr>
+  </tbody>
+</table>
+<h3>Medium Coverage (40-70%)</h3>
+<table>
+  <thead>
+    <tr><th>Module</th><th>Functions</th><th>Lines</th><th>Test Coverage</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr class="medium"><td><code>utils.lua</code></td><td>11</td><td>338</td><td>Medium</td><td>Some utility functions tested</td></tr>
+    <tr class="medium"><td><code>diff.lua</code></td><td>2</td><td>143</td><td>Medium</td><td>Tested via integration</td></tr>
+    <tr class="medium"><td><code>hunk_matcher.lua</code></td><td>2</td><td>965</td><td>Medium</td><td>Tested via integration</td></tr>
+  </tbody>
+</table>
+<h3>Low Coverage (0-40%)</h3>
+<table>
+  <thead>
+    <tr><th>Module</th><th>Functions</th><th>Lines</th><th>Test Coverage</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr class="low"><td><code>path_utils.lua</code></td><td>7</td><td>413</td><td>Low</td><td>Minimal direct testing</td></tr>
+    <tr class="low"><td><code>cache.lua</code></td><td>6</td><td>289</td><td>Low</td><td>No direct tests found</td></tr>
+    <tr class="low"><td><code>commands.lua</code></td><td>1</td><td>312</td><td>Low</td><td>No direct tests found</td></tr>
+    <tr class="low"><td><code>keymaps.lua</code></td><td>0</td><td>60</td><td>Low</td><td>No direct tests found</td></tr>
+  </tbody>
+</table>
+<h2>Coverage Gaps and Recommendations</h2>
+<h3>Critical Gaps</h3>
+<ul>
+  <li><strong>Cache Module</strong>: No test coverage for caching functionality</li>
+  <li><strong>Commands Module</strong>: No test coverage for command implementations</li>
+  <li><strong>Keymaps Module</strong>: No test coverage for key mapping setup</li>
+  <li><strong>Path Utils</strong>: Limited direct testing of path utility functions</li>
+</ul>
+<h3>Recommendations</h3>
+<ol>
+  <li><strong>Add Unit Tests</strong>: Create `cache_spec.lua`, `commands_spec.lua`, and `path_utils_spec.lua`.</li>
+  <li><strong>Improve Integration Testing</strong>: Add performance, error boundary, and concurrency tests.</li>
+  <li><strong>Integrate LuaCov</strong> for line-by-line coverage analysis and reporting.</li>
+</ol>
+</body>
+</html>

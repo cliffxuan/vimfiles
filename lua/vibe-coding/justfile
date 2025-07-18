@@ -26,6 +26,12 @@ report:
     cd . && nvim --headless -c "luafile tests/generate_coverage_report.lua" -c "qa!"
     @echo "✅ Report generated: tests/coverage_report.md"
 
+# Generate HTML coverage report
+html-report:
+    @echo "📄 Generating HTML coverage report..."
+    cd . && nvim --headless -c "luafile tests/generate_html_report.lua" -c "qa!"
+    @echo "✅ Report generated: tests/coverage_report.html"
+
 # View coverage report
 view-report:
     @echo "📋 Coverage Report:"
