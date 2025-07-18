@@ -163,7 +163,7 @@ end
 --- Load all fixtures from all categories
 -- @return table: Array of all fixture data organized by category
 function M.load_all()
-  local categories = { 'simple', 'complex', 'error_cases' }
+  local categories = { 'simple', 'complex', 'error_cases', 'integration' }
   local all_fixtures = {}
 
   for _, category in ipairs(categories) do
@@ -350,6 +350,64 @@ function M.create_test_case(fixture)
           'Parse error should contain expected pattern'
         )
       end
+    end
+    
+    mocks.restore()
+  end
+end
+
+--- Create an integration test case from a fixture
+-- Tests the full validation and patch application pipeline
+-- @param fixture table: The fixture data
+-- @return function: A test function that can be used with testing frameworks
+function M.create_integration_test_case(fixture)
+  return function()
+    local vibe = require 'vibe-coding'
+
+    local mocks = setup_file_mocks(fixture.original_content)
+
+    -- Test the full integration pipeline using process_and_apply_patch
+    local result = vibe.VibePatcher.process_and_apply_patch(fixture.diff_content, {
+      silent = true, -- Don't spam notifications during tests
+      skip_buffer_refresh = true, -- Don't try to refresh buffers in tests
+      force_builtin_engine = true, -- Use built-in engine for consistent test behavior
+    })
+
+    if fixture.should_succeed then
+      -- Test should succeed
+      assert.is_true(result.success, 'Expected process_and_apply_patch to succeed: ' .. (result.message or ''))
+      
+      -- Verify validation occurred
+      assert.is_not_nil(result.validation_issues, 'Should have validation_issues array')
+      assert.is_not_nil(result.validated_diff, 'Should have validated_diff')
+      assert.is_not_nil(result.parsed_diff, 'Should have parsed_diff')
+
+      -- Handle special case for file deletion
+      if fixture.expected_content:match '^Skipped file deletion' then
+        assert.are.equal(fixture.expected_content, result.message)
+        assert.are.equal(0, #mocks.write_calls, 'Expected write_file to not be called')
+      else
+        assert.is_true(result.message:find 'Successfully applied' ~= nil, 'Message should contain "Successfully applied"')
+        assert.is_true(result.message:find 'hunks to' ~= nil, 'Message should contain "hunks to"')
+
+        -- Verify file was written with expected content
+        -- Note: write_file is called twice - once for temp diff, once for actual content
+        assert.are.equal(2, #mocks.write_calls, 'Expected write_file to be called twice (temp diff + content)')
+        local expected_lines = vim.split(fixture.expected_content, '\n', { plain = true, trimempty = false })
+        
+        -- The second call should be the actual file content
+        local content_write_call = mocks.write_calls[2]
+        assert.are.equal(fixture.file_path or result.parsed_diff.new_path, content_write_call.filepath)
+        assert.are.same(expected_lines, content_write_call.content)
+      end
+    else
+      -- Test should fail
+      assert.is_false(result.success, 'Expected process_and_apply_patch to fail')
+      assert.is_true(
+        (result.message or ''):find(fixture.expected_error_pattern) ~= nil,
+        'Error message should contain expected pattern: "' .. fixture.expected_error_pattern .. '" in "' .. (result.message or '') .. '"'
+      )
+      assert.are.equal(1, #mocks.write_calls, 'Expected write_file to be called once for temp diff creation')
     end
     
     mocks.restore()

@@ -21,6 +21,11 @@ fixtures/
 │   ├── multiple_hunks.lua
 │   ├── context_matching.lua
 │   └── edge_cases.lua
+├── integration/                # Integration pipeline tests
+│   ├── smart_validation_success.lua
+│   ├── path_resolution_fix.lua
+│   ├── validation_error_case.lua
+│   └── external_tool_fallback.lua
 └── error_cases/               # Error scenarios
     ├── missing_context.lua
     ├── malformed_diff.lua
@@ -83,10 +88,26 @@ local all_fixtures = fixtures.load_all()
 
 -- Load fixtures by category  
 local simple_fixtures = fixtures.load_category('simple')
+local integration_fixtures = fixtures.load_category('integration')
 
 -- Load specific fixture
 local fixture = fixtures.load_fixture('simple/basic_modification')
+
+-- Create test cases
+local basic_test = fixtures.create_test_case(fixture)  -- For basic diff application tests
+local integration_test = fixtures.create_integration_test_case(fixture)  -- For full validation pipeline tests
 ```
+
+## Integration Test Fixtures
+
+The `integration/` category contains fixtures that test the complete validation and patch application pipeline, equivalent to running `VibeApplyPatch`. These fixtures test:
+
+- **Smart validation**: Context line fixes, path resolution, etc.
+- **Full validation pipeline**: All validation steps including external tool testing
+- **Error handling**: Validation failures, parse errors, etc.
+- **Options handling**: Silent mode, builtin engine forcing, etc.
+
+Use `fixtures.create_integration_test_case(fixture)` for integration tests instead of the regular `create_test_case`.
 
 ## Adding New Fixtures
 

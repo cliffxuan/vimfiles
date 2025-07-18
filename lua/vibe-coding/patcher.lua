@@ -391,12 +391,12 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
         in_diff = true
         print '[Debug] Found diff content marker'
       elseif in_diff and not line:match '^#' then
-        print("[Debug] Extracting line: '" .. line .. "'")
         table.insert(diff_lines, line)
       end
     end
 
     local final_diff = table.concat(diff_lines, '\n')
+    print('[INFO] diff:\n' .. final_diff)
 
     -- Close the review tab
     vim.cmd 'tabclose'
@@ -549,8 +549,8 @@ function VibePatcher.apply_with_external_tool(diff_content, target_file)
   end
 end
 
---- Reviews and applies diffs from the last AI response with validation.
-function VibePatcher.review_and_apply_last_response(messages)
+--- Reviews and applies patches from the last AI response with validation.
+function VibePatcher.review_and_apply_patches_from_last_response(messages)
   local last_ai_message = nil
   for i = #messages, 1, -1 do
     if messages[i].role == 'assistant' then
@@ -660,8 +660,8 @@ function VibePatcher.review_and_apply_last_response(messages)
   end
 end
 
---- Finds the last AI response, extracts diffs, and applies them.
-function VibePatcher.apply_last_response(messages)
+--- Finds the last AI response, extracts diffs, validates them, and applies them.
+function VibePatcher.apply_patches_from_last_response(messages)
   local last_ai_message = nil
   for i = #messages, 1, -1 do
     if messages[i].role == 'assistant' then
@@ -700,20 +700,23 @@ function VibePatcher.apply_last_response(messages)
 
   local applied_count = 0
   local failed_count = 0
+
+  -- Process each diff block with validation
   for _, diff_content in ipairs(diff_blocks) do
-    local parsed_diff, parse_err = VibePatcher.parse_diff(diff_content)
-    if parsed_diff then
-      local success, apply_msg = VibePatcher.apply_diff(parsed_diff, { split_hunks = true })
-      if success then
-        vim.notify('[Vibe] ' .. apply_msg, vim.log.levels.INFO)
-        applied_count = applied_count + 1
-      else
-        vim.notify('[Vibe] ' .. apply_msg, vim.log.levels.ERROR)
-        failed_count = failed_count + 1
-      end
+    local result = VibePatcher.process_and_apply_patch(diff_content)
+
+    if result.success then
+      applied_count = applied_count + 1
+      vim.notify('[Vibe] ' .. result.message, vim.log.levels.INFO)
     else
-      vim.notify('[Vibe] Failed to parse diff: ' .. (parse_err or ''), vim.log.levels.ERROR)
       failed_count = failed_count + 1
+      vim.notify('[Vibe] ' .. result.message, vim.log.levels.ERROR)
+      -- Stop on failure
+      vim.notify(
+        '[Vibe] Patch aborted. Applied: ' .. applied_count .. '. Failed: ' .. failed_count .. '.',
+        vim.log.levels.ERROR
+      )
+      return
     end
   end
 
@@ -721,6 +724,88 @@ function VibePatcher.apply_last_response(messages)
     '[Vibe] Patch complete. Applied: ' .. applied_count .. '. Failed: ' .. failed_count .. '.',
     vim.log.levels.INFO
   )
+end
+
+--- Processes and applies a single patch with full validation pipeline.
+-- This is the core functionality extracted from apply_patches_from_last_response
+-- for use in integration tests and other contexts.
+-- @param diff_content string: The raw diff content to process
+-- @param options table: Optional processing options
+-- @return table: Result with success, message, validation_issues, and other details
+function VibePatcher.process_and_apply_patch(diff_content, options)
+  options = options or {}
+  local result = {
+    success = false,
+    message = '',
+    validation_issues = {},
+    validated_diff = nil,
+    parsed_diff = nil,
+    applied_with_external_tool = false,
+  }
+
+  -- Step 1: Validate and fix the diff content
+  local validated_diff, validation_issues = VibePatcher.validate_and_fix_diff(diff_content)
+  result.validated_diff = validated_diff
+  result.validation_issues = validation_issues
+
+  -- Report validation issues if requested
+  if not options.silent and #validation_issues > 0 then
+    local error_count = 0
+    local warning_count = 0
+    for _, issue in ipairs(validation_issues) do
+      if issue.severity == 'error' then
+        error_count = error_count + 1
+      else
+        warning_count = warning_count + 1
+      end
+    end
+    vim.notify(
+      string.format(
+        '[Vibe] Validation found %d errors, %d warnings. Proceeding with fixes applied.',
+        error_count,
+        warning_count
+      ),
+      error_count > 0 and vim.log.levels.WARN or vim.log.levels.INFO
+    )
+  end
+
+  -- Step 2: Parse the validated diff
+  local parsed_diff, parse_err = VibePatcher.parse_diff(validated_diff)
+  if not parsed_diff then
+    result.message = 'Failed to parse validated diff: ' .. (parse_err or 'Unknown error')
+    return result
+  end
+  result.parsed_diff = parsed_diff
+
+  -- Step 3: Test with external tool first
+  local can_apply_external, external_msg = VibePatcher.test_diff_with_external_tool(validated_diff, parsed_diff.new_path)
+
+  -- Step 4: Apply using the best available method
+  local success, apply_msg
+  if can_apply_external and not options.force_builtin_engine then
+    -- Use external tool for better reliability
+    success, apply_msg = VibePatcher.apply_with_external_tool(validated_diff, parsed_diff.new_path)
+    result.applied_with_external_tool = success
+    if success and not options.skip_buffer_refresh then
+      -- Refresh buffer after external tool application
+      VibePatcher.refresh_buffer_for_file(parsed_diff.new_path)
+    end
+  else
+    -- Fall back to built-in engine
+    if not options.silent then
+      if not can_apply_external then
+        vim.notify('[Vibe] External validation failed: ' .. external_msg, vim.log.levels.WARN)
+        vim.notify('[Vibe] Falling back to built-in engine', vim.log.levels.INFO)
+      end
+    end
+    success, apply_msg = VibePatcher.apply_diff(parsed_diff, { split_hunks = options.split_hunks or false })
+  end
+
+  -- Step 5: Set final result
+  result.success = success
+  result.message = apply_msg
+
+  return result
 end
 
 --- Applies a diff with hunk splitting capability and detailed failure reporting.

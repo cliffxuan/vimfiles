@@ -1,0 +1,8 @@
+return {
+  name = 'External Tool Fallback - Built-in Engine Success',
+  description = 'Test fallback to built-in engine when external tools fail validation but diff can still be applied',
+  should_succeed = true,
+  tags = { 'integration', 'external_tool', 'fallback' },
+
+  file_path = 'config.json',
+}

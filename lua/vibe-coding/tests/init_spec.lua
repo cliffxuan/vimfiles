@@ -54,7 +54,17 @@ describe('Vibe-Coding Plugin Unit Tests', function()
     package.loaded['telescope.actions'] = {}
     package.loaded['telescope.actions.state'] = {}
 
-    package.loaded['telescope.previewers'] = {}
+    package.loaded['telescope.previewers'] = {
+      new_termopen_previewer = function()
+        return {}
+      end,
+    }
+
+    package.loaded['telescope.sorters'] = {
+      get_generic_fuzzy_sorter = function()
+        return {}
+      end,
+    }
     -- Now we can safely require the module
     -- Clear any previous load of the module first
     package.loaded['vibe-coding'] = nil
@@ -69,6 +79,8 @@ describe('Vibe-Coding Plugin Unit Tests', function()
     package.loaded['telescope.config'] = nil
     package.loaded['telescope.actions'] = nil
     package.loaded['telescope.actions.state'] = nil
+    package.loaded['telescope.previewers'] = nil
+    package.loaded['telescope.sorters'] = nil
     package.loaded['vibe-coding'] = nil
   end)
 
@@ -513,13 +525,21 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
     --  VibePatcher Fixture-Based Tests
     -- =============================================================================
     describe('Fixture-based tests', function()
-      local fixtures = require 'tests.fixtures.fixture_loader'
+      -- Add current test directory to package.path for relative requires
+      local current_dir = debug.getinfo(1, 'S').source:match '@(.*/)' or './'
+      local original_path = package.path
+      package.path = current_dir .. '?.lua;' .. current_dir .. '?/init.lua;' .. package.path
+      local fixtures = require 'fixtures.fixture_loader'
+      package.path = original_path
 
-      -- Load all fixtures and create tests
-      local all_fixtures = fixtures.load_all()
+      -- Load fixtures for basic diff application tests (exclude integration category)
+      local categories = { 'simple', 'complex', 'error_cases' }
 
-      for _, fixture in ipairs(all_fixtures) do
-        it(fixture.name, fixtures.create_test_case(fixture))
+      for _, category in ipairs(categories) do
+        local category_fixtures = fixtures.load_category(category)
+        for _, fixture in ipairs(category_fixtures) do
+          it(fixture.name, fixtures.create_test_case(fixture))
+        end
       end
     end)
   end)

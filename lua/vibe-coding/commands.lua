@@ -44,12 +44,12 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
   end, { desc = 'Diff the last AI code block with the main editor buffer' })
 
   vim.api.nvim_create_user_command('VibeApplyPatch', function()
-    VibePatcher.apply_last_response(VibeChat.get_messages())
-  end, { desc = 'Apply diff from the last AI response with split hunks (individual hunk application)' })
+    VibePatcher.apply_patches_from_last_response(VibeChat.get_messages())
+  end, { desc = 'Apply patches from the last AI response with full validation (stops on first failure)' })
 
   vim.api.nvim_create_user_command('VibeReviewPatch', function()
-    VibePatcher.review_and_apply_last_response(VibeChat.get_messages())
-  end, { desc = 'Review and apply diff from the last AI response with validation and editing' })
+    VibePatcher.review_and_apply_patches_from_last_response(VibeChat.get_messages())
+  end, { desc = 'Review and apply patches from the last AI response with validation and editing' })
 
   vim.api.nvim_create_user_command('VibeSessionStart', function(opts)
     local session_name = opts.args ~= '' and opts.args or nil

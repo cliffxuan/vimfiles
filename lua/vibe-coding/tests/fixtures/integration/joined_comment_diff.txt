@@ -1,0 +1,9 @@
+--- config.js
++++ config.js
+@@ -1,6 +1,6 @@
+ const config = {
+   apiUrl: 'https://api.example.com',
+   maxRetries: 3,
+-  timeout: 5000 // Default timeout value
++  timeout: 8000 // Default timeout value (increased)
+ };

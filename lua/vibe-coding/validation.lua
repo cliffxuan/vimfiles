@@ -81,7 +81,7 @@ function Validation._process_old_file_header(line, line_num)
   if file_path and file_path ~= '' and file_path ~= '/dev/null' then
     file_path = PathUtils.clean_path(file_path)
 
-    if PathUtils.looks_like_file(file_path) then
+    if file_path and PathUtils.looks_like_file(file_path) then
       -- Check if it's already a valid absolute path
       if file_path:match '^/' and vim.fn.filereadable(file_path) == 1 then
         -- Valid absolute path - no issue to report
@@ -279,12 +279,7 @@ function Validation._fix_hunk_content_line(line, line_num)
   local op = line:sub(1, 1)
 
   -- Handle valid diff operators
-  if op == '-' or op == '+' then
-    return line, nil
-  end
-  
-  -- Handle valid context lines (exactly one space prefix)
-  if op == ' ' and (line:len() == 1 or line:sub(2, 2) ~= ' ') then
+  if op == ' ' or op == '-' or op == '+' then
     return line, nil
   end
 
@@ -313,25 +308,15 @@ function Validation._try_fix_missing_context_prefix(line, line_num)
   -- Don't try to fix lines that start with special characters that might be intentional
   local first_char = line:sub(1, 1)
 
-  -- Lines that start with characters that are unlikely to be context lines
+  -- Skip lines that start with characters that are unlikely to be context lines
   if first_char:match '[#@\\/%*]' then
-    return nil, {
-      line = line_num,
-      type = 'invalid_line',
-      message = 'Invalid line in hunk: ' .. line,
-      severity = 'warning',
-    }
+    return nil, nil
   end
 
-  -- Lines that look like they might be meant as additions/removals
+  -- Skip lines that look like they might be meant as additions/removals
   -- (though this is harder to detect definitively)
   if line:match '^%s*[+-]' then
-    return nil, {
-      line = line_num,
-      type = 'invalid_line',
-      message = 'Invalid line in hunk: ' .. line,
-      severity = 'warning',
-    }
+    return nil, nil
   end
 
   -- Check if this looks like a valid code/text line that should be context
@@ -350,22 +335,17 @@ function Validation._try_fix_missing_context_prefix(line, line_num)
   )
 
   if looks_like_context then
-    local truncated_line = line:sub(1, 50) .. (line:len() > 50 and '...' or '')
     return ' ' .. line,
       {
         line = line_num,
         type = 'context_fix',
-        message = 'Added missing space prefix for context line: ' .. truncated_line,
+        message = 'Added missing space prefix for context line: '
+          .. (line:sub(1, 50) .. (line:len() > 50 and '...' or '')),
         severity = 'info',
       }
   end
 
-  return nil, {
-    line = line_num,
-    type = 'invalid_line',
-    message = 'Invalid line in hunk: ' .. line,
-    severity = 'warning',
-  }
+  return nil, nil
 end
 
 --- Formats diff content for better readability and standards compliance.
@@ -456,123 +436,137 @@ function Validation.smart_validate_against_original(diff_content)
   local lines = vim.split(diff_content, '\n', { plain = true })
   local issues = {}
   local fixed_lines = {}
-  
+
   local current_file = nil
-  local original_content = nil
   local original_lines = nil
-  
+
   for i, line in ipairs(lines) do
-    local fixed_line = line
-    
-    -- Track current file being processed
-    if line:match('^---') then
-      local file_path = line:match('^---%s+(.*)$')
-      if file_path and file_path ~= '/dev/null' then
-        -- Clean up the file path
-        file_path = PathUtils.clean_path(file_path)
-        current_file = file_path
-        
-        -- Try to read the original file
-        if vim.fn.filereadable(current_file) == 1 then
-          local content, _ = require('vibe-coding.utils').read_file_content(current_file)
-          if content then
-            original_content = content
-            original_lines = vim.split(content, '\n', { plain = true, trimempty = false })
-          end
-        end
-      end
-    -- Process context lines in hunks (both properly formatted and missing space prefix)
-    elseif line:match('^%s') and original_lines then
-      -- This is a properly formatted context line, validate it against original
-      local context_text = line:sub(2) -- Remove leading space
-      local issue = Validation._validate_context_against_original(context_text, original_lines, i)
-      if issue then
-        table.insert(issues, issue)
-        -- Special handling for function definition joined with docstring  
-        if issue.type == 'formatting_issue' and issue.message:match('Function definition joined with docstring') then
-          local corrected_lines = Validation._fix_joined_function_docstring(context_text, original_lines)
-          if corrected_lines then
-            -- Replace the current line with the fixed function definition
-            fixed_line = ' ' .. corrected_lines[1]
-            issue.message = issue.message .. ' (auto-corrected: separated function and docstring)'
-            issue.severity = 'info'
-            
-            -- Insert the docstring line after this one
-            if corrected_lines[2] then
-              table.insert(fixed_lines, fixed_line)
-              table.insert(fixed_lines, ' ' .. corrected_lines[2])
-              -- Continue to next iteration since we've added both lines
-              goto continue_loop
-            end
-          else
-            -- Try to fix the issue with original logic
-            local corrected_line = Validation._fix_context_line_formatting(context_text, original_lines)
-            if corrected_line then
-              fixed_line = ' ' .. corrected_line
-              issue.message = issue.message .. ' (auto-corrected)'
-              issue.severity = 'info'
-            end
-          end
-        else
-          -- Try to fix the issue
-          local corrected_line = Validation._fix_context_line_formatting(context_text, original_lines)
-          if corrected_line then
-            fixed_line = ' ' .. corrected_line
-            issue.message = issue.message .. ' (auto-corrected)'
-            issue.severity = 'info'
-          end
-        end
-      end
-    -- Also check lines that should be context but are missing the space prefix
-    elseif original_lines and not line:match('^[+@-]') and not line:match('^%+%+%+') and not line:match('^---') and line ~= '' then
-      -- This might be a context line missing the space prefix - check if it looks like context
-      local issue = Validation._validate_context_against_original(line, original_lines, i)
-      if issue then
-        table.insert(issues, issue)
-        -- Special handling for function definition joined with docstring
-        if issue.type == 'formatting_issue' and issue.message:match('Function definition joined with docstring') then
-          local corrected_lines = Validation._fix_joined_function_docstring(line, original_lines)
-          if corrected_lines then
-            -- Replace the current line with the fixed function definition
-            fixed_line = ' ' .. corrected_lines[1]
-            issue.message = issue.message .. ' (auto-corrected: separated function and docstring)'
-            issue.severity = 'info'
-            
-            -- Insert the docstring line after this one
-            if corrected_lines[2] then
-              table.insert(fixed_lines, fixed_line)
-              table.insert(fixed_lines, ' ' .. corrected_lines[2])
-              -- Continue to next iteration since we've added both lines
-              goto continue_loop
-            end
-          else
-            -- If we can't fix the specific formatting issue, just add space prefix
-            fixed_line = ' ' .. line
-            issue.message = issue.message .. ' (added space prefix, manual fix needed)'
-            issue.severity = 'warning'
-          end
-        else
-          -- Try to fix other formatting issues
-          local corrected_line = Validation._fix_context_line_formatting(line, original_lines)
-          if corrected_line then
-            fixed_line = ' ' .. corrected_line
-            issue.message = issue.message .. ' (auto-corrected)'
-            issue.severity = 'info'
-          else
-            -- If we can't fix the formatting, at least add the space prefix
-            fixed_line = ' ' .. line
-            issue.message = issue.message .. ' (added space prefix)'
-            issue.severity = 'warning'
-          end
+    local process_result = Validation._process_line_for_smart_validation(line, i, current_file, original_lines, issues)
+
+    -- Update current file tracking
+    if process_result.current_file then
+      current_file = process_result.current_file
+      original_lines = process_result.original_lines
+    end
+
+    -- Add the fixed line(s) to output
+    for _, fixed_line in ipairs(process_result.fixed_lines) do
+      table.insert(fixed_lines, fixed_line)
+    end
+  end
+
+  return table.concat(fixed_lines, '\n'), issues
+end
+
+--- Processes a single line for smart validation
+-- @param line The line to process
+-- @param line_num The line number
+-- @param current_file Current file being tracked
+-- @param original_lines Original file lines if available
+-- @param issues Issues table to append to
+-- @return table: Result with fixed_lines, current_file, original_lines
+function Validation._process_line_for_smart_validation(line, line_num, current_file, original_lines, issues)
+  local result = {
+    fixed_lines = { line },
+    current_file = nil,
+    original_lines = nil,
+  }
+
+  -- Suppress unused parameter warning
+  _ = current_file
+
+  -- Track current file being processed
+  if line:match '^---' then
+    local file_path = line:match '^---%s+(.*)$'
+    if file_path and file_path ~= '/dev/null' then
+      -- Clean up the file path
+      file_path = PathUtils.clean_path(file_path)
+      result.current_file = file_path
+
+      -- Try to read the original file (attempt read regardless of filereadable for testing compatibility)
+      if file_path then
+        local content, _ = require('vibe-coding.utils').read_file_content(file_path)
+        if content then
+          result.original_lines = vim.split(content, '\n', { plain = true, trimempty = false })
         end
       end
     end
-    
-    table.insert(fixed_lines, fixed_line)
-    ::continue_loop::
+    return result
   end
-  
-  return table.concat(fixed_lines, '\n'), issues
+
+  -- Process context lines in hunks (both properly formatted and missing space prefix)
+  if line:match '^%s' and original_lines then
+    return Validation._process_context_line(line, line_num, original_lines, issues, true)
+  end
+
+  -- Also check lines that should be context but are missing the space prefix
+  if
+    original_lines
+    and not line:match '^[+@-]'
+    and not line:match '^%+%+%+'
+    and not line:match '^---'
+    and line ~= ''
+  then
+    return Validation._process_context_line(line, line_num, original_lines, issues, false)
+  end
+
+  return result
+end
+
+--- Processes a context line for smart validation
+-- @param line The line to process
+-- @param line_num The line number
+-- @param original_lines Original file lines
+-- @param issues Issues table to append to
+-- @param has_space_prefix Whether the line already has a space prefix
+-- @return table: Result with fixed_lines array
+function Validation._process_context_line(line, line_num, original_lines, issues, has_space_prefix)
+  local result = { fixed_lines = {} }
+  local context_text = has_space_prefix and line:sub(2) or line
+  local issue = Validation._validate_context_against_original(context_text, original_lines, line_num)
+
+  if not issue then
+    table.insert(result.fixed_lines, line)
+    return result
+  end
+
+  table.insert(issues, issue)
+
+  -- Handle generic joined lines formatting issue
+  if issue.type == 'formatting_issue' and issue.split_lines then
+    -- Replace the current line with the split lines
+    issue.message = issue.message .. ' (auto-corrected: split into ' .. #issue.split_lines .. ' lines)'
+    issue.severity = 'info'
+
+    -- Add all split lines with proper space prefix and correct indentation from original
+    for i, split_line in ipairs(issue.split_lines) do
+      local corrected_line = Validation._correct_line_indentation(split_line, original_lines, i > 1)
+      table.insert(result.fixed_lines, ' ' .. corrected_line)
+    end
+    return result
+  end
+
+  -- Try to fix other formatting issues
+  local corrected_line = Validation._fix_context_line_formatting(context_text, original_lines)
+  if corrected_line then
+    local fixed_line = ' ' .. corrected_line
+    issue.message = issue.message .. ' (auto-corrected)'
+    issue.severity = 'info'
+    table.insert(result.fixed_lines, fixed_line)
+    return result
+  end
+
+  -- Final fallback
+  if has_space_prefix then
+    table.insert(result.fixed_lines, line)
+  else
+    local fixed_line = ' ' .. line
+    issue.message = issue.message .. ' (added space prefix)'
+    issue.severity = 'warning'
+    table.insert(result.fixed_lines, fixed_line)
+  end
+
+  return result
 end
 
 --- Validates a context line against the original file content
@@ -585,46 +579,57 @@ function Validation._validate_context_against_original(context_text, original_li
   if context_text == '' then
     return nil
   end
-  
+
   -- Check if this exact line exists in the original file
   for _, orig_line in ipairs(original_lines) do
     if orig_line == context_text then
       return nil -- Found exact match, all good
     end
   end
-  
+
   -- No exact match found, this might be a formatting issue
   -- Common issues: joined lines, missing indentation, etc.
-  
-  -- Check for common patterns that suggest formatting issues
-  local patterns_to_check = {
-    -- Function definition followed by docstring (like the example)
-    { pattern = '(.-):%s*"""(.-)"""', description = 'Function definition joined with docstring' },
-    { pattern = '(.-):%s*"(.+)"', description = 'Function definition joined with string' },
-    { pattern = '(.-):%s*#(.+)', description = 'Code line joined with comment' },
-  }
-  
-  for _, check in ipairs(patterns_to_check) do
-    local match1, match2 = context_text:match(check.pattern)
-    if match1 and match2 then
-      return {
-        line = line_num,
-        type = 'formatting_issue',
-        message = check.description .. ': ' .. context_text:sub(1, 60) .. (context_text:len() > 60 and '...' or ''),
-        severity = 'warning',
-        original_text = context_text,
-        suggested_fix = match1 .. ':\n    """' .. match2 .. '"""' -- Example fix
-      }
+
+  -- Check if context_text is a prefix of any original line
+  -- This handles common cases where multiple lines are joined together
+  local prefix_match, prefix_type = Validation._find_prefix_match(context_text, original_lines)
+  if prefix_match then
+    local message
+    if prefix_type == 'docstring' then
+      message = 'Function definition joined with docstring: '
+        .. context_text:sub(1, 60)
+        .. (context_text:len() > 60 and '...' or '')
+    elseif prefix_type == 'return' then
+      message = 'Lines incorrectly joined with return: '
+        .. context_text:sub(1, 60)
+        .. (context_text:len() > 60 and '...' or '')
+    elseif prefix_type == 'comment' then
+      message = 'Line joined with comment: ' .. context_text:sub(1, 60) .. (context_text:len() > 60 and '...' or '')
+    else
+      message = 'Joined line detected (prefix match): '
+        .. context_text:sub(1, 60)
+        .. (context_text:len() > 60 and '...' or '')
     end
+
+    return {
+      line = line_num,
+      type = 'formatting_issue',
+      message = message,
+      severity = 'warning',
+      original_text = context_text,
+      split_lines = prefix_match,
+    }
   end
-  
+
   -- Generic case: line not found in original
   return {
     line = line_num,
     type = 'context_mismatch',
-    message = 'Context line not found in original file: ' .. context_text:sub(1, 50) .. (context_text:len() > 50 and '...' or ''),
+    message = 'Context line not found in original file: '
+      .. context_text:sub(1, 50)
+      .. (context_text:len() > 50 and '...' or ''),
     severity = 'warning',
-    original_text = context_text
+    original_text = context_text,
   }
 end
 
@@ -634,32 +639,32 @@ end
 -- @return string|nil: Fixed text or nil if can't fix
 function Validation._fix_context_line_formatting(context_text, original_lines)
   -- Try to find the correct formatting by looking for partial matches
-  
+
   -- Case 1: Function definition joined with docstring
-  local func_part, docstring = context_text:match('(.-):%s*"""(.-)"""')
+  local func_part, docstring = context_text:match '(.-):%s*"""(.-)"""'
   if func_part and docstring then
     -- Check if the function definition alone exists in the original
     for _, orig_line in ipairs(original_lines) do
-      if orig_line:find(func_part, 1, true) and orig_line:match(':%s*$') then
+      if orig_line:find(func_part, 1, true) and orig_line:match ':%s*$' then
         -- Found the function definition, return the original line
         return orig_line
       end
     end
   end
-  
+
   -- Case 2: Look for similar lines with different formatting
   local context_words = {}
-  for word in context_text:gmatch('%S+') do
+  for word in context_text:gmatch '%S+' do
     table.insert(context_words, word)
   end
-  
+
   if #context_words > 0 then
     -- Find lines that contain the first few words
     local search_pattern = vim.pesc(context_words[1])
     if context_words[2] then
       search_pattern = search_pattern .. '.*' .. vim.pesc(context_words[2])
     end
-    
+
     for _, orig_line in ipairs(original_lines) do
       if orig_line:match(search_pattern) then
         -- Found a similar line, use it as the correction
@@ -667,51 +672,200 @@ function Validation._fix_context_line_formatting(context_text, original_lines)
       end
     end
   end
-  
+
   return nil -- Can't fix automatically
 end
 
---- Fixes function definition joined with docstring by splitting into separate lines
--- @param context_text The problematic context text with joined function and docstring
+--- Finds if context_text is a prefix of lines in the original file and extracts the split
+-- @param context_text The potentially joined line
 -- @param original_lines Array of lines from the original file
--- @return table|nil: Array of fixed lines [function_def, docstring] or nil if can't fix
-function Validation._fix_joined_function_docstring(context_text, original_lines)
-  -- Match function definition joined with docstring
-  local func_part, docstring = context_text:match('(.-):%s*"""(.-)"""')
-  if not func_part or not docstring then
+-- @return table|nil, string|nil: Array of split lines that reconstruct the context_text and pattern type, or nil if no match
+function Validation._find_prefix_match(context_text, original_lines)
+  if not original_lines or #original_lines == 0 or context_text == '' then
     return nil
   end
-  
-  -- Find the correct function definition in the original file
-  local correct_func_line = nil
-  for _, orig_line in ipairs(original_lines) do
-    if orig_line:find(func_part, 1, true) and orig_line:match(':%s*$') then
-      correct_func_line = orig_line
-      break
+
+  -- Remove leading/trailing whitespace for comparison
+  local trimmed_context = context_text:gsub('^%s+', ''):gsub('%s+$', '')
+
+  -- Try to find a sequence of original lines that when concatenated (with appropriate separators)
+  -- would create the context_text
+  for start_idx = 1, #original_lines do
+    local matched_lines = {}
+
+    -- Try building up the context_text from consecutive original lines
+    for end_idx = start_idx, math.min(start_idx + 4, #original_lines) do -- Limit to 5 lines max
+      local orig_line = original_lines[end_idx]
+      local trimmed_orig = orig_line:gsub('^%s+', ''):gsub('%s+$', '')
+
+      if trimmed_orig == '' then
+        break -- Skip empty lines for now
+      end
+
+      table.insert(matched_lines, orig_line)
+
+      -- Try different ways to join the lines
+      local join_attempts = {}
+
+      -- Attempt 1: Direct concatenation (for lines like "if condition:return value")
+      local direct_concat = ''
+      for i, line in ipairs(matched_lines) do
+        local line_trimmed = line:gsub('^%s+', ''):gsub('%s+$', '')
+        if i == 1 then
+          direct_concat = line_trimmed
+        else
+          direct_concat = direct_concat .. line_trimmed
+        end
+      end
+      table.insert(join_attempts, direct_concat)
+
+      -- Attempt 2: Concatenation with colon separator (common pattern)
+      if #matched_lines == 2 then
+        local first_trimmed = matched_lines[1]:gsub('^%s+', ''):gsub('%s+$', '')
+        local second_trimmed = matched_lines[2]:gsub('^%s+', ''):gsub('%s+$', '')
+        -- Handle cases like "if not items:" + "return 0" -> "if not items:return 0"
+        if first_trimmed:match ':$' and not second_trimmed:match '^:' then
+          table.insert(join_attempts, first_trimmed .. second_trimmed)
+        end
+      end
+
+      -- Attempt 3: Concatenation with space separator
+      local space_concat = ''
+      for i, line in ipairs(matched_lines) do
+        local line_trimmed = line:gsub('^%s+', ''):gsub('%s+$', '')
+        if i == 1 then
+          space_concat = line_trimmed
+        else
+          space_concat = space_concat .. ' ' .. line_trimmed
+        end
+      end
+      table.insert(join_attempts, space_concat)
+
+      -- Check if any join attempt matches our context text
+      for _, attempt in ipairs(join_attempts) do
+        if attempt == trimmed_context then
+          -- Found a match! Detect the pattern type
+          local pattern_type = Validation._detect_join_pattern_type(matched_lines, context_text)
+          return matched_lines, pattern_type
+        end
+      end
+
+      -- Also check if trimmed_context starts with this accumulated text
+      -- (for partial matches that might extend further)
+      if #matched_lines >= 2 then -- Only consider multi-line matches
+        for _, attempt in ipairs(join_attempts) do
+          if trimmed_context:find('^' .. vim.pesc(attempt)) and #attempt > #trimmed_context * 0.6 then
+            -- Strong prefix match (at least 60% of the context), likely a match
+            local pattern_type = Validation._detect_join_pattern_type(matched_lines, context_text)
+            return matched_lines, pattern_type
+          end
+        end
+      end
     end
   end
-  
-  if not correct_func_line then
-    -- If we can't find the exact function, construct it from the parsed part
-    correct_func_line = func_part .. ':'
-  end
-  
-  -- Find the correct docstring formatting from the original file
-  local correct_docstring_line = nil
-  local docstring_pattern = '"""' .. vim.pesc(docstring) .. '"""'
-  for _, orig_line in ipairs(original_lines) do
-    if orig_line:match(docstring_pattern) then
-      correct_docstring_line = orig_line
-      break
+
+  return nil, nil
+end
+
+--- Detects the type of join pattern based on the matched lines and context
+-- @param matched_lines Array of original lines that were joined
+-- @param context_text The joined context text
+-- @return string: Pattern type ('docstring', 'return', 'comment', etc.)
+function Validation._detect_join_pattern_type(matched_lines, context_text)
+  -- Check for function definition with docstring
+  if #matched_lines == 2 then
+    local first_line = matched_lines[1]:gsub('^%s+', ''):gsub('%s+$', '')
+    local second_line = matched_lines[2]:gsub('^%s+', ''):gsub('%s+$', '')
+
+    -- Pattern: function definition followed by docstring
+    if first_line:match '^def%s.*:$' and second_line:match '^""".*"""$' then
+      return 'docstring'
+    end
+
+    -- Pattern: control structure followed by return
+    if first_line:match ':$' and second_line:match '^return%s' then
+      return 'return'
+    end
+
+    -- Pattern: line followed by comment
+    if second_line:match '^#' or second_line:match '^//' or second_line:match '^/%*' then
+      return 'comment'
     end
   end
-  
-  if not correct_docstring_line then
-    -- If we can't find the exact docstring, construct it with proper indentation
-    correct_docstring_line = '    """' .. docstring .. '"""'
+
+  -- Check context_text for patterns
+  if context_text:match ':""".*"""' then
+    return 'docstring'
+  elseif context_text:match ':return%s' then
+    return 'return'
+  elseif context_text:match '#' or context_text:match '//' or context_text:match '/%*' then
+    return 'comment'
   end
-  
-  return { correct_func_line, correct_docstring_line }
+
+  return 'generic'
+end
+
+--- Validates if a split candidate matches lines in the original file
+-- @param candidate Array of split line candidates
+-- @param original_lines Array of original file lines
+-- @return boolean: True if the split lines can be found in original
+function Validation._validate_split_against_original(candidate, original_lines)
+  -- Check if all parts of the candidate can be found in the original file
+  local found_count = 0
+
+  for _, split_line in ipairs(candidate) do
+    local trimmed = split_line:gsub('^%s+', ''):gsub('%s+$', '')
+    if trimmed ~= '' then
+      for _, orig_line in ipairs(original_lines) do
+        local orig_trimmed = orig_line:gsub('^%s+', ''):gsub('%s+$', '')
+        if orig_trimmed == trimmed or orig_line:find(trimmed, 1, true) then
+          found_count = found_count + 1
+          break
+        end
+      end
+    end
+  end
+
+  -- Require that at least 80% of split lines match original content
+  return found_count >= math.max(1, math.floor(#candidate * 0.8))
+end
+
+--- Corrects the indentation of a split line by finding the correct version in the original file
+-- @param split_line The line after splitting
+-- @param original_lines Array of original file lines
+-- @param is_continuation_line Whether this is a continuation line (like docstring after function)
+-- @return string: Line with correct indentation
+function Validation._correct_line_indentation(split_line, original_lines, is_continuation_line)
+  if not original_lines then
+    return split_line
+  end
+
+  local trimmed_split = split_line:gsub('^%s+', ''):gsub('%s+$', '')
+
+  -- Look for exact content match in original to get proper indentation
+  for _, orig_line in ipairs(original_lines) do
+    local trimmed_orig = orig_line:gsub('^%s+', ''):gsub('%s+$', '')
+    if trimmed_orig == trimmed_split then
+      return orig_line -- Use original with proper indentation
+    end
+
+    -- For docstrings, also check if the content matches (ignoring whitespace)
+    if trimmed_split:match '^""".*"""$' and trimmed_orig:match '^""".*"""$' then
+      local split_content = trimmed_split:match '^"""(.*)"""$'
+      local orig_content = trimmed_orig:match '^"""(.*)"""$'
+      if split_content == orig_content then
+        return orig_line -- Use original with proper indentation
+      end
+    end
+  end
+
+  -- If not found and it's a continuation line, try to infer proper indentation
+  if is_continuation_line and trimmed_split:match '^"""' then
+    -- For docstrings, typically indent 4 spaces relative to function
+    return '    ' .. trimmed_split
+  end
+
+  return split_line -- Fallback to as-is
 end
 
 return Validation
