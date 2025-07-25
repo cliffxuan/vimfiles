@@ -3,11 +3,11 @@ function process_user_data(data) {
     if (!data) {
         throw new Error("No data provided");
     }
-    
+
     if (!Array.isArray(data)) {
         throw new Error("Data must be an array");
     }
-    
+
     // Process the data
     const result = data.map(item => {
         return {

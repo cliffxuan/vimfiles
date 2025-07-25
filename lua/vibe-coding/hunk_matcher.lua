@@ -53,7 +53,9 @@ function HunkMatcher:apply_all_hunks()
     end
 
     -- Refresh any open buffers for this file
-    self:_refresh_buffer(target_file)
+    if vim.fn and vim.fn.fnamemodify then
+      self:_refresh_buffer(target_file)
+    end
   end
 
   return self:_generate_result_message()
@@ -123,18 +125,19 @@ function HunkMatcher:_build_search_replace_patterns(hunk)
   -- Build search and replacement patterns correctly
   for _, line in ipairs(hunk.lines) do
     local op, text = self:_parse_hunk_line(line)
+    local normalized_text = self:_normalize_line(text)
 
     if op == ' ' or op == '' then
       -- Context lines (including empty lines) go in both search and replacement
-      table.insert(search_lines, text)
-      table.insert(replacement_lines, text)
+      table.insert(search_lines, normalized_text)
+      table.insert(replacement_lines, normalized_text)
     elseif op == '-' then
       -- Removed lines only go in search pattern
-      table.insert(search_lines, text)
+      table.insert(search_lines, normalized_text)
       -- Do NOT add to replacement_lines - these should be completely removed
     elseif op == '+' then
       -- Added lines only go in replacement pattern
-      table.insert(replacement_lines, text)
+      table.insert(replacement_lines, normalized_text)
       -- Do NOT add to search_lines - these are new content
     end
   end
@@ -142,19 +145,20 @@ function HunkMatcher:_build_search_replace_patterns(hunk)
   -- Second pass: build traditional arrays for backward compatibility
   for _, line in ipairs(hunk.lines) do
     local op, text = self:_parse_hunk_line(line)
+    local normalized_text = self:_normalize_line(text)
 
     if op == ' ' then
       if in_changes then
-        table.insert(context_after, text)
+        table.insert(context_after, normalized_text)
       else
-        table.insert(context_before, text)
+        table.insert(context_before, normalized_text)
       end
     elseif op == '-' then
       in_changes = true
-      table.insert(to_remove, text)
+      table.insert(to_remove, normalized_text)
     elseif op == '+' then
       in_changes = true
-      table.insert(to_add, text)
+      table.insert(to_add, normalized_text)
     end
   end
 
@@ -218,6 +222,16 @@ function HunkMatcher:_find_hunk_location(search_lines, modified_lines)
   return self:_fuzzy_match(search_lines, modified_lines)
 end
 
+--- Normalizes a line for matching by collapsing whitespace-only lines to empty.
+-- @param line The line to normalize.
+-- @return string The normalized line.
+function HunkMatcher:_normalize_line(line)
+  if line:match('^%s*$') then
+    return ''
+  end
+  return line
+end
+
 --- Performs exact string matching
 -- @param search_lines Lines to search for
 -- @param modified_lines Lines to search in
@@ -226,7 +240,7 @@ function HunkMatcher:_exact_match(search_lines, modified_lines)
   for i = 1, #modified_lines - #search_lines + 1 do
     local match = true
     for j = 1, #search_lines do
-      if modified_lines[i + j - 1] ~= search_lines[j] then
+      if self:_normalize_line(modified_lines[i + j - 1]) ~= search_lines[j] then
         match = false
         break
       end
@@ -246,7 +260,7 @@ function HunkMatcher:_fuzzy_match(search_lines, modified_lines)
   -- Create non-blank line patterns for fuzzy matching
   local search_non_blank = {}
   for _, line in ipairs(search_lines) do
-    if line ~= '' then
+    if not line:match('^%s*$') then
       table.insert(search_non_blank, line)
     end
   end
@@ -278,7 +292,7 @@ function HunkMatcher:_try_fuzzy_match_at_position(search_non_blank, modified_lin
 
   -- Collect non-blank lines from file starting at start_pos
   for i = start_pos, #modified_lines do
-    if modified_lines[i] ~= '' then
+    if not modified_lines[i]:match('^%s*$') then
       table.insert(file_non_blank, modified_lines[i])
       if #file_non_blank == #search_non_blank then
         end_pos = i
@@ -394,6 +408,9 @@ end
 --- Refreshes any open buffer for the target file
 -- @param filepath The file path to refresh
 function HunkMatcher:_refresh_buffer(filepath)
+  if not (vim.fn and vim.fn.fnamemodify) then
+    return
+  end
   -- Get the absolute path to ensure proper matching
   local abs_filepath = vim.fn.fnamemodify(filepath, ':p')
 
@@ -419,7 +436,7 @@ function HunkMatcher:_handle_buffer_refresh(buf_id, filepath)
   if modified then
     -- Ask user what to do with modified buffer
     local choice = vim.fn.confirm(
-      'Buffer for "' .. vim.fn.fnamemodify(filepath, ':t') .. '" has unsaved changes.\nReload with patch changes?',
+      'Buffer for "' .. vim.fn.fnamodify(filepath, ':t') .. '" has unsaved changes.\nReload with patch changes?',
       '&Reload\n&Keep current\n&Cancel',
       1
     )
@@ -427,16 +444,16 @@ function HunkMatcher:_handle_buffer_refresh(buf_id, filepath)
       vim.api.nvim_buf_call(buf_id, function()
         vim.cmd 'edit!'
       end)
-      vim.notify('[Vibe] Reloaded buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
+      vim.notify('[Vibe] Reloaded buffer: ' .. vim.fn.fnamodify(filepath, ':t'), vim.log.levels.INFO)
     elseif choice == 2 then -- Keep current
-      vim.notify('[Vibe] Kept current buffer changes: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
+      vim.notify('[Vibe] Kept current buffer changes: ' .. vim.fn.fnamodify(filepath, ':t'), vim.log.levels.INFO)
     end
   else
     -- Buffer is not modified, safe to reload
     vim.api.nvim_buf_call(buf_id, function()
       vim.cmd 'edit!'
     end)
-    vim.notify('[Vibe] Refreshed buffer: ' .. vim.fn.fnamemodify(filepath, ':t'), vim.log.levels.INFO)
+    vim.notify('[Vibe] Refreshed buffer: ' .. vim.fn.fnamodify(filepath, ':t'), vim.log.levels.INFO)
   end
 end
 
@@ -501,8 +518,8 @@ function HunkMatcher:_validate_modified_content(lines)
     if
       line:match '%d+→' -- Line number artifacts like "123→"
       or line:match 'No newline at end of file' -- Git artifacts
-      or line:match '^%s*%.%.%.%s*$'
-    then -- Random ellipsis lines
+      or line:match '^%s*%.%.%.%s*$' -- Random ellipsis lines
+    then
       return false
     end
   end

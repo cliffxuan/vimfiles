@@ -99,7 +99,7 @@ describe('Fixtures V2 System', function()
     it('should load pass category fixtures', function()
       local pass_fixtures = fixtures.load_category 'pass'
       assert.is_true(#pass_fixtures > 0, 'Should have pass fixtures')
-      assert.are.equal(37, #pass_fixtures)
+      assert.are.equal(38, #pass_fixtures)
     end)
 
     it('should load fail category fixtures', function()
@@ -109,7 +109,7 @@ describe('Fixtures V2 System', function()
     end)
     it('should load all fixtures', function()
       local all_fixtures = fixtures.load_all()
-      assert.are.equal(44, #all_fixtures)
+      assert.are.equal(45, #all_fixtures)
     end)
   end)
 

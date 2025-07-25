@@ -1,0 +1,10 @@
+{
+  "tags": [
+    "integration",
+    "validation"
+  ],
+  "file_path": "utils.lua",
+  "name": "diff line has whitespace only",
+  "description": "Test that matches diff line with whitespace only",
+  "should_succeed": true
+}
