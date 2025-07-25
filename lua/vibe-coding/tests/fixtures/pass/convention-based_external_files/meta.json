@@ -1,0 +1,1 @@
+{"tags": ["simple", "convention", "external"], "file_path": "process.js", "name": "Convention-Based External Files", "description": "Test automatic loading of external files using naming conventions: {fixture_name}_{content_type}.txt", "should_succeed": true}

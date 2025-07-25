@@ -1,0 +1,1 @@
+{"tags": ["integration", "validation", "error"], "expected_error_pattern": "Could not find this context in the file", "file_path": "broken.js", "name": "Validation Error - Missing Context Lines", "description": "Test that validation fails when context lines are completely wrong and cannot be fixed", "should_succeed": false}

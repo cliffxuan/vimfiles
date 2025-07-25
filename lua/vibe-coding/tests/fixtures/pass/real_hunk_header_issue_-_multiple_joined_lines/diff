@@ -1,0 +1,25 @@
+--- app/api/v2/cli/main.py
++++ app/api/v2/cli/main.py
+@@ -4,7 +4,7 @@
+
+-    all_clusters = []
++    all_cluster_names = []
+     platforms: list[PLATFORM] = ["isilon", "vast"]
+
+     for platform in platforms:
+@@ -10,7 +10,7 @@clusters = get_clusters(platform)
+-            all_clusters.extend(clusters)
++            all_cluster_names.extend(clusters.keys())
+             console.print(
+                 f"[blue]Found {len(clusters)} {platform.title()} clusters[/blue]"
+             )except Exception as e:
+             console.print(f"[red]Error fetching {platform.title()} clusters: {e}[/red]")
+
+-    if not all_clusters:
++    if not all_cluster_names:
+         console.print("[red]No clusters found, cannot generate type alias[/red]")
+         return
+
+     # Sort clusters for consistent output
+-    all_clusters.sort()
++    all_cluster_names.sort()

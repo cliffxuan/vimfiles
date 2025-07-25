@@ -5,7 +5,6 @@ local VibeDiff = {}
 
 VibeDiff.active_diffs = {}
 
-
 function VibeDiff.cleanup_diff_buffers()
   for buf_id, _ in pairs(VibeDiff.active_diffs) do
     if vim.api.nvim_buf_is_valid(buf_id) then

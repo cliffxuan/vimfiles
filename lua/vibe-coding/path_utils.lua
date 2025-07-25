@@ -22,11 +22,19 @@ function PathUtils.looks_like_file(path)
     return false
   end
 
-  return path:match '[%w_%-%.]+[/%w_%-%.]*%.[%w]+$' -- Must have file extension
-    and not path:match '[{},="]' -- Exclude JSON-like content
-    and not path:match '^%s*$' -- Not just whitespace
-    and not path:match '%(' -- No function calls
-    and not path:match 'Bearer' -- No auth tokens
+  -- Basic filtering: must not be just whitespace and should look path-like
+  -- Avoid treating obvious code content as file paths
+  if not path:match '%S' then
+    return false
+  end
+
+  -- Must not contain obvious code patterns
+  if path:match '[={}%[%]%(%)"\']' then
+    return false
+  end
+
+  -- Should contain path-like characters (letters, numbers, dots, slashes, hyphens, underscores)
+  return path:match '^[%w%./_-]+$' ~= nil
 end
 
 --- Finds the actual file path by searching the filesystem intelligently.
@@ -46,9 +54,8 @@ function PathUtils.resolve_file_path(original_path)
   -- Clean up the path first
   local cleaned_path = original_path
 
-  -- Remove git-style prefixes
-  cleaned_path = cleaned_path:gsub('^a/', '')
-  cleaned_path = cleaned_path:gsub('^b/', '')
+  -- Remove single-letter prefixes with slash (generic approach for VCS prefixes)
+  cleaned_path = cleaned_path:gsub('^%w/', '')
 
   -- Remove leading slash if present
   cleaned_path = cleaned_path:gsub('^/', '')
@@ -82,11 +89,11 @@ function PathUtils.resolve_file_path(original_path)
     end
   end
 
-  -- Strategy 4: Try common directory patterns
-  local common_path = PathUtils._try_common_directories(cleaned_path, filename)
-  if common_path then
-    Cache.set_path_resolution(original_path, common_path)
-    return common_path
+  -- Strategy 4: Try searching in existing directories
+  local dir_path = PathUtils._search_in_directories(cleaned_path, filename)
+  if dir_path then
+    Cache.set_path_resolution(original_path, dir_path)
+    return dir_path
   end
 
   -- Strategy 5: Try removing directory components from the front
@@ -175,43 +182,36 @@ function PathUtils._find_best_match(candidates, original_path)
   return best_match or candidates[1]
 end
 
---- Tries to find files in common directories
+--- Searches for files in all existing directories
 -- @param cleaned_path The cleaned path to search for
 -- @param filename The filename to search for
 -- @return string|nil: The found path or nil
-function PathUtils._try_common_directories(cleaned_path, filename)
-  -- Try specific file type patterns
-  if cleaned_path:match '%.lua$' then
-    -- Look in lua/ directory
-    local lua_path = 'lua/' .. cleaned_path
-    if vim.fn.filereadable(lua_path) == 1 then
-      return lua_path
-    end
-
-    -- Try just in lua/ with filename
-    if filename then
-      lua_path = 'lua/' .. filename
-      if vim.fn.filereadable(lua_path) == 1 then
-        return lua_path
+function PathUtils._search_in_directories(cleaned_path, filename)
+  -- Get all directories in current working directory
+  local dirs = {}
+  local handle = vim.loop.fs_scandir '.'
+  if handle then
+    local name, type = vim.loop.fs_scandir_next(handle)
+    while name do
+      if type == 'directory' and not name:match '^%.' then -- Skip hidden directories
+        table.insert(dirs, name)
       end
+      name, type = vim.loop.fs_scandir_next(handle)
     end
   end
 
-  -- Try other common directories
-  local common_dirs = { 'src', 'lib', 'app', 'components', 'modules', 'packages' }
-  for _, dir in ipairs(common_dirs) do
-    if vim.fn.isdirectory(dir) == 1 then
-      local dir_path = dir .. '/' .. cleaned_path
+  -- Try the full path in each directory
+  for _, dir in ipairs(dirs) do
+    local dir_path = dir .. '/' .. cleaned_path
+    if vim.fn.filereadable(dir_path) == 1 then
+      return dir_path
+    end
+
+    -- Try with just filename if provided
+    if filename then
+      dir_path = dir .. '/' .. filename
       if vim.fn.filereadable(dir_path) == 1 then
         return dir_path
-      end
-
-      -- Try with just filename
-      if filename then
-        dir_path = dir .. '/' .. filename
-        if vim.fn.filereadable(dir_path) == 1 then
-          return dir_path
-        end
       end
     end
   end

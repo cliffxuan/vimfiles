@@ -1,0 +1,10 @@
+--- a/script.py
++++ b/script.py
+@@ -1,7 +1,6 @@
+ import sys
+ import os
+ import json
+-import re
+ 
+ def main():
+     pass

@@ -1,0 +1,7 @@
+{
+  "name": "API Refactor Bug - Real Case",
+  "description": "Test the real VibeApplyPatch failure case with async/await removal and /dev/null context", 
+  "should_succeed": true,
+  "tags": [],
+  "file_path": "app/api/v2/routes.py"
+}

@@ -2,7 +2,6 @@
 -- Tests the functionality equivalent to running VibeApplyPatch
 
 describe('Integration Tests - Full Patch Pipeline', function()
-  local fixtures = require 'tests.fixtures.fixture_loader'
   local vibe
 
   before_each(function()
@@ -123,44 +122,6 @@ describe('Integration Tests - Full Patch Pipeline', function()
       assert.is_table(result.validation_issues)
       assert.is_not_nil(result.validated_diff)
       assert.is_boolean(result.applied_with_external_tool)
-    end)
-  end)
-
-  describe('Integration Test Fixtures', function()
-    local integration_fixtures = fixtures.load_category 'integration'
-
-    it('should load integration fixtures', function()
-      assert.is_true(#integration_fixtures > 0, 'Should have integration fixtures')
-    end)
-
-    for _, fixture in ipairs(integration_fixtures) do
-      it(fixture.name, fixtures.create_integration_test_case(fixture))
-    end
-  end)
-
-  describe('Validation Pipeline Integration', function()
-    it('should handle smart validation with context fixes', function()
-      local fixture = fixtures.load_fixture 'integration/smart_validation_success'
-      local test_case = fixtures.create_integration_test_case(fixture)
-      test_case()
-    end)
-
-    it('should handle path resolution fixes', function()
-      local fixture = fixtures.load_fixture 'integration/path_resolution_fix'
-      local test_case = fixtures.create_integration_test_case(fixture)
-      test_case()
-    end)
-
-    it('should fail appropriately on validation errors', function()
-      local fixture = fixtures.load_fixture 'integration/validation_error_case'
-      local test_case = fixtures.create_integration_test_case(fixture)
-      test_case()
-    end)
-
-    it('should handle external tool fallback', function()
-      local fixture = fixtures.load_fixture 'integration/external_tool_fallback'
-      local test_case = fixtures.create_integration_test_case(fixture)
-      test_case()
     end)
   end)
 

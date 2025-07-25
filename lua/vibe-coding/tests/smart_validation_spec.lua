@@ -52,7 +52,7 @@ def test_get_platform_shares_success(mock_get_clusters, mock_get_cluster_shares)
     -- Check if any issue mentions the function definition problem
     local found_formatting_issue = false
     for _, issue in ipairs(issues) do
-      if issue.message:match 'Function definition joined with docstring' then
+      if issue.message:match 'Joined line detected' then
         found_formatting_issue = true
         break
       end
@@ -116,7 +116,7 @@ def test_function(param1, param2):
     -- The pipeline should detect and fix the formatting issue
     local found_smart_validation = false
     for _, issue in ipairs(issues) do
-      if issue.message:match 'Function definition joined with docstring' then
+      if issue.message:match 'Joined line detected' then
         found_smart_validation = true
         break
       end

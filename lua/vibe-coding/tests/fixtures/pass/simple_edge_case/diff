@@ -1,0 +1,10 @@
+--- a/config.yml
++++ b/config.yml
+@@ -2,5 +2,7 @@
+   host: localhost
+   port: 8080
++  ssl: ${SSL_ENABLED}
+ 
+ logging:
+   level: info
++  format: json

@@ -1,0 +1,125 @@
+"""FastAPI routes for v2 API"""
+
+from __future__ import annotations
+
+import json
+import logging
+from typing import Any
+
+import httpx
+import redis
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+
+from app.api.v2.primitives import CLUSTER, PLATFORM, SITE
+from app.shared.vars.config import REDIS_URL
+from app.ui_functions.utils.permissions import check_operator_permission
+
+router = APIRouter()
+redis_client = redis.Redis.from_url(f"redis://{REDIS_URL}")
+
+# Redis namespace/prefix for all keys
+REDIS_PREFIX = "storage-actions-mock"
+
+share_router = APIRouter(prefix="/shares", tags=["Shares"])
+
+
+# Helper functions for API and Redis operations
+def fetch_storage_metrics_data() -> dict[str, Any]:
+    """Fetch shares data from storage-metrics API endpoint"""
+    url = "https://storage-metrics.c3.zone/api/v1/quotas?verbose=1"
+    try:
+        response = httpx.get(url)
+        response.raise_for_status()
+        return response.json()
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=503, detail=f"Error fetching data from storage-metrics: {e}"
+        )
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail=f"Storage-metrics API error: {e}",
+        )
+
+
+def get_combined_shares_data() -> list[dict[str, Any]]:
+    """Get shares data combining storage-metrics API with Redis overrides"""
+    # Fetch data from storage-metrics API
+    api_data = fetch_storage_metrics_data()
+
+    # Convert API data to shares format
+    api_shares = []
+    for item in api_data:
+        if (config := item.get("config")) is not None:
+            api_shares.append(config)
+        else:
+            logging.warning(f"no config found for share {item}")
+
+    # Get Redis overrides
+    redis_overrides = get_all_values("share")
+
+    # Create a mapping of cluster:name -> share data for Redis overrides
+    override_map = {}
+    for share in redis_overrides:
+        key = f"{share.get('cluster')}:{share.get('name')}"
+        override_map[key] = share
+
+    # Combine API data with overrides
+    combined_shares = []
+
+    # First, add all API shares, applying overrides where they exist
+    for api_share in api_shares:
+        key = f"{api_share.get('cluster')}:{api_share.get('name')}"
+        if key in override_map:
+            # Use the override instead of API data
+            combined_shares.append(override_map[key])
+        else:
+            # Use API data as-is
+            combined_shares.append(api_share)
+
+    # Add any remaining overrides that don't have corresponding API data
+    for remaining_override in override_map.values():
+        combined_shares.append(remaining_override)
+
+    return combined_shares
+
+
+@share_router.get("/", response_model=list[Share])
+def get_shares(
+    platforms: list[PLATFORM] | None = Query(None, description="Filter by platform"),
+    sites: list[SITE] | None = Query(None, description="Filter by site names"),
+    clusters: list[CLUSTER] | None = Query(None, description="Filter by cluster names"),
+    names: list[str] | None = Query(None, description="Filter by share names"),
+):
+    shares = get_combined_shares_data()
+    # Apply filters if provided
+    if platforms:
+        shares = [share for share in shares if share.get("platform") in platforms]
+    if clusters:
+        shares = [share for share in shares if share.get("cluster") in clusters]
+    if names:
+        shares = [share for share in shares if share.get("name") in names]
+    if sites:
+        shares = [share for share in shares if share.get("site") in sites]
+    return shares
+
+
+@share_router.get("/{cluster}/{name}", response_model=Share)
+def get_share(cluster: str, name: str):
+    # First check Redis for overrides
+    key = f"{REDIS_PREFIX}:share:{cluster}:{name}"
+    redis_data: str | None = redis_client.get(key)  # type: ignore
+    if redis_data:
+        return json.loads(redis_data)
+
+    # If not in Redis, check API data
+    api_data = fetch_storage_metrics_data()
+    if isinstance(api_data, list):
+        for item in api_data:
+            if "config" in item:
+                config = item["config"]
+                if config.get("cluster") == cluster and config.get("name") == name:
+                    return config
+
+    raise HTTPException(status_code=404, detail="Share not found")

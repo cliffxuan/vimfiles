@@ -1,0 +1,10 @@
+--- a/broken.js
++++ b/broken.js
+@@ -1,6 +1,6 @@
+ function processData(data) {
+   const result = [];
+-  // This context line doesn't exist in original
++  // This replacement line doesn't exist either
+   for (let item of data) {
+     result.push(item.value);
+   }

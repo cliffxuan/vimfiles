@@ -1,0 +1,11 @@
+{
+  "tags": [
+    "integration",
+    "path_resolution",
+    "validation"
+  ],
+  "file_path": "utils.lua",
+  "name": "Path Resolution - Auto Fix Relative Paths",
+  "description": "Test that path resolution automatically fixes relative paths to absolute paths",
+  "should_succeed": true
+}

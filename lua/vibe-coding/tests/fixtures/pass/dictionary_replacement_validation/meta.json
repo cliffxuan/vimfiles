@@ -1,0 +1,7 @@
+{
+  "name": "Dictionary Replacement Content Validation",
+  "description": "Enhanced test that validates old content is completely removed and new content appears exactly once, with empty line preservation", 
+  "should_succeed": true,
+  "tags": [],
+  "file_path": "test.py"
+}

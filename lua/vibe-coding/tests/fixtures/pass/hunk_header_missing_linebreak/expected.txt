@@ -1,0 +1,53 @@
+def post_share(api_base_url: str, share_data: dict[str, Any]) -> bool:
+    """Post a share to the API."""
+    try:
+        client_name = get_client_name(api_base_url)
+        response = requests.post(
+            f"{api_base_url}/api/v2/shares/",
+            json=share_data,
+            auth=gr_signin.RequestsAuth(f"{client_name}.client", client_name),
+        )
+        if response.status_code == 200:
+            console.print(
+                f"[green]✓[/green] Successfully added share"
+                f" [bold]{share_data['name']}[/bold] on"
+                f" [cyan]{share_data['cluster']}[/cyan]"
+            )
+            return True
+        else:
+            console.print(
+                "[red]✗[/red] Failed to add share"
+                f" [bold]{share_data['name']}[/bold]"
+                f": [red]{response.status_code}[/red] - {response.text}"
+            )
+            return False
+    except Exception as e:
+        console.print(
+            f"[red]Error posting share [bold]{share_data['name']}[/bold]: {e}[/red]"
+        )
+        return False
+
+
+def generate_cluster_type_alias():
+    """Generate type aliases (SITE, PLATFORM, CLUSTER) and write to primitives.py."""
+    console.print("[bold blue]Generating type aliases...[/bold blue]")
+
+    all_cluster_names = []
+    platforms: list[PLATFORM] = ["isilon", "vast"]
+
+    for platform in platforms:
+        try:
+            clusters = get_clusters(platform)
+            all_cluster_names.extend(clusters.keys())
+            console.print(
+                f"[blue]Found {len(clusters)} {platform.title()} clusters[/blue]"
+            )
+        except Exception as e:
+            console.print(f"[red]Error fetching {platform.title()} clusters: {e}[/red]")
+
+    if not all_cluster_names:
+        console.print("[red]No clusters found, cannot generate type alias[/red]")
+        return
+
+    # Sort clusters for consistent output
+    all_cluster_names.sort()

@@ -1,0 +1,10 @@
+--- a/config.json
++++ b/config.json
+@@ -3,6 +3,6 @@
+   "version": "1.0.0",
+   "settings": {
+     "debug": false,
+-    "timeout": 5000
++    "timeout": 10000
+   }
+ }

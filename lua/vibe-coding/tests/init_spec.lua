@@ -520,28 +520,6 @@ def update_allocation(cluster: str, name: str, allocation: Allocation):
 
       -- Dictionary replacement test has been moved to fixtures/complex/dictionary_replacement.lua
     end)
-
-    -- =============================================================================
-    --  VibePatcher Fixture-Based Tests
-    -- =============================================================================
-    describe('Fixture-based tests', function()
-      -- Add current test directory to package.path for relative requires
-      local current_dir = debug.getinfo(1, 'S').source:match '@(.*/)' or './'
-      local original_path = package.path
-      package.path = current_dir .. '?.lua;' .. current_dir .. '?/init.lua;' .. package.path
-      local fixtures = require 'fixtures.fixture_loader'
-      package.path = original_path
-
-      -- Load fixtures for basic diff application tests (exclude integration category)
-      local categories = { 'simple', 'complex', 'error_cases' }
-
-      for _, category in ipairs(categories) do
-        local category_fixtures = fixtures.load_category(category)
-        for _, fixture in ipairs(category_fixtures) do
-          it(fixture.name, fixtures.create_test_case(fixture))
-        end
-      end
-    end)
   end)
 
   -- =============================================================================

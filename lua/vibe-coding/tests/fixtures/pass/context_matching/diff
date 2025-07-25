@@ -1,0 +1,13 @@
+--- a/processors.js
++++ b/processors.js
+@@ -2,6 +2,10 @@
+     // Validate user input
+     if (!data) {
+         throw new Error("No data provided");
++    }
++    
++    if (!Array.isArray(data)) {
++        throw new Error("Data must be an array");
+     }
+     
+     // Process the data

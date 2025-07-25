@@ -1,0 +1,1 @@
+{"tags": ["complex", "edge-cases"], "file_path": "config.yml", "name": "Simple Edge Case", "description": "Test adding lines with special characters and empty lines", "should_succeed": true}

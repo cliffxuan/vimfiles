@@ -13,22 +13,23 @@ This directory contains test fixtures for testing the `VibePatcher.apply_diff` f
 fixtures/
 ├── README.md                    # This file
 ├── fixture_loader.lua          # Fixture loading utilities
-├── simple/                     # Simple test cases
-│   ├── basic_modification.lua
-│   ├── line_addition.lua
-│   └── line_removal.lua
-├── complex/                    # Complex test cases
-│   ├── multiple_hunks.lua
-│   ├── context_matching.lua
-│   └── edge_cases.lua
-├── integration/                # Integration pipeline tests
-│   ├── smart_validation_success.lua
-│   ├── path_resolution_fix.lua
-│   ├── validation_error_case.lua
-│   └── external_tool_fallback.lua
-└── error_cases/               # Error scenarios
+├── expected_to_pass/           # Tests expected to succeed
+│   ├── simple/                 # Simple test cases
+│   │   ├── basic_modification.lua
+│   │   ├── line_addition.lua
+│   │   └── line_removal.lua
+│   ├── complex/                # Complex test cases
+│   │   ├── multiple_hunks.lua
+│   │   ├── context_matching.lua
+│   │   └── edge_cases.lua
+│   └── integration/            # Integration pipeline tests
+│       ├── smart_validation_success.lua
+│       ├── path_resolution_fix.lua
+│       └── external_tool_fallback.lua
+└── expected_to_fail/          # Tests expected to fail
     ├── missing_context.lua
     ├── malformed_diff.lua
+    ├── validation_error_case.lua
     └── file_not_found.lua
 ```
 
@@ -87,11 +88,12 @@ local fixtures = require('tests.fixtures.fixture_loader')
 local all_fixtures = fixtures.load_all()
 
 -- Load fixtures by category  
-local simple_fixtures = fixtures.load_category('simple')
-local integration_fixtures = fixtures.load_category('integration')
+local simple_fixtures = fixtures.load_category('expected_to_pass/simple')
+local integration_fixtures = fixtures.load_category('expected_to_pass/integration')
+local error_fixtures = fixtures.load_category('expected_to_fail')
 
 -- Load specific fixture
-local fixture = fixtures.load_fixture('simple/basic_modification')
+local fixture = fixtures.load_fixture('expected_to_pass/simple/basic_modification')
 
 -- Create test cases
 local basic_test = fixtures.create_test_case(fixture)  -- For basic diff application tests

@@ -53,7 +53,7 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
 
   vim.api.nvim_create_user_command('VibeSessionStart', function(opts)
     local session_name = opts.args ~= '' and opts.args or nil
-    VibeChat.sessions.start(session_name)
+    VibeChat.sessions_start(session_name)
     -- If chat is not open, open it
     if not VibeChat.state.layout_active then
       VibeChat.open_chat_window()
@@ -64,19 +64,19 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
   })
 
   vim.api.nvim_create_user_command('VibeSessionEnd', function()
-    VibeChat.sessions.end_session()
+    VibeChat.sessions_end_session()
   end, {
     desc = 'Save and end the current Vibe session',
   })
 
   vim.api.nvim_create_user_command('VibeSessionLoad', function()
-    VibeChat.sessions.load_interactive()
+    VibeChat.sessions_load_interactive()
   end, {
     desc = 'Load a saved Vibe session',
   })
 
   vim.api.nvim_create_user_command('VibeSessionList', function()
-    local sessions = VibeChat.sessions.list()
+    local sessions = VibeChat.sessions_list()
     if #sessions > 0 then
       print 'Available sessions:'
       for _, session in ipairs(sessions) do
@@ -88,13 +88,13 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
   })
 
   vim.api.nvim_create_user_command('VibeSessionDelete', function()
-    VibeChat.sessions.delete_interactive()
+    VibeChat.sessions_delete_interactive()
   end, {
     desc = 'Delete a saved Vibe session',
   })
 
   vim.api.nvim_create_user_command('VibeSessionRename', function()
-    VibeChat.sessions.rename_interactive()
+    VibeChat.sessions_rename_interactive()
   end, {
     desc = 'Rename the current Vibe session',
   })
@@ -156,8 +156,8 @@ return function(VibeChat, VibeDiff, VibePatcher, CONFIG)
   -- Auto-save session on Neovim exit to prevent history loss
   vim.api.nvim_create_autocmd('VimLeavePre', {
     callback = function()
-      if VibeChat.sessions.current_session_id then
-        VibeChat.sessions.save()
+      if VibeChat.sessions_get_current_session_id() then
+        VibeChat.sessions_save()
       end
     end,
     desc = 'Auto-save vibe session on Neovim exit',

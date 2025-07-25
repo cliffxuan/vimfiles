@@ -1,0 +1,1 @@
+{"tags": ["integration", "hunk_header", "validation", "linebreak"], "file_path": "tests/fixtures/expected_to_pass/integration/hunk_header_missing_linebreak_original.txt", "name": "Hunk Header Missing Linebreak", "description": "Test that validation fixes missing line break after hunk header with proper indentation", "should_succeed": true}

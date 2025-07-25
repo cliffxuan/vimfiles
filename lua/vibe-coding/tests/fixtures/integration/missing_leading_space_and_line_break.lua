@@ -1,8 +1,0 @@
-return {
-  name = 'Missing leading space and line break',
-  description = 'Test that validation fixes function definition joined with docstring and missing space prefix',
-  should_succeed = true,
-  tags = { 'integration', 'joined_lines', 'validation' },
-
-  file_path = 'tests/unit/test_utils/test_share.py',
-}

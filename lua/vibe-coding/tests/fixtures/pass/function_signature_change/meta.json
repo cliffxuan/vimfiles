@@ -1,0 +1,1 @@
+{"tags": ["basic", "function", "signature"], "file_path": "allocation.py", "name": "Function Signature Change", "description": "Test changing a function signature with type annotations", "should_succeed": true}

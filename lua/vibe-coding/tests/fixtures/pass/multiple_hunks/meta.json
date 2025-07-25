@@ -1,0 +1,1 @@
+{"tags": ["complex", "multiple-hunks"], "file_path": "calculator.py", "name": "Multiple Hunks", "description": "Test applying a diff with multiple separate hunks", "should_succeed": true}

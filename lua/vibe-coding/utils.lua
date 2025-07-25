@@ -146,38 +146,81 @@ function Utils.create_telescope_picker(opts)
   local action_state = require 'telescope.actions.state'
   local conf = require('telescope.config').values
 
-  pickers
-    .new({}, {
-      prompt_title = opts.prompt_title,
-      finder = finders.new_table {
-        results = opts.items,
-        entry_maker = opts.entry_maker or function(entry)
-          return {
-            value = entry,
-            display = entry,
-            ordinal = entry,
-          }
-        end,
-      },
-      sorter = conf.generic_sorter {},
-      attach_mappings = function(prompt_bufnr, map)
-        actions.select_default:replace(function()
-          actions.close(prompt_bufnr)
-          local selection = action_state.get_selected_entry()
-          if selection and opts.on_select then
+  local picker_opts = {
+    prompt_title = opts.prompt_title,
+    finder = finders.new_table {
+      results = opts.items,
+      entry_maker = opts.entry_maker or function(entry)
+        return {
+          value = entry,
+          display = entry,
+          ordinal = entry,
+        }
+      end,
+    },
+    sorter = conf.generic_sorter {},
+    attach_mappings = function(prompt_bufnr, map)
+      actions.select_default:replace(function()
+        actions.close(prompt_bufnr)
+        local selection = action_state.get_selected_entry()
+        if selection then
+          if opts.on_selection then
+            opts.on_selection(selection.value)
+          elseif opts.on_select then
             opts.on_select(selection.value)
           end
+        end
+      end)
+
+      -- Handle multi-selection
+      if opts.on_multi_selection and not opts.disable_multi_selection then
+        map('i', '<Tab>', function()
+          actions.toggle_selection(prompt_bufnr)
         end)
 
-        -- Disable multi-selection keybinding if requested
-        if opts.disable_multi_selection then
-          actions.toggle_selection:replace(function() end)
-        end
+        map('n', '<space>', function()
+          actions.toggle_selection(prompt_bufnr)
+        end)
 
-        return true
-      end,
-    })
-    :find()
+        actions.select_default:replace(function()
+          local picker = action_state.get_current_picker(prompt_bufnr)
+          local multi_selection = picker:get_multi_selection()
+          actions.close(prompt_bufnr)
+
+          if #multi_selection > 0 then
+            local selections = {}
+            for _, entry in ipairs(multi_selection) do
+              table.insert(selections, entry.value)
+            end
+            opts.on_multi_selection(selections)
+          else
+            local selection = action_state.get_selected_entry()
+            if selection then
+              if opts.on_selection then
+                opts.on_selection(selection.value)
+              elseif opts.on_select then
+                opts.on_select(selection.value)
+              end
+            end
+          end
+        end)
+      end
+
+      -- Disable multi-selection keybinding if requested
+      if opts.disable_multi_selection then
+        actions.toggle_selection:replace(function() end)
+      end
+
+      return true
+    end,
+  }
+
+  -- Add previewer if provided
+  if opts.previewer then
+    picker_opts.previewer = opts.previewer
+  end
+
+  pickers.new({}, picker_opts):find()
 end
 
 return Utils

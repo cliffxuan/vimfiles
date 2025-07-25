@@ -1,0 +1,1 @@
+{"tags": ["complex", "new-file", "creation"], "file_path": "new_script.sh", "name": "New File Creation", "description": "Test creating a new file when old_path is /dev/null", "should_succeed": true}

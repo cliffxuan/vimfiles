@@ -70,7 +70,7 @@ local function count_tests(test_file)
   end
 
   local count = 0
-  for _ in content:gmatch 'it%s*%([\'\"]' do
+  for _ in content:gmatch 'it%s*%([\'"]' do
     count = count + 1
   end
   return count
@@ -88,7 +88,10 @@ local function generate_html_report()
   table.insert(report, '  <meta name="viewport" content="width=device-width, initial-scale=1.0">')
   table.insert(report, '  <title>Vibe-Coding Plugin Test Coverage Report</title>')
   table.insert(report, '  <style>')
-  table.insert(report, '    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 40px; background-color: #f6f8fa; color: #24292e; }')
+  table.insert(
+    report,
+    '    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 40px; background-color: #f6f8fa; color: #24292e; }'
+  )
   table.insert(report, '    h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #e1e4e8; padding-bottom: 0.3em; }')
   table.insert(report, '    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }')
   table.insert(report, '    th, td { border: 1px solid #dfe2e5; padding: 8px 12px; text-align: left; }')
@@ -103,7 +106,7 @@ local function generate_html_report()
   table.insert(report, '<body>')
 
   table.insert(report, '<h1>Vibe-Coding Plugin Test Coverage Report</h1>')
-  table.insert(report, '<p><em>Generated on: ' .. os.date('%Y-%m-%d %H:%M:%S') .. '</em></p>')
+  table.insert(report, '<p><em>Generated on: ' .. os.date '%Y-%m-%d %H:%M:%S' .. '</em></p>')
 
   -- Source modules to analyze
   local modules = {
@@ -146,7 +149,16 @@ local function generate_html_report()
   table.insert(report, '<h2>Summary</h2>')
   table.insert(report, '<ul>')
   table.insert(report, '  <li><strong>Total Tests</strong>: ' .. total_tests .. ' test cases</li>')
-  table.insert(report, '  <li><strong>Source Files</strong>: ' .. #modules .. ' modules (' .. total_functions .. ' functions, ' .. total_lines .. ' lines)</li>')
+  table.insert(
+    report,
+    '  <li><strong>Source Files</strong>: '
+      .. #modules
+      .. ' modules ('
+      .. total_functions
+      .. ' functions, '
+      .. total_lines
+      .. ' lines)</li>'
+  )
   table.insert(report, '  <li><strong>Test Files</strong>: ' .. #test_files .. ' test suites</li>')
   table.insert(report, '  <li><strong>Overall Coverage</strong>: ~60% (estimated based on static analysis)</li>')
   table.insert(report, '</ul>')
@@ -170,19 +182,32 @@ local function generate_html_report()
   end
 
   local function create_coverage_table(title, modules_list)
-      table.insert(report, '<h3>' .. title .. '</h3>')
-      table.insert(report, '<table>')
-      table.insert(report, '  <thead>')
-      table.insert(report, '    <tr><th>Module</th><th>Functions</th><th>Lines</th><th>Test Coverage</th><th>Notes</th></tr>')
-      table.insert(report, '  </thead>')
-      table.insert(report, '  <tbody>')
-      for _, module in ipairs(modules_list) do
-          local coverage_class = string.lower(module.coverage)
-          table.insert(report, string.format('    <tr class="%s"><td><code>%s</code></td><td>%d</td><td>%d</td><td>%s</td><td>%s</td></tr>',
-              coverage_class, module.name, module.functions or 0, module.lines or 0, module.coverage, module.note))
-      end
-      table.insert(report, '  </tbody>')
-      table.insert(report, '</table>')
+    table.insert(report, '<h3>' .. title .. '</h3>')
+    table.insert(report, '<table>')
+    table.insert(report, '  <thead>')
+    table.insert(
+      report,
+      '    <tr><th>Module</th><th>Functions</th><th>Lines</th><th>Test Coverage</th><th>Notes</th></tr>'
+    )
+    table.insert(report, '  </thead>')
+    table.insert(report, '  <tbody>')
+    for _, module in ipairs(modules_list) do
+      local coverage_class = string.lower(module.coverage)
+      table.insert(
+        report,
+        string.format(
+          '    <tr class="%s"><td><code>%s</code></td><td>%d</td><td>%d</td><td>%s</td><td>%s</td></tr>',
+          coverage_class,
+          module.name,
+          module.functions or 0,
+          module.lines or 0,
+          module.coverage,
+          module.note
+        )
+      )
+    end
+    table.insert(report, '  </tbody>')
+    table.insert(report, '</table>')
   end
 
   create_coverage_table('High Coverage (70-90%)', coverage_groups.High)
@@ -201,8 +226,14 @@ local function generate_html_report()
 
   table.insert(report, '<h3>Recommendations</h3>')
   table.insert(report, '<ol>')
-  table.insert(report, '  <li><strong>Add Unit Tests</strong>: Create `cache_spec.lua`, `commands_spec.lua`, and `path_utils_spec.lua`.</li>')
-  table.insert(report, '  <li><strong>Improve Integration Testing</strong>: Add performance, error boundary, and concurrency tests.</li>')
+  table.insert(
+    report,
+    '  <li><strong>Add Unit Tests</strong>: Create `cache_spec.lua`, `commands_spec.lua`, and `path_utils_spec.lua`.</li>'
+  )
+  table.insert(
+    report,
+    '  <li><strong>Improve Integration Testing</strong>: Add performance, error boundary, and concurrency tests.</li>'
+  )
   table.insert(report, '  <li><strong>Integrate LuaCov</strong> for line-by-line coverage analysis and reporting.</li>')
   table.insert(report, '</ol>')
 

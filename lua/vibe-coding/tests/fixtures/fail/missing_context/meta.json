@@ -1,0 +1,1 @@
+{"tags": ["error", "context", "missing"], "expected_error_pattern": "Could not find this context in the file", "file_path": "greetings.js", "name": "Missing Context", "description": "Test error when the context lines cannot be found in the file", "should_succeed": false}

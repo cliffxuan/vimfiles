@@ -1,0 +1,1 @@
+{"tags": ["integration", "joined_lines", "return"], "file_path": "utils.py", "name": "Joined Return Statement", "description": "Test detection and splitting of if statement joined with return statement", "should_succeed": true}

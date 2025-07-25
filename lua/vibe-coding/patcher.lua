@@ -23,13 +23,13 @@ function VibePatcher.parse_diff(diff_content)
   if old_path_raw then
     -- Clean up malformed paths (remove extra leading dashes and spaces)
     old_path_raw = old_path_raw:gsub('^%-+%s*', '')
-    -- Handle git-style prefixes
-    diff.old_path = old_path_raw:match '^a/(.*)$' or old_path_raw
+    -- Generic VCS prefix removal (any single char followed by slash)
+    diff.old_path = old_path_raw:match '^%w/(.*)$' or old_path_raw
   end
 
   if new_path_raw then
-    -- Handle git-style prefixes
-    diff.new_path = new_path_raw:match '^b/(.*)$' or new_path_raw
+    -- Generic VCS prefix removal (any single char followed by slash)
+    diff.new_path = new_path_raw:match '^%w/(.*)$' or new_path_raw
   end
 
   if not diff.old_path or not diff.new_path then
@@ -389,7 +389,6 @@ function VibePatcher.review_diff_interactive(diff_content, issues, callback)
     for _, line in ipairs(all_lines) do
       if line == '# ===== DIFF CONTENT BELOW =====' then
         in_diff = true
-        print '[Debug] Found diff content marker'
       elseif in_diff and not line:match '^#' then
         table.insert(diff_lines, line)
       end
@@ -599,16 +598,19 @@ function VibePatcher.review_and_apply_patches_from_last_response(messages)
         return
       end
 
-      -- Parse and apply the final diff
-      local parsed_diff, parse_err = VibePatcher.parse_diff(reviewed_diff)
+      -- Re-validate the reviewed diff (user might have edited in review)
+      local final_validated_diff, final_validation_issues = VibePatcher.validate_and_fix_diff(reviewed_diff)
+
+      -- Parse and apply the final validated diff
+      local parsed_diff, parse_err = VibePatcher.parse_diff(final_validated_diff)
       if not parsed_diff then
         vim.notify('[Vibe] Failed to parse reviewed diff: ' .. (parse_err or ''), vim.log.levels.ERROR)
         return
       end
 
-      -- Test with external tool first
+      -- Test with external tool first using the validated diff
       local can_apply_external, external_msg =
-        VibePatcher.test_diff_with_external_tool(reviewed_diff, parsed_diff.new_path)
+        VibePatcher.test_diff_with_external_tool(final_validated_diff, parsed_diff.new_path)
 
       if can_apply_external then
         -- Ask user to choose application method
@@ -617,7 +619,7 @@ function VibePatcher.review_and_apply_patches_from_last_response(messages)
           { prompt = 'Choose diff application method:' },
           function(choice)
             if choice == 'External Tool (git apply/patch)' then
-              local success, msg = VibePatcher.apply_with_external_tool(reviewed_diff, parsed_diff.new_path)
+              local success, msg = VibePatcher.apply_with_external_tool(final_validated_diff, parsed_diff.new_path)
               if success then
                 vim.notify('[Vibe] ' .. msg, vim.log.levels.INFO)
                 -- Refresh buffer
@@ -778,7 +780,8 @@ function VibePatcher.process_and_apply_patch(diff_content, options)
   result.parsed_diff = parsed_diff
 
   -- Step 3: Test with external tool first
-  local can_apply_external, external_msg = VibePatcher.test_diff_with_external_tool(validated_diff, parsed_diff.new_path)
+  local can_apply_external, external_msg =
+    VibePatcher.test_diff_with_external_tool(validated_diff, parsed_diff.new_path)
 
   -- Step 4: Apply using the best available method
   local success, apply_msg

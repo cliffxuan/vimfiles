@@ -1,0 +1,33 @@
+--- tests/unit/test_utils/test_share.py
++++ tests/unit/test_utils/test_share.py
+@@ ... @@
+def test_get_platform_shares_success(mock_get_clusters, mock_get_cluster_shares):"""Test successful retrieval of platform shares."""
+     from app.utils.share import get_platform_shares
+
+     # Mock clusters data
+     mock_get_clusters.return_value = {
+-        "cluster1": {"name": "cluster1", "platform": "vast"},
+-        "cluster2": {"name": "cluster2", "platform": "vast"},
++        "cluster1": {"name": "cluster1", "platform": "vast", "state": "LIVE"},
++        "cluster2": {"name": "cluster2", "platform": "vast", "state": "LIVE"},
+     }
+
+     # Mock shares data for each cluster
+@@ ... @@
+def test_get_platform_shares_with_cluster_error(
+     mock_get_clusters, mock_get_cluster_shares, mock_logger
+ ):
+     """Test get_platform_shares when one cluster fails but others succeed."""
+     from app.utils.share import get_platform_shares
+
+     # Mock clusters data
+     mock_get_clusters.return_value = {
+-        "cluster1": {"name": "cluster1", "platform": "isilon"},
+-        "cluster2": {"name": "cluster2", "platform": "isilon"},
+-        "cluster3": {"name": "cluster3", "platform": "isilon"},
++        "cluster1": {"name": "cluster1", "platform": "isilon", "state": "LIVE"},
++        "cluster2": {"name": "cluster2", "platform": "isilon", "state": "LIVE"},
++        "cluster3": {"name": "cluster3", "platform": "isilon", "state": "LIVE"},
+     }
+
+     # Mock shares data - cluster2 will fail, others succeed

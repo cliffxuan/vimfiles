@@ -1,0 +1,9 @@
+--- app/api/v2/scripts/process_data.py
++++ app/api/v2/scripts/process_data.py
+@@ -8,6 +8,7 @@
+ from pathlib import Path
+ from typing import Any, Dict, List
++import colorama
+ import gr_signin
+ import requests
+ import typer

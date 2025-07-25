@@ -1,0 +1,1 @@
+{"tags": ["simple", "external"], "file_path": "test.js", "name": "External File Test", "description": "Test case using explicit external files to avoid Lua syntax conflicts with [[ ]]", "should_succeed": true}

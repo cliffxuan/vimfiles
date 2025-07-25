@@ -1,0 +1,7 @@
+{
+  "name": "Missing Leading Whitespace Context Lines",
+  "description": "Test case for handling context lines that are missing the leading space in diff format",
+  "should_succeed": true,
+  "tags": [],
+  "file_path": "scripts/bao"
+}

@@ -17,21 +17,21 @@ TEST_PATTERN=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -t|--test)
-      TEST_PATTERN="$2"
-      shift 2
-      ;;
-    -h|--help)
-      echo "Usage: $0 [OPTIONS]"
-      echo "Options:"
-      echo "  -t, --test PATTERN    Run tests matching PATTERN"
-      echo "  -h, --help           Show this help message"
-      exit 0
-      ;;
-    *)
-      echo "Unknown option: $1"
-      exit 1
-      ;;
+  -t | --test)
+    TEST_PATTERN="$2"
+    shift 2
+    ;;
+  -h | --help)
+    echo "Usage: $0 [OPTIONS]"
+    echo "Options:"
+    echo "  -t, --test PATTERN    Run tests matching PATTERN"
+    echo "  -h, --help           Show this help message"
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1"
+    exit 1
+    ;;
   esac
 done
 
@@ -47,17 +47,45 @@ cd "$SCRIPT_DIR/.."
 TEMP_OUTPUT=$(mktemp)
 trap 'rm -f "$TEMP_OUTPUT"' EXIT
 
-# Build the test command
+# Function to run tests with pattern filtering
+run_tests() {
+  local test_cmd="$1"
+  nvim --headless -c "$test_cmd" -c "qa!" 2>&1
+}
+
+# Build and execute the test command based on pattern
 if [[ -n "$TEST_PATTERN" ]]; then
   echo "Running tests matching pattern: $TEST_PATTERN"
   echo "========================================"
-  TEST_CMD="lua require('plenary.test_harness').test_directory('tests', { sequential = true })"
-else
-  TEST_CMD="lua require('plenary.test_harness').test_directory('tests', { sequential = true })"
-fi
 
-# Run the tests and capture output, filtering out noisy config error blocks
-nvim --headless -c "$TEST_CMD" -c "qa!" 2>&1 | \
+  # Find test files matching the pattern
+  MATCHING_FILES=()
+  while IFS= read -r -d '' file; do
+    MATCHING_FILES+=("$file")
+  done < <(find tests -name "*_spec.lua" \( -path "*${TEST_PATTERN}*" -o -name "*${TEST_PATTERN}*" \) -print0)
+
+  if [[ ${#MATCHING_FILES[@]} -eq 0 ]]; then
+    echo -e "${RED}No test files matching pattern: $TEST_PATTERN${NC}"
+    exit 1
+  fi
+
+  echo "Found ${#MATCHING_FILES[@]} matching test file(s):"
+  for file in "${MATCHING_FILES[@]}"; do
+    echo "  - $file"
+  done
+  echo "========================================"
+
+  # Run each matching file and combine output
+  {
+    for test_file in "${MATCHING_FILES[@]}"; do
+      echo "Testing: 	$test_file	"
+      run_tests "lua require('plenary.test_harness').test_file('$test_file')"
+    done
+  }
+else
+  # Run all tests in directory
+  run_tests "lua require('plenary.test_harness').test_directory('tests', { sequential = true })"
+fi |
   awk '
     BEGIN { in_error_block = 0 }
     
@@ -103,26 +131,26 @@ SPECS_RUN=0
 while IFS= read -r line; do
   # Remove ANSI color codes for easier pattern matching
   clean_line=$(printf '%s\n' "$line" | sed 's/\x1b\[[0-9;]*m//g')
-  
+
   # Look for success count patterns like "Success: 	21"
   if [[ $clean_line =~ Success:[[:space:]]*([0-9]+) ]]; then
     SUCCESS=${BASH_REMATCH[1]}
     TOTAL_SUCCESS=$((TOTAL_SUCCESS + SUCCESS))
     SPECS_RUN=$((SPECS_RUN + 1))
   fi
-  
+
   # Look for failed count patterns like "Failed : 	0"
   if [[ $clean_line =~ Failed[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
     FAILED=${BASH_REMATCH[1]}
     TOTAL_FAILED=$((TOTAL_FAILED + FAILED))
   fi
-  
+
   # Look for error count patterns like "Errors : 	0"
   if [[ $clean_line =~ Errors[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
     ERRORS=${BASH_REMATCH[1]}
     TOTAL_ERRORS=$((TOTAL_ERRORS + ERRORS))
   fi
-done < "$TEMP_OUTPUT"
+done <"$TEMP_OUTPUT"
 
 # Display summary
 echo "Spec files run: $SPECS_RUN"

@@ -1,0 +1,1 @@
+{"tags": ["integration", "joined_lines", "semicolon"], "expected_error_pattern": "Could not find this context in the file", "file_path": "handler.js", "name": "Semicolon Separated Statements", "description": "Test detection and splitting of multiple statements separated by semicolons", "should_succeed": false}

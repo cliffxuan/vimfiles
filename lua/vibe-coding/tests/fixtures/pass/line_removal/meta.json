@@ -1,0 +1,10 @@
+{
+  "tags": [
+    "basic",
+    "removal"
+  ],
+  "file_path": "script.py",
+  "name": "Line Removal",
+  "description": "Test removing a line from an existing file",
+  "should_succeed": true
+}

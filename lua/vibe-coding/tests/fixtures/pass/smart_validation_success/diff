@@ -1,0 +1,10 @@
+--- a/example.py
++++ b/example.py
+@@ -1,6 +1,6 @@
+ def calculate_total(items):
+     """Calculate the total price of items."""
+     total = 0
+     for item in items:
+-        total += item.price
++        total += item.price * item.quantity
+     return total

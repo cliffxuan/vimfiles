@@ -1,0 +1,1 @@
+Skipped file deletion for old_script.sh

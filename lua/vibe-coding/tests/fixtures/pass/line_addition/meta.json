@@ -1,0 +1,10 @@
+{
+  "tags": [
+    "basic",
+    "addition"
+  ],
+  "file_path": "hello.lua",
+  "name": "Line Addition",
+  "description": "Test adding a line to an existing file",
+  "should_succeed": true
+}

@@ -1,0 +1,1 @@
+{"tags": ["complex", "deletion", "skip"], "file_path": "old_script.sh", "name": "File Deletion", "description": "Test handling file deletion when new_path is /dev/null", "should_succeed": true}

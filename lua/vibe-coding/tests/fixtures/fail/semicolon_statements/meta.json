@@ -1,0 +1,12 @@
+{
+  "name": "Semicolon Separated Statements",
+  "description": "Test detection and splitting of multiple statements separated by semicolons",
+  "should_succeed": false,
+  "tags": [
+    "integration",
+    "joined_lines",
+    "semicolon"
+  ],
+  "file_path": "handler.js",
+  "expected_error_pattern": "Could not find this context in the file"
+}

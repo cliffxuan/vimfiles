@@ -1,0 +1,1 @@
+{"tags": ["integration", "hunk_header", "validation", "real_case"], "file_path": "app/api/v2/cli/main.py", "name": "Real Hunk Header Issue - Multiple Joined Lines", "description": "Test case reproducing the exact issue: hunk header joined with content and exception line joined together", "should_succeed": true}
